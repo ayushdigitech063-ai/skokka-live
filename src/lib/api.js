@@ -7,7 +7,6 @@
 const getBaseUrl = () => {
   if (typeof process !== 'undefined' && process.env) {
     if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-    if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
   }
 
   try {
@@ -19,18 +18,16 @@ const getBaseUrl = () => {
     // Ignore in non-Vite contexts
   }
 
-  return null;
+  return 'http://localhost:4000';
 };
+
+const baseUrl = getBaseUrl();
 
 export const CANDIDATE_API_URLS = Array.from(
   new Set(
     [
-      getBaseUrl(),
-      'http://127.0.0.1:4001/api/profiles',
-      'http://127.0.0.1:4000/api/profiles',
-      'http://localhost:4001/api/profiles',
+      baseUrl ? `${baseUrl}/api/profiles` : null,
       'http://localhost:4000/api/profiles',
-      'http://localhost:3000/api/profiles',
     ].filter(Boolean)
   )
 );

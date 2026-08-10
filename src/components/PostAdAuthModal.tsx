@@ -99,7 +99,7 @@ export function PostAdAuthModal({
     try {
       if (authTab === "signup") {
         // 1. Check duplicate email & Register in MongoDB Atlas
-        const regRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/api/auth/user-register`, {
+        const regRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/user-register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -129,7 +129,7 @@ export function PostAdAuthModal({
         setInboxNotice(true); // Shows clean inbox notice
       } else {
         // Direct Login Flow (For subsequent logins after email activation)
-        const loginRes = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/api/auth/user-login`, {
+        const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/user-login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),

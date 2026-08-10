@@ -20,7 +20,7 @@ import {
 import Swal from "sweetalert2";
 import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export function AdminLocationTab() {
   const [activeSubTab, setActiveSubTab] = useState<"all_tree" | "states" | "cities" | "areas">("all_tree");

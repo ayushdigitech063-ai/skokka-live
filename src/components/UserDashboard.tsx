@@ -113,7 +113,7 @@ export function UserDashboard({
         setUserEmail(paramEmail);
         localStorage.setItem("skokka_user_email", paramEmail);
 
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"}/api/auth/activate-account`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/activate-account`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: paramEmail }),

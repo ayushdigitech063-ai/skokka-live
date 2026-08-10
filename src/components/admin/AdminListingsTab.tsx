@@ -58,7 +58,7 @@ export function AdminListingsTab() {
   const [selectedArea, setSelectedArea] = useState<string>("");
 
   React.useEffect(() => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     
     Promise.all([
       fetch(`${BACKEND_URL}/api/locations/tree`).then((r) => r.json()).catch(() => null),
@@ -240,7 +240,7 @@ export function AdminListingsTab() {
     try {
       const city = selectedCity || newListing.cityArea.split("(")[0].trim() || "Jaipur";
       const area = selectedArea || (newListing.cityArea.includes("(") ? newListing.cityArea.split("(")[1].replace(")", "").trim() : "");
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
       await fetch(`${BACKEND_URL}/api/locations/auto-register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -1,6 +1,6 @@
 import { HomePageCmsConfig } from "../types/homepageCms";
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
   hero: {
