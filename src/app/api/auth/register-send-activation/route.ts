@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     });
 
     const appBaseUrl = process.env.CLIENT_URL || process.env.NEXT_PUBLIC_APP_URL || "https://skokka-website-frontend.vercel.app";
-    const activationUrl = `${appBaseUrl}/admin?verify_login=true&email=${encodeURIComponent(email)}`;
+    const activationUrl = `${appBaseUrl}/dashboard?verify_login=true&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
       from: `"${process.env.FROM_NAME || 'Skokka Classifieds Concierge'}" <${smtpUser}>`,
