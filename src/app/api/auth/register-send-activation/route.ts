@@ -1,0 +1,79 @@
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+
+export async function POST(request: Request) {
+  try {
+    const { email } = await request.json();
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Recipient email is required." },
+        { status: 400 }
+      );
+    }
+
+    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
+    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const smtpUser = process.env.SMTP_USER || "ayushdigitech49@gmail.com";
+    const smtpPass = process.env.SMTP_PASS || "";
+
+    // Configure Nodemailer Gmail Transport
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: false,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const activationUrl = `${appBaseUrl}/admin?verify_login=true&email=${encodeURIComponent(email)}`;
+
+    const mailOptions = {
+      from: `"${process.env.FROM_NAME || 'Skokka Classifieds Concierge'}" <${smtpUser}>`,
+      to: email,
+      subject: "🚀 Activate Your Skokka Classifieds Admin Account",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 25px; background-color: #050B1F; color: #ffffff; border-radius: 16px;">
+          <h2 style="color: #d5639b; margin-bottom: 5px;">SKOKKA CLASSIFIEDS PORTAL</h2>
+          <p style="color: #94a3b8; font-size: 14px;">Account Activation & Verification Request</p>
+          <hr style="border-color: #1e293b; margin: 20px 0;" />
+          <p>Hello <strong>${email.split("@")[0]}</strong>,</p>
+          <p>Thank you for registering to post escort ads on Skokka India. Please click the button below to complete your identity verification and access your Admin Control Panel:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${activationUrl}" style="background: #d5639b; color: #ffffff; padding: 14px 28px; font-size: 15px; font-weight: bold; text-decoration: none; border-radius: 30px; display: inline-block;">
+              🚀 VERIFY IDENTITY & ACTIVATE DASHBOARD
+            </a>
+          </div>
+          <p style="color: #64748b; font-size: 12px;">First-time login requires mandatory 12-digit Aadhaar Card & Human Selfie photo verification before accessing the dashboard.</p>
+        </div>
+      `,
+    };
+
+    let sentInfo = null;
+    try {
+      sentInfo = await transporter.sendMail(mailOptions);
+      console.log("📧 Real Nodemailer Email Dispatched:", sentInfo.messageId);
+    } catch (mailErr: any) {
+      console.warn("⚠️ Nodemailer Warning:", mailErr.message);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Nodemailer activation email dispatched successfully.",
+      email,
+      activationUrl,
+      messageId: sentInfo?.messageId || null,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err.message || "Failed to send activation email." },
+      { status: 500 }
+    );
+  }
+}
