@@ -34,6 +34,7 @@ export function PostAdAuthModal({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [inboxNotice, setInboxNotice] = useState(false);
 
   useEffect(() => {
@@ -116,13 +117,6 @@ export function PostAdAuthModal({
           });
           return;
         }
-
-        // 2. Dispatch real activation email via Nodemailer
-        await fetch("/api/auth/register-send-activation", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
 
         localStorage.setItem("skokka_user_email", email);
         setLoading(false);
@@ -221,6 +215,49 @@ export function PostAdAuthModal({
               >
                 Open Gmail Inbox <ExternalLink className="h-4 w-4" />
               </a>
+
+              <button
+                type="button"
+                disabled={resending}
+                onClick={async () => {
+                  setResending(true);
+                  try {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/auth/resend-activation`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email }),
+                    });
+                    const json = await res.json();
+                    setResending(false);
+                    if (res.ok && json.success) {
+                      Swal.fire({
+                        title: "Email Resent! 📩",
+                        text: "A fresh activation link was dispatched to your inbox.",
+                        icon: "success",
+                        confirmButtonColor: "#d5639b",
+                      });
+                    } else {
+                      Swal.fire({
+                        title: "Resend Failed",
+                        text: json.message || "Could not resend activation link.",
+                        icon: "error",
+                        confirmButtonColor: "#d5639b",
+                      });
+                    }
+                  } catch (e: any) {
+                    setResending(false);
+                    Swal.fire({
+                      title: "Error",
+                      text: "Could not connect to backend server.",
+                      icon: "error",
+                      confirmButtonColor: "#d5639b",
+                    });
+                  }
+                }}
+                className="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition cursor-pointer disabled:opacity-50"
+              >
+                {resending ? "Sending fresh link..." : "Resend Activation Link 🔄"}
+              </button>
 
               <button
                 type="button"

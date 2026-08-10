@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const appBaseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const appBaseUrl = process.env.CLIENT_URL || process.env.NEXT_PUBLIC_APP_URL || "https://skokka-website-frontend.vercel.app";
     const activationUrl = `${appBaseUrl}/admin?verify_login=true&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
