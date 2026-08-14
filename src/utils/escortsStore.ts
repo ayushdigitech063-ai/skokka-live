@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────
 // escortsStore.ts  — Fully dynamic API-backed store (no seed data)
-// All data comes from: http://localhost:4000/api/escorts (MongoDB)
+// All data comes from: https://skokka-backend-live.onrender.com/api/escorts (MongoDB)
 // ─────────────────────────────────────────────────────────────────
 
 export interface EscortProfileItem {

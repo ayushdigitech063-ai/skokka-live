@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
 
 // Proxy GET /api/profiles → backend GET /api/escorts (APPROVED only)
 export async function GET() {

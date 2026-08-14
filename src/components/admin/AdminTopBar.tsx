@@ -77,7 +77,7 @@ export function AdminTopBar({
 
       // 2. Fetch unread Contact Support Inquiries from MongoDB
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/inquiries`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com"}/api/inquiries`);
         const json = await res.json();
         if (json.success && Array.isArray(json.data)) {
           const unreadInquiries = json.data.filter((i: any) => i.status === "UNREAD");
