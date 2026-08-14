@@ -79,14 +79,13 @@ export default function HomeClient() {
 
         <main className="w-full">
           {/* Section 1: Hero Banner */}
-          <section className="relative min-h-[85vh] lg:min-h-[calc(100vh-90px)] flex flex-col items-center justify-center overflow-hidden bg-[#030614] py-16 px-4 sm:px-6 lg:px-8 text-center shadow-2xl">
-            <div
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-100 scale-105 transition-all duration-1000"
-              style={{ backgroundImage: `url('${cms?.hero?.bgImage || "/images/hero-sofa-model.png"}')` }}
-            />
-            {/* Smooth Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#030614]/40 via-[#030614]/20 to-[#030614]" />
-            <div className="absolute inset-0 bg-[radial-gradient(#f43f5e_1px,transparent_1px)] [background-size:32px_32px] opacity-[0.15] pointer-events-none" />
+          <section className="relative min-h-[80vh] lg:min-h-[calc(100vh-90px)] flex flex-col items-center justify-center overflow-hidden bg-[#030614] py-16 px-4 sm:px-6 lg:px-8 text-center shadow-2xl">
+            {cms?.hero?.bgImage ? (
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-100 transition-all duration-1000"
+                style={{ backgroundImage: `url('${cms.hero.bgImage}')` }}
+              />
+            ) : null}
 
             <div className="relative z-10 max-w-4xl mx-auto space-y-7 flex flex-col items-center mt-[-40px]">
               <div className="inline-flex items-center gap-2 rounded-full border border-rose-500/40 bg-rose-950/60 px-5 py-2 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-rose-200 backdrop-blur-md shadow-lg shadow-rose-900/30 hover:border-rose-400/60 transition-colors">

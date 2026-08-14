@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { AdminUserData } from "./AdminLoginForm";
 import { getAdCmsConfig } from "../../utils/adCmsStore";
+import { fetchAllEscortsAdmin, setEscortStatus, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
 
 interface AdminOverviewProps {
   currentUser?: AdminUserData;
@@ -31,73 +32,41 @@ interface AdminOverviewProps {
 export function AdminOverview({ currentUser }: AdminOverviewProps) {
   const displayName = currentUser?.name || "Super Admin";
 
-  // Dynamic Ads Data with real price calculations
-  const [adsList, setAdsList] = useState([
-    {
-      id: "AD-9801",
-      title: "Pure Himalayan Shilajit Resin Extract (Pan India Free Delivery)",
-      category: "Products & Healthcare",
-      provider: "Ayurveda Organics",
-      location: "Jaipur / All India",
-      package: "VIP Top Slot ⭐",
-      price: 5000,
-      utr: "324156789012",
-      submitted: "10 mins ago",
-      status: "Pending",
-    },
-    {
-      id: "AD-9802",
-      title: "Natasha Russian High-Class Model Escort",
-      category: "Call Girls & Female Escorts",
-      provider: "Elena K.",
-      location: "Jaipur - Bani Park",
-      package: "Hero Banner 🔥",
-      price: 10000,
-      utr: "987654321098",
-      submitted: "25 mins ago",
-      status: "Approved",
-    },
-    {
-      id: "AD-9803",
-      title: "5-Star Luxury Spa & Aromatherapy Massage Center",
-      category: "Massage Centers & Spas",
-      provider: "Golden Touch Spa",
-      location: "Jaipur - Malviya Nagar",
-      package: "Standard Ad",
-      price: 2000,
-      utr: "456789123012",
-      submitted: "1 hour ago",
-      status: "Approved",
-    },
-    {
-      id: "AD-9804",
-      title: "Karan VIP Male Escort & Companion",
-      category: "Male Escorts",
-      provider: "Karan M.",
-      location: "Jaipur - Vaishali Nagar",
-      package: "VIP Top Slot ⭐",
-      price: 5000,
-      utr: "789123456012",
-      submitted: "2 hours ago",
-      status: "Pending",
-    },
-  ]);
+  const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
 
-  // Compute Live Dynamics
-  const totalAdsCount = adsList.length;
-  const approvedAds = adsList.filter((a) => a.status === "Approved");
-  const pendingAds = adsList.filter((a) => a.status === "Pending");
+  const loadProfiles = () => {
+    fetchAllEscortsAdmin().then(setProfiles);
+  };
+
+  useEffect(() => {
+    loadProfiles();
+    if (typeof window !== "undefined") {
+      window.addEventListener(ESCORTS_UPDATE_EVENT, loadProfiles);
+      window.addEventListener("storage", loadProfiles);
+      return () => {
+        window.removeEventListener(ESCORTS_UPDATE_EVENT, loadProfiles);
+        window.removeEventListener("storage", loadProfiles);
+      };
+    }
+  }, []);
+
+  // Compute Live Dynamics from real MongoDB profiles
+  const totalAdsCount = profiles.length;
+  const approvedAds = profiles.filter((a) => !a.status || a.status === "APPROVED");
+  const pendingAds = profiles.filter((a) => a.status === "PENDING_APPROVAL");
+  const rejectedAds = profiles.filter((a) => a.status === "REJECTED");
   
   // Total Revenue Calculation (Sum of all approved paid ad amounts in INR ₹)
-  const totalApprovedRevenue = approvedAds.reduce((acc, curr) => acc + curr.price, 0);
-  const totalPendingRevenue = pendingAds.reduce((acc, curr) => acc + curr.price, 0);
-  const grandTotalAdPipeline = adsList.reduce((acc, curr) => acc + curr.price, 0);
+  const totalApprovedRevenue = approvedAds.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const totalPendingRevenue = pendingAds.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const grandTotalAdPipeline = profiles.reduce((acc, curr) => acc + (curr.price || 0), 0);
 
-  const handleApprove = (id: string, title: string) => {
-    setAdsList((prev) => prev.map((ad) => (ad.id === id ? { ...ad, status: "Approved" } : ad)));
+  const handleApprove = async (id: string, title: string, price: number) => {
+    await setEscortStatus(id, "APPROVED");
+    loadProfiles();
     Swal.fire({
       title: "Ad Approved & Live! 🎉",
-      text: `"${title}" is now LIVE on Skokka India. Revenue of ₹${adsList.find(a=>a.id===id)?.price || 0} collected!`,
+      text: `"${title}" is now LIVE on Skokka India. Revenue of ₹${price || 0} collected!`,
       icon: "success",
       background: "#0B1437",
       color: "#ffffff",
@@ -105,10 +74,10 @@ export function AdminOverview({ currentUser }: AdminOverviewProps) {
     });
   };
 
-  const handleReject = (id: string, title: string) => {
-    Swal.fire({
+  const handleReject = async (id: string, title: string) => {
+    const res = await Swal.fire({
       title: "Reject Classified Ad?",
-      text: `Select reason for rejecting "${title}"`,
+      text: `Are you sure you want to reject "${title}"?`,
       input: "select",
       inputOptions: {
         utr_invalid: "Invalid / Fake Payment UTR ID",
@@ -118,21 +87,20 @@ export function AdminOverview({ currentUser }: AdminOverviewProps) {
       showCancelButton: true,
       confirmButtonText: "Reject Ad",
       confirmButtonColor: "#f43f5e",
-      cancelButtonColor: "#334155",
       background: "#0B1437",
       color: "#ffffff",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setAdsList((prev) => prev.map((ad) => (ad.id === id ? { ...ad, status: "Rejected" } : ad)));
-        Swal.fire({
-          title: "Ad Rejected",
-          text: "Advertiser notified of rejection.",
-          icon: "info",
-          background: "#0B1437",
-          color: "#ffffff",
-        });
-      }
     });
+    if (res.isConfirmed) {
+      await setEscortStatus(id, "REJECTED");
+      loadProfiles();
+      Swal.fire({
+        title: "Ad Rejected",
+        text: `Ad "${title}" has been rejected.`,
+        icon: "info",
+        background: "#0B1437",
+        color: "#ffffff",
+      });
+    }
   };
 
   return (
@@ -385,65 +353,80 @@ export function AdminOverview({ currentUser }: AdminOverviewProps) {
         </div>
 
         <div className="space-y-4">
-          {adsList.map((ad) => (
-            <div
-              key={ad.id}
-              className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-rose-400">{ad.id}</span>
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-300">
-                    {ad.category}
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">
-                    {ad.package}
-                  </span>
-                  <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                      ad.status === "Approved"
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : ad.status === "Rejected"
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    }`}
-                  >
-                    {ad.status}
-                  </span>
-                </div>
-
-                <h3 className="text-sm font-bold text-white">{ad.title}</h3>
-                <p className="text-xs text-slate-400">
-                  By <strong className="text-slate-200">{ad.provider}</strong> • Location: <span className="text-slate-200">{ad.location}</span> • Submitted: {ad.submitted}
-                </p>
-                <p className="text-[11px] text-amber-400 font-mono">
-                  Price: <strong className="text-emerald-400">₹{ad.price.toLocaleString("en-IN")}</strong> • UTR ID: <strong>{ad.utr}</strong>
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0 justify-end w-full md:w-auto">
-                {ad.status !== "Approved" && (
-                  <button
-                    type="button"
-                    onClick={() => handleApprove(ad.id, ad.title)}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
-                  >
-                    <CheckCircle2 className="h-4 w-4" /> Approve Ad & Collect ₹{ad.price}
-                  </button>
-                )}
-
-                {ad.status !== "Rejected" && (
-                  <button
-                    type="button"
-                    onClick={() => handleReject(ad.id, ad.title)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-rose-300 font-bold text-xs flex items-center gap-1.5 border border-slate-700"
-                  >
-                    <XCircle className="h-4 w-4" /> Reject
-                  </button>
-                )}
-              </div>
+          {profiles.length === 0 ? (
+            <div className="p-8 rounded-2xl bg-slate-900/60 border border-slate-800 text-center space-y-2">
+              <Inbox className="h-8 w-8 text-slate-500 mx-auto" />
+              <h3 className="text-sm font-bold text-white">No Submitted Ads In Moderation Inbox</h3>
+              <p className="text-xs text-slate-400">All submitted classified listings have been reviewed or non are pending right now.</p>
             </div>
-          ))}
+          ) : (
+            profiles.map((profile) => {
+              const statusText = profile.status || "APPROVED";
+              const isApproved = statusText === "APPROVED";
+              const isRejected = statusText === "REJECTED";
+              const isPending = statusText === "PENDING_APPROVAL";
+
+              return (
+                <div
+                  key={profile.id}
+                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-mono font-bold text-rose-400">{profile.id}</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-800 text-[10px] font-bold text-slate-300">
+                        {profile.category}
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">
+                        {profile.packageType || "Standard Ad"}
+                      </span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                          isApproved
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : isRejected
+                            ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                            : "bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse"
+                        }`}
+                      >
+                        {statusText}
+                      </span>
+                    </div>
+
+                    <h3 className="text-sm font-bold text-white">{profile.name}</h3>
+                    <p className="text-xs text-slate-400">
+                      By <strong className="text-slate-200">{profile.submittedBy || profile.name}</strong> • Location: <span className="text-slate-200">{profile.location || profile.city}</span> • Phone: <span className="text-slate-200">{profile.phone}</span>
+                    </p>
+                    <p className="text-[11px] text-amber-400 font-mono">
+                      Price: <strong className="text-emerald-400">₹{(profile.price || 0).toLocaleString("en-IN")}</strong> • UTR ID: <strong>{profile.utrNumber || "DIRECT_SUBMISSION"}</strong>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 justify-end w-full md:w-auto">
+                    {!isApproved && (
+                      <button
+                        type="button"
+                        onClick={() => handleApprove(profile.id, profile.name, profile.price || 0)}
+                        className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                      >
+                        <CheckCircle2 className="h-4 w-4" /> Approve Ad &amp; Collect ₹{profile.price || 0}
+                      </button>
+                    )}
+
+                    {!isRejected && (
+                      <button
+                        type="button"
+                        onClick={() => handleReject(profile.id, profile.name)}
+                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-rose-300 font-bold text-xs flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+                      >
+                        <XCircle className="h-4 w-4" /> Reject
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

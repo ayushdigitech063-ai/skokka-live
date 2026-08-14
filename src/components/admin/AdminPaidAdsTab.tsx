@@ -23,6 +23,7 @@ import {
   Megaphone,
   Sparkles,
   RotateCcw,
+  RefreshCw,
   ExternalLink,
   X,
 } from "lucide-react";
@@ -34,7 +35,7 @@ import {
   saveAdCmsConfig,
   resetAdCmsConfig,
 } from "../../utils/adCmsStore";
-import { fetchAllEscortsAdmin, setEscortStatus, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
+import { fetchAllEscortsAdmin, setEscortStatus, invalidateEscortsCache, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
 
 export interface PaidAdItem {
   id: string;
@@ -78,6 +79,7 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
   >("ads_approval");
 
   const [isSaved, setIsSaved] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [showPostAdModal, setShowPostAdModal] = useState(false);
 
   // Submitted Ads State
@@ -197,7 +199,24 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
     fetchAllEscortsAdmin().then(setEscortProfilesList);
     Swal.fire({ toast: true, position: "top-end", icon: "info", title: `Ad Rejected`, text: `${title} (${id}) rejected.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
   };
-
+  const handleRefreshAds = async () => {
+    setIsRefreshing(true);
+    invalidateEscortsCache();
+    const fresh = await fetchAllEscortsAdmin();
+    setEscortProfilesList(fresh);
+    setIsRefreshing(false);
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Queue Refreshed! 🔄",
+      text: "Fetched latest ad submissions from database.",
+      showConfirmButton: false,
+      timer: 1500,
+      background: "#0B1437",
+      color: "#ffffff",
+    });
+  };
 
   // Combine submitted paid ads + user submitted escort profiles
   const rawApprovalItems = [
@@ -215,9 +234,11 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
     ...escortProfilesList
       .filter((p) => !submittedAds.some((s) => s.id === p.id))
       .filter((p) => {
-        const defaultDemoIds = ["SK-101", "SK-102", "SK-103", "SK-104", "SK-105"];
-        const isDefaultDemo = defaultDemoIds.includes(p.id) && (p.status === "APPROVED" || !p.status);
-        return !isDefaultDemo;
+        // Exclude static default demo profiles (SK-101 .. SK-106) when approved
+        const defaultDemoIds = ["SK-101", "SK-102", "SK-103", "SK-104", "SK-105", "SK-106"];
+        if (defaultDemoIds.includes(p.id) && p.status === "APPROVED") return false;
+        // Always include any ad that is PENDING_APPROVAL or has a submittedBy email
+        return p.status === "PENDING_APPROVAL" || Boolean(p.submittedBy);
       })
       .map((p) => ({
         id: p.id,
@@ -229,6 +250,7 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
         status: p.status || "PENDING_APPROVAL",
         photoUrl: p.photoUrl,
         submittedAt: p.submittedAt || new Date().toISOString(),
+        submittedBy: p.submittedBy,
       })),
   ];
 
@@ -271,6 +293,16 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
         <div className="flex flex-wrap items-center gap-3 shrink-0">
           <button
             type="button"
+            onClick={handleRefreshAds}
+            disabled={isRefreshing}
+            className="px-4 py-2.5 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 font-bold text-xs flex items-center gap-2 border border-amber-500/40 transition shadow-md"
+          >
+            <RefreshCw className={`h-4 w-4 text-amber-400 ${isRefreshing ? "animate-spin" : ""}`} />
+            Refresh Queue 🔄
+          </button>
+
+          <button
+            type="button"
             onClick={handleResetConfig}
             className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-950/40 text-slate-300 hover:text-rose-300 font-bold text-xs flex items-center gap-2 border border-slate-700 transition"
           >
@@ -301,9 +333,20 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
                 <p className="text-xs text-slate-400 mt-0.5">All advertiser campaigns & escort profiles submitted for Super Admin review and approval.</p>
               </div>
 
-              <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-xs uppercase tracking-wider border border-amber-500/30 animate-pulse">
-                ⏳ Super Admin Verification Queue
-              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleRefreshAds}
+                  disabled={isRefreshing}
+                  className="px-3.5 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 font-bold text-xs uppercase tracking-wider border border-sky-500/40 flex items-center gap-1.5 transition shadow-sm"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 text-sky-400 ${isRefreshing ? "animate-spin" : ""}`} /> Refresh Live Data
+                </button>
+
+                <span className="px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-extrabold text-xs uppercase tracking-wider border border-amber-500/30 animate-pulse">
+                  ⏳ Super Admin Verification Queue
+                </span>
+              </div>
             </div>
 
             {allApprovalItems.length === 0 ? (
@@ -350,6 +393,11 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
                           <p className="text-[11px] text-amber-400 font-mono">
                             {ad.utrOrPhone}
                           </p>
+                          {(ad as any).submittedBy && (
+                            <p className="text-[11px] text-sky-400 font-mono">
+                              👤 Submitted by: {(ad as any).submittedBy}
+                            </p>
+                          )}
                         </div>
                       </div>
 

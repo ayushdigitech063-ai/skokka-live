@@ -10,7 +10,7 @@ export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
     titleSuffix: "",
     subtitle:
       "India's most trusted classified directory for independent escorts, high-class VIP companions & massage parlors.",
-    bgImage: "/images/hero-sofa-model.png", 
+    bgImage: "", 
     // Yahan se Natasha wala bada box ka data hata diya hai, sirf chota text rakh sakte ho ya empty chhod do
     floatingModelName: "", 
     floatingModelRate: "", 

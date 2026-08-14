@@ -38,18 +38,12 @@ import { getHomePageCmsConfig, fetchHomePageCmsConfigAsync, CMS_UPDATE_EVENT } f
 import { HomePageCmsConfig } from "@/types/homepageCms";
 import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
 
-const demoGallery = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1000&q=80",
-  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1000&q=80",
-];
-
 export default function ProfileClientPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const resolvedParams = params instanceof Promise ? use(params) : params;
   const rawId = resolvedParams?.id ? String(resolvedParams.id) : "";
 
   const [profile, setProfile] = useState<EscortProfileItem | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [similarProfilesList, setSimilarProfilesList] = useState<EscortProfileItem[]>([]);
   const [cmsConfig, setCmsConfig] = useState<HomePageCmsConfig | null>(null);
   const [activePhoto, setActivePhoto] = useState(0);
@@ -62,23 +56,32 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
     if (typeof window !== "undefined") {
       setCmsConfig(getHomePageCmsConfig());
       fetchHomePageCmsConfigAsync().then(setCmsConfig);
+      setLoading(true);
 
-      fetchEscortById(rawId).then((found) => {
+      const loadProfile = async () => {
+        let found = await fetchEscortById(rawId);
+        if (!found) {
+          const allProfiles = await fetchEscortProfiles();
+          const cleanId = rawId.toLowerCase();
+          found = allProfiles.find(
+            (p) =>
+              (p.id && p.id.toLowerCase() === cleanId) ||
+              (p.skId && p.skId.toLowerCase() === cleanId) ||
+              getProfileUrl(p).toLowerCase().includes(cleanId)
+          ) || null;
+        }
         setProfile(found);
-      });
+        setLoading(false);
+      };
 
-      fetchEscortProfiles().then((profiles) => {
-        setSimilarProfilesList(profiles);
-      });
+      loadProfile();
+
+      fetchEscortProfiles().then(setSimilarProfilesList);
 
       const handleUpdate = () => {
         setCmsConfig(getHomePageCmsConfig());
-        fetchEscortById(rawId).then((fresh) => {
-          setProfile(fresh);
-        });
-        fetchEscortProfiles().then((profiles) => {
-          setSimilarProfilesList(profiles);
-        });
+        loadProfile();
+        fetchEscortProfiles().then(setSimilarProfilesList);
       };
 
       window.addEventListener(ESCORTS_UPDATE_EVENT, handleUpdate);
@@ -93,33 +96,45 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
     }
   }, [rawId]);
 
-  const profileData: EscortProfileItem = profile || {
-    id: rawId || "SK-101",
-    name: "Ananya Sharma",
-    title: "High class Indian VIP companion in Jaipur. Available 24/7 for 5-star hotel & private outcalls.",
-    city: "Jaipur",
-    location: "Jaipur (Bani Park)",
-    category: "VIP Escorts",
-    age: 23,
-    rating: 4.9,
-    rate: "₹6,000 / hr",
-    price: 6000,
-    availability: "Incall / Outcall Rates: ₹6,000 / hr (Night: ₹10,000)",
-    phone: "+91 98765 43210",
-    whatsapp: "919876543210",
-    telegram: "AnanyaJaipur",
-    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
-    gallery: demoGallery,
-    tags: ["VIP Escort", "Independent", "Indian Model", "Bani Park"],
-    description: "Selfie-verified high class independent model available in Jaipur for luxury hotel and private apartment meetings.",
-    packageType: "VIP Featured ⭐",
-    isVerified: true,
-    isVip: true,
-    status: "APPROVED",
-    submittedAt: new Date().toISOString(),
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050B1F] text-slate-100 flex flex-col justify-between">
+        <HeaderNavbar />
+        <div className="pt-32 pb-16 text-center space-y-4 max-w-md mx-auto px-4">
+          <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-slate-400 text-sm font-semibold">Loading Profile Details...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
-  const currentGallery = profileData.gallery && profileData.gallery.length > 0 ? profileData.gallery : [profileData.photoUrl || demoGallery[0]];
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-[#050B1F] text-slate-100 flex flex-col justify-between">
+        <HeaderNavbar />
+        <div className="pt-32 pb-16 text-center space-y-4 max-w-md mx-auto px-4">
+          <div className="h-16 w-16 mx-auto rounded-full bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/30">
+            <UserCheck className="h-8 w-8" />
+          </div>
+          <h2 className="text-xl font-black text-white">Profile Not Found</h2>
+          <p className="text-xs text-slate-400">
+            The requested escort profile could not be found or may have expired.
+          </p>
+          <Link
+            href="/escorts"
+            className="inline-block px-6 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold text-xs shadow-lg hover:from-rose-500 hover:to-pink-500 transition"
+          >
+            Explore Available Escorts
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const profileData: EscortProfileItem = profile;
+  const currentGallery = profileData.gallery && profileData.gallery.length > 0 ? profileData.gallery : [profileData.photoUrl].filter(Boolean);
 
   const handleToggleBookmark = () => {
     setIsSaved(!isSaved);

@@ -45,13 +45,23 @@ export function UserDashboard({
   initialEmail,
   initialVerifyLogin,
 }: UserDashboardProps) {
-  const [userEmail, setUserEmail] = useState<string>(initialEmail || "user@skokka.com");
+  const [userEmail, setUserEmail] = useState<string>(initialEmail || "");
   const [customerCode, setCustomerCode] = useState<string>("IN2B2SQX");
   const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
   const [showAgeVerifyModal, setShowAgeVerifyModal] = useState<boolean>(false);
   const [showPostAdModal, setShowPostAdModal] = useState<boolean>(false);
   const [showAdsManagerModal, setShowAdsManagerModal] = useState<boolean>(false);
+  const [postAdInitialStep, setPostAdInitialStep] = useState<number>(1);
+  const [selectedAdToBoost, setSelectedAdToBoost] = useState<EscortProfileItem | null>(null);
+  const [adsFilterTab, setAdsFilterTab] = useState<"ALL" | "ACTIVE" | "PENDING" | "REJECTED">("ALL");
   const [userAds, setUserAds] = useState<EscortProfileItem[]>([]);
+
+  const handleOpenBoostAdModal = (ad: EscortProfileItem) => {
+    setSelectedAdToBoost(ad);
+    setPostAdInitialStep(4);
+    setShowAdsManagerModal(false);
+    setShowPostAdModal(true);
+  };
   const [walletCredits, setWalletCredits] = useState<number>(0);
 
   // Dynamic Ad CMS Store Config
@@ -87,29 +97,10 @@ export function UserDashboard({
         setAdCmsConfig(fresh);
       };
 
-      // Fetch user's posted ads from backend (show PENDING_APPROVAL ones)
-      fetchAllEscortsAdmin().then((allProfiles) => {
-        const userEmail = localStorage.getItem("skokka_user_email") || "";
-        const myAds = allProfiles.filter((p) => p.status === "PENDING_APPROVAL" || (p.submittedBy && p.submittedBy === userEmail));
-        setUserAds(myAds);
-      });
-      const handleEscortsUpdate = () => {
-        fetchAllEscortsAdmin().then((allProfiles) => {
-          const uEmail = localStorage.getItem("skokka_user_email") || "";
-          const myAds = allProfiles.filter((p) => p.status === "PENDING_APPROVAL" || (p.submittedBy && p.submittedBy === uEmail));
-          setUserAds(myAds);
-        });
-      };
-
-      window.addEventListener(AD_CMS_UPDATE_EVENT, handleCmsUpdate);
-      window.addEventListener(ESCORTS_UPDATE_EVENT, handleEscortsUpdate);
-      window.addEventListener("storage", handleCmsUpdate);
-      window.addEventListener("storage", handleEscortsUpdate);
-
       const params = new URLSearchParams(window.location.search);
       const paramEmail = params.get("email") || initialEmail;
       
-      if (paramEmail) {
+      if (paramEmail && paramEmail !== "user@skokka.com") {
         setUserEmail(paramEmail);
         localStorage.setItem("skokka_user_email", paramEmail);
 
@@ -120,8 +111,36 @@ export function UserDashboard({
         }).catch((err) => console.warn("Activation request error:", err));
       } else {
         const stored = localStorage.getItem("skokka_user_email");
-        if (stored) setUserEmail(stored);
+        if (stored && stored !== "user@skokka.com") setUserEmail(stored);
       }
+
+      const activeUserEmail = (paramEmail || localStorage.getItem("skokka_user_email") || userEmail || "").toLowerCase().trim();
+
+      // Fetch user's posted ads from backend (strictly filtered to active user's email, ignoring dummy/seed email)
+      const loadUserAds = () => {
+        fetchAllEscortsAdmin().then((allProfiles) => {
+          const currentEmail = (localStorage.getItem("skokka_user_email") || activeUserEmail).toLowerCase().trim();
+          const isDummyEmail = !currentEmail || currentEmail === "user@skokka.com" || currentEmail === "admin@skokka.com";
+
+          const myAds = (!isDummyEmail)
+            ? allProfiles.filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === currentEmail)
+            : [];
+          setUserAds(myAds);
+        });
+      };
+
+      loadUserAds();
+
+      const handleEscortsUpdate = () => {
+        loadUserAds();
+      };
+
+      window.addEventListener(AD_CMS_UPDATE_EVENT, handleCmsUpdate);
+      window.addEventListener(ESCORTS_UPDATE_EVENT, handleEscortsUpdate);
+      window.addEventListener("storage", handleCmsUpdate);
+      window.addEventListener("storage", handleEscortsUpdate);
+
+
 
       let code = localStorage.getItem("skokka_customer_code");
       if (!code) {
@@ -926,60 +945,167 @@ export function UserDashboard({
               </button>
             </div>
 
-            {/* Quick Metrics Strip */}
+            {/* Quick Metrics Strip — Clickable Tabs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+              <button
+                type="button"
+                onClick={() => setAdsFilterTab("ALL")}
+                className={`p-4 rounded-2xl border text-left transition ${
+                  adsFilterTab === "ALL"
+                    ? "bg-rose-500/10 border-rose-500 text-white shadow-lg ring-1 ring-rose-500/50"
+                    : "bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300"
+                }`}
+              >
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Ads</span>
                 <span className="text-xl font-black text-white">{userAds.length}</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 space-y-1">
-                <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">Active & Live</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAdsFilterTab("ACTIVE")}
+                className={`p-4 rounded-2xl border text-left transition ${
+                  adsFilterTab === "ACTIVE"
+                    ? "bg-emerald-500/20 border-emerald-500 text-white shadow-lg ring-2 ring-emerald-500/50"
+                    : "bg-emerald-950/40 border-emerald-500/30 hover:border-emerald-500/60 text-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">Active & Live</span>
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                </div>
                 <span className="text-xl font-black text-emerald-300">{activeAdsCount}</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30 space-y-1">
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAdsFilterTab("PENDING")}
+                className={`p-4 rounded-2xl border text-left transition ${
+                  adsFilterTab === "PENDING"
+                    ? "bg-amber-500/20 border-amber-500 text-white shadow-lg ring-1 ring-amber-500/50"
+                    : "bg-amber-950/40 border-amber-500/30 hover:border-amber-500/60 text-slate-300"
+                }`}
+              >
                 <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block">Pending Review</span>
                 <span className="text-xl font-black text-amber-300">{pendingApprovalAdsCount}</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAdsFilterTab("REJECTED")}
+                className={`p-4 rounded-2xl border text-left transition ${
+                  adsFilterTab === "REJECTED"
+                    ? "bg-slate-800 border-rose-500 text-white shadow-lg ring-1 ring-rose-500/50"
+                    : "bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300"
+                }`}
+              >
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Not Published</span>
                 <span className="text-xl font-black text-slate-300">{notPublishedAdsCount}</span>
-              </div>
+              </button>
             </div>
 
-            {/* Top Action Strip */}
-            <div className="flex items-center justify-between pt-1">
-              <h4 className="text-sm font-extrabold text-white">Submitted Classified Campaigns ({userAds.length})</h4>
+            {/* Section Header & Status Filter Pills */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                <button
+                  type="button"
+                  onClick={() => setAdsFilterTab("ALL")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition tracking-wider shrink-0 ${
+                    adsFilterTab === "ALL"
+                      ? "bg-rose-600 text-white shadow-md"
+                      : "bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800"
+                  }`}
+                >
+                  All Ads ({userAds.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdsFilterTab("ACTIVE")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition tracking-wider shrink-0 flex items-center gap-1.5 ${
+                    adsFilterTab === "ACTIVE"
+                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
+                      : "bg-emerald-950/40 hover:bg-emerald-900/40 text-emerald-400 border border-emerald-500/30"
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" /> Active & Live ({activeAdsCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdsFilterTab("PENDING")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition tracking-wider shrink-0 ${
+                    adsFilterTab === "PENDING"
+                      ? "bg-amber-600 text-white shadow-md"
+                      : "bg-amber-950/40 hover:bg-amber-900/40 text-amber-400 border border-amber-500/30"
+                  }`}
+                >
+                  ⏳ Pending ({pendingApprovalAdsCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAdsFilterTab("REJECTED")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition tracking-wider shrink-0 ${
+                    adsFilterTab === "REJECTED"
+                      ? "bg-slate-700 text-white shadow-md"
+                      : "bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800"
+                  }`}
+                >
+                  ❌ Not Published ({notPublishedAdsCount})
+                </button>
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
                   setShowAdsManagerModal(false);
                   setShowPostAdModal(true);
                 }}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center gap-1.5 shrink-0"
               >
                 <Plus className="h-4 w-4" /> Post New Ad
               </button>
             </div>
 
-            {/* User Ads List */}
+            {/* User Ads List Filtered */}
             <div className="space-y-4">
-              {userAds.length === 0 ? (
-                <div className="p-8 text-center bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
-                  <FileText className="h-10 w-10 text-slate-600 mx-auto" />
-                  <p className="text-sm text-slate-300 font-medium">No ads posted yet.</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAdsManagerModal(false);
-                      setShowPostAdModal(true);
-                    }}
-                    className="px-5 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-xs"
-                  >
-                    Post Your First Ad Now
-                  </button>
-                </div>
-              ) : (
-                userAds.map((ad) => {
+              {(() => {
+                const filtered = userAds.filter((ad) => {
+                  if (adsFilterTab === "ACTIVE") return !ad.status || ad.status === "APPROVED";
+                  if (adsFilterTab === "PENDING") return ad.status === "PENDING_APPROVAL";
+                  if (adsFilterTab === "REJECTED") return ad.status === "REJECTED";
+                  return true;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="p-10 text-center bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3">
+                      {adsFilterTab === "ACTIVE" ? (
+                        <>
+                          <CheckCircle2 className="h-10 w-10 text-emerald-500/60 mx-auto animate-bounce" />
+                          <h5 className="text-base font-extrabold text-white">No Active & Live Ads Right Now</h5>
+                          <p className="text-xs text-slate-400 max-w-md mx-auto">
+                            Submitted ads are currently pending Super Admin review. Once approved, your campaign will instantly go LIVE across the site with active phone and WhatsApp leads!
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="h-10 w-10 text-slate-600 mx-auto" />
+                          <p className="text-sm text-slate-300 font-medium">No ads found in this tab.</p>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAdsManagerModal(false);
+                          setShowPostAdModal(true);
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg transition"
+                      >
+                        + Post New Classified Ad
+                      </button>
+                    </div>
+                  );
+                }
+
+                return filtered.map((ad) => {
                   const isApproved = !ad.status || ad.status === "APPROVED";
                   const isPending = ad.status === "PENDING_APPROVAL";
                   const isRejected = ad.status === "REJECTED";
@@ -992,19 +1118,33 @@ export function UserDashboard({
                   return (
                     <div
                       key={ad.id}
-                      className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 hover:border-slate-700 transition shadow-lg"
+                      className={`p-5 rounded-2xl border space-y-4 transition shadow-lg ${
+                        isApproved
+                          ? "bg-slate-900/90 border-emerald-500/40 hover:border-emerald-500 ring-1 ring-emerald-500/20"
+                          : "bg-slate-900 border-slate-800 hover:border-slate-700"
+                      }`}
                     >
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
-                          <div className="h-16 w-16 rounded-2xl overflow-hidden border border-slate-700 shrink-0">
+                          <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-slate-700 shrink-0 relative">
                             <img src={ad.photoUrl} alt={ad.name} className="h-full w-full object-cover" />
+                            {isApproved && (
+                              <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-emerald-500 border-2 border-slate-900 animate-ping" />
+                            )}
                           </div>
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-xs font-bold text-rose-400">{ad.id}</span>
                               <span className="text-xs text-slate-400">• {ad.category}</span>
                             </div>
-                            <h5 className="text-base font-extrabold text-white">{ad.name}</h5>
+                            <h5 className="text-base font-extrabold text-white flex items-center gap-2">
+                              {ad.name}
+                              {isApproved && (
+                                <span className="text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE &amp; ACTIVE
+                                </span>
+                              )}
+                            </h5>
                             <p className="text-xs text-slate-400 font-medium">{ad.location || ad.city}</p>
                           </div>
                         </div>
@@ -1017,8 +1157,8 @@ export function UserDashboard({
                             </span>
                           )}
                           {isApproved && (
-                            <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black text-xs uppercase tracking-wider border border-emerald-500/40 inline-flex items-center gap-1.5">
-                              <CheckCircle2 className="h-4 w-4 text-emerald-400" /> Approval Done ✅ (Live)
+                            <span className="px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 font-black text-xs uppercase tracking-wider border border-emerald-500/40 inline-flex items-center gap-1.5 shadow-sm">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-400" /> LIVE &amp; APPROVED ✅
                             </span>
                           )}
                           {isRejected && (
@@ -1029,11 +1169,29 @@ export function UserDashboard({
                         </div>
                       </div>
 
+                      {/* Active Lead Metrics for Live Ads */}
+                      {isApproved && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs">
+                          <div className="flex items-center gap-2 text-emerald-300 font-bold">
+                            <PhoneCall className="h-4 w-4 text-emerald-400 shrink-0" />
+                            <span>Direct Phone Leads: <strong className="text-white font-mono">Active 🟢</strong></span>
+                          </div>
+                          <div className="flex items-center gap-2 text-emerald-300 font-bold">
+                            <MessageCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                            <span>WhatsApp Enquiries: <strong className="text-white font-mono">Active 🟢</strong></span>
+                          </div>
+                          <div className="flex items-center gap-2 text-emerald-300 font-bold col-span-2 sm:col-span-1">
+                            <Sparkles className="h-4 w-4 text-amber-300 shrink-0" />
+                            <span>Search Placement: <strong className="text-amber-300 uppercase">{ad.packageType || "VIP / Standard"}</strong></span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Approval Explanation Note */}
                       {isPending && (
                         <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-200 text-xs font-medium space-y-1">
                           <strong className="font-extrabold text-amber-300 block">🔒 Super Admin Review In Progress:</strong>
-                          <p>Your listing has been submitted for approval. Once Super Admin verifies the ad details, it will automatically go LIVE across the site.</p>
+                          <p>Your listing has been submitted for approval. Once Super Admin verifies the ad details, it will automatically go LIVE across the site with active phone and WhatsApp leads.</p>
                         </div>
                       )}
 
@@ -1071,17 +1229,15 @@ export function UserDashboard({
                         {isApproved && (
                           <Link
                             href={getProfileUrl(ad)}
-                            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs uppercase tracking-wider transition flex items-center gap-1"
+                            target="_blank"
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md shadow-emerald-600/30 flex items-center gap-1.5"
                           >
-                            <ExternalLink className="h-3.5 w-3.5 text-rose-400" /> View Live Ad
+                            <ExternalLink className="h-3.5 w-3.5 text-white" /> View Live Listing
                           </Link>
                         )}
                         <button
                           type="button"
-                          onClick={() => {
-                            setShowAdsManagerModal(false);
-                            setShowPostAdModal(true);
-                          }}
+                          onClick={() => handleOpenBoostAdModal(ad)}
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center gap-1"
                         >
                           <Sparkles className="h-3.5 w-3.5 text-amber-300" /> Boost / Extend Ad
@@ -1089,23 +1245,33 @@ export function UserDashboard({
                       </div>
                     </div>
                   );
-                })
-              )}
+                });
+              })()}
             </div>
 
           </div>
         </div>
       )}
 
-      {/* POST AD WIZARD MODAL */}
+      {/* POST AD WIZARD / BOOST AD MODAL */}
       <PostAdWizardModal
         isOpen={showPostAdModal}
-        onClose={() => setShowPostAdModal(false)}
+        initialStep={postAdInitialStep}
+        initialAd={selectedAdToBoost}
+        onClose={() => {
+          setShowPostAdModal(false);
+          setPostAdInitialStep(1);
+          setSelectedAdToBoost(null);
+        }}
         onAdSubmitted={() => {
           setShowPostAdModal(false);
+          setPostAdInitialStep(1);
+          setSelectedAdToBoost(null);
           fetchAllEscortsAdmin().then((allProfiles) => {
-            const uEmail = localStorage.getItem("skokka_user_email") || "";
-            const myAds = allProfiles.filter((p) => p.status === "PENDING_APPROVAL" || (p.submittedBy && p.submittedBy === uEmail));
+            const uEmail = (localStorage.getItem("skokka_user_email") || "").toLowerCase().trim();
+            const myAds = uEmail
+              ? allProfiles.filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === uEmail)
+              : [];
             setUserAds(myAds);
           });
         }}

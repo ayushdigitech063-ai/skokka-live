@@ -23,7 +23,8 @@ import {
   SlidersHorizontal,
   ChevronRight,
   ChevronLeft,
-  RefreshCw
+  RefreshCw,
+  Send
 } from "lucide-react";
 import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
 import { fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
@@ -177,9 +178,7 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
     const pkg = (p.packageType || "").toUpperCase();
     const name = (p.name || "").toUpperCase();
     
-    if (name.includes("REGER") || p.price === 0 || pkg.includes("FREE") || pkg === "FREE_STANDARD" || (!p.isVip && !p.isVerified && !pkg.includes("VIP") && !pkg.includes("VERIFIED"))) {
-      return 999;
-    }
+    if (p.isSuperTop || pkg.includes("SUPER_TOP") || pkg.includes("SUPER TOP")) return 0;
     if (p.isVip || pkg.includes("VIP")) return 1;
     if (p.isVerified || pkg.includes("VERIFIED")) return 2;
     return 999;
@@ -388,124 +387,157 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
               </button>
             </div>
           ) : (
-            /* ESCORTS CARDS GRID - ULTRA LUXURY STYLING */
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7">
-                {paginatedProfiles.map((profile) => {
-                  const isFav = favorites.has(profile.id);
-                  const isVip = profile.isVip || (profile.packageType || "").toUpperCase().includes("VIP");
-                  const isVerified = profile.isVerified || (profile.packageType || "").toUpperCase().includes("VERIFIED");
+            <div className="space-y-8 max-w-6xl mx-auto">
+              {/* ESCORTS CARDS LIST — SINGLE ROW FULL WIDTH CLASSIFIED LAYOUT */}
+              <div className="space-y-6">
+              {paginatedProfiles.map((profile) => {
+                const isFav = favorites.has(profile.id);
+                const isSuperTop = profile.isSuperTop || (profile.packageType || "").toUpperCase().includes("SUPER_TOP");
+                const isVip = profile.isVip || (profile.packageType || "").toUpperCase().includes("VIP");
+                const isVerified = profile.isVerified || (profile.packageType || "").toUpperCase().includes("VERIFIED");
+                const photoCount = profile.gallery && profile.gallery.length > 0 ? profile.gallery.length + 1 : 7;
+                const displayTitle = profile.title || `✳️ Call ${profile.name} ${(profile.phone || '').replace('+91', '').trim()} Only Cash ✳️ Genuine High Profile ${profile.city} Escorts Services 100% Safe`;
 
-                  return (
-                    <div
-                      key={profile.id}
-                      className="group relative rounded-3xl bg-slate-900/80 border border-slate-800/90 overflow-hidden shadow-xl hover:border-rose-500/50 hover:shadow-[0_0_30px_rgba(244,63,94,0.15)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between backdrop-blur-xl"
-                    >
-                      <div>
-                        {/* Photo Container */}
-                        <Link href={getProfileUrl(profile)} className="block relative h-72 sm:h-80 w-full overflow-hidden bg-slate-950">
-                          <div
-                            className="absolute inset-0 bg-cover bg-center group-hover:scale-108 transition-transform duration-700 opacity-90"
-                            style={{
-                              backgroundImage: `url('${profile.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"}')`
-                            }}
-                          />
+                return (
+                  <div
+                    key={profile.id}
+                    className={`group relative rounded-2xl border overflow-hidden shadow-xl transition-all duration-300 flex flex-col md:flex-row backdrop-blur-xl ${
+                      isSuperTop
+                        ? "bg-[#0b1636] border-sky-400/80 ring-2 ring-sky-400/30 shadow-[0_0_35px_rgba(56,189,248,0.25)]"
+                        : "bg-[#090E24] border-slate-800 hover:border-rose-500/60"
+                    }`}
+                  >
+                    {/* SUPER TOP / VIP BADGE AT TOP RIGHT */}
+                    <div className="absolute top-0 right-0 z-20">
+                      {isSuperTop ? (
+                        <div className="bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600 px-3.5 py-1 text-[11px] font-black text-white rounded-bl-xl shadow-lg border-b border-l border-sky-300/50 flex items-center gap-1.5 animate-pulse">
+                          <span>⚡ SUPER TOP</span>
+                        </div>
+                      ) : isVip ? (
+                        <div className="bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 px-3 py-1 text-[11px] font-black text-slate-950 rounded-bl-xl shadow-lg border-b border-l border-amber-300/40 flex items-center gap-1">
+                          <span>👑 VIP FEATURED</span>
+                        </div>
+                      ) : isVerified ? (
+                        <div className="bg-emerald-600 px-3 py-1 text-[11px] font-black text-white rounded-bl-xl shadow-lg flex items-center gap-1">
+                          <span>🛡️ VERIFIED</span>
+                        </div>
+                      ) : (
+                        <div className="bg-rose-600/90 px-3 py-1 text-[11px] font-bold text-white rounded-bl-xl shadow-lg">
+                          <span>CLASSIFIED</span>
+                        </div>
+                      )}
+                    </div>
 
-                          {/* Top Badges */}
-                          <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                            {isVip ? (
-                              <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 px-3 py-1 text-[11px] font-black text-slate-950 shadow-lg border border-amber-300/60">
-                                <Crown className="h-3.5 w-3.5 fill-slate-950 text-slate-950" />
-                                <span>VIP FEATURED ⭐</span>
-                              </div>
-                            ) : isVerified ? (
-                              <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 backdrop-blur-md px-3 py-1 text-[11px] font-extrabold text-white shadow-lg border border-emerald-400/40">
-                                <Check className="h-3.5 w-3.5 stroke-[3]" />
-                                <span>VERIFIED 🛡️</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1 rounded-full bg-slate-900/90 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-slate-300 border border-slate-700">
-                                <span>Standard</span>
-                              </div>
-                            )}
+                    {/* Left Column: Photo Container (Taller height for rich visual appeal) */}
+                    <Link href={getProfileUrl(profile)} className="block relative w-full md:w-72 lg:w-80 h-72 sm:h-80 md:h-[260px] shrink-0 overflow-hidden bg-slate-950">
+                      <div
+                        className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-95"
+                        style={{
+                          backgroundImage: `url('${profile.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"}')`
+                        }}
+                      />
 
-                            <div className="flex items-center gap-2">
-                              <div className="rounded-full bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-amber-400 border border-amber-400/40 shadow-md flex items-center gap-1">
-                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                                <span>{profile.rating || 4.9}</span>
-                              </div>
+                      {/* Photo Navigation Arrows */}
+                      <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none z-10">
+                        <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
+                          <ChevronLeft className="h-4 w-4" />
+                        </span>
+                        <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
+                          <ChevronRight className="h-4 w-4" />
+                        </span>
+                      </div>
 
-                              <button
-                                type="button"
-                                onClick={(e) => toggleFavorite(e, profile.id)}
-                                className={`h-8 w-8 rounded-full bg-slate-950/80 backdrop-blur-md border flex items-center justify-center transition hover:scale-110 cursor-pointer shadow-md ${
-                                  isFav ? "border-rose-500 text-rose-500 bg-rose-500/20" : "border-slate-700 text-slate-400 hover:text-rose-400"
-                                }`}
-                              >
-                                <Heart className={`h-4 w-4 ${isFav ? "fill-rose-500 text-rose-500" : ""}`} />
-                              </button>
-                            </div>
-                          </div>
+                      {/* Photo Count Badge (Bottom Left) */}
+                      <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-bold text-white border border-slate-700 flex items-center gap-1 z-10 shadow">
+                        <span>📷 {photoCount}</span>
+                      </div>
 
-                          {/* Image Gradient & Overlay Info */}
-                          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#090D1E] via-[#090D1E]/80 to-transparent p-4 pt-14 space-y-1 z-10">
-                            <h3 className="text-lg font-black text-white group-hover:text-rose-400 transition leading-tight truncate">
-                              {profile.name}{profile.age > 0 ? `, ${profile.age}` : ""}
-                            </h3>
-                            <p className="text-xs font-bold text-rose-300 flex items-center gap-1 truncate">
-                              <MapPin className="h-3.5 w-3.5 text-rose-400 shrink-0" />
-                              <span>{profile.location || profile.city}</span>
-                            </p>
-                            <div className="pt-1.5 flex items-center justify-between gap-2">
-                              <span className="text-xs font-black text-amber-400 bg-amber-500/15 px-2.5 py-1 rounded-xl border border-amber-400/40 shrink-0">
-                                {profile.rate || "₹4,000 / hr"}
-                              </span>
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider truncate bg-emerald-950/60 px-2 py-0.5 rounded-lg border border-emerald-500/30">
-                                {profile.availability?.includes("Incall") || profile.availability?.includes("Outcall")
-                                  ? "Incall & Outcall"
-                                  : profile.availability || "Available 24/7"}
-                              </span>
-                            </div>
-                          </div>
+                      {/* Watermark Tag (Bottom Right) */}
+                      <div className="absolute bottom-3 right-3 text-[10px] font-black text-white/50 tracking-widest uppercase z-10">
+                        skokka
+                      </div>
+                    </Link>
+
+                    {/* Right Column: Listing Info & Action Buttons */}
+                    <div className="flex-1 p-5 md:p-6 flex flex-col justify-between space-y-4">
+                      <div className="space-y-2.5">
+                        {/* Catchy Main Title Headline (Bold Pink / Rose Font) */}
+                        <Link href={getProfileUrl(profile)} className="block group-hover:text-rose-400 transition">
+                          <h3 className="text-base sm:text-lg font-black text-[#f43f5e] hover:text-pink-300 leading-snug tracking-tight">
+                            {displayTitle}
+                          </h3>
                         </Link>
 
-                        {/* Description & Tag Pill list */}
-                        <div className="p-4 space-y-3">
-                          <p className="text-xs text-slate-300 leading-relaxed line-clamp-2 font-medium">
-                            {profile.description || profile.title || `${profile.name} - Premium verified companion available for meetings.`}
-                          </p>
+                        {/* Description Snippet */}
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium line-clamp-3">
+                          {profile.description || `✳️ Call And WhatsApp ${profile.name} ${profile.phone} ((Only Cash Payment)) ✳️ My Name Is ${profile.name} High Profile Hot Sexy Call Girl Service In ${profile.city}. My Service Available In Incall And Outcall On 24x7 Available In All ${profile.city} Etc.`}
+                        </p>
 
-                          <div className="flex flex-wrap gap-1.5">
-                            {(profile.tags && profile.tags.length > 0 ? profile.tags : [profile.category || "VIP Escorts"]).slice(0, 3).map((tag) => (
-                              <span key={tag} className="rounded-lg bg-slate-800/80 px-2 py-0.5 text-[10px] font-bold text-slate-300 border border-slate-700 flex items-center gap-0.5">
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
+                        {/* Meta Tags: Age & Location */}
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-300 pt-1 font-bold">
+                          <span className="flex items-center gap-1.5 text-slate-200">
+                            <span className="text-rose-400">📷</span> {profile.age || 23} years
+                          </span>
+                          <span className="flex items-center gap-1.5 text-slate-200">
+                            <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                            <strong>{profile.location || profile.city}</strong> / ALL {profile.city?.toUpperCase()}...
+                          </span>
                         </div>
                       </div>
 
-                      {/* Action Buttons: Details & WhatsApp */}
-                      <div className="p-3.5 pt-0 grid grid-cols-2 gap-2 z-10">
-                        <Link
-                          href={getProfileUrl(profile)}
-                          className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 text-center border border-slate-700 cursor-pointer"
-                        >
-                          📄 Details
-                        </Link>
-                        <a
-                          href={(profile.whatsapp || profile.phone) ? `https://wa.me/${(profile.whatsapp || profile.phone || "").replace(/[^0-9]/g, "")}` : "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 text-center"
-                        >
-                          💬 WhatsApp
-                        </a>
+                      {/* Bottom Row: Rate + Action Buttons */}
+                      <div className="flex items-center justify-between border-t border-slate-800/80 pt-3 gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-amber-400 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-400/30">
+                            {profile.rate || "₹5,000 / hr"}
+                          </span>
+                          <span className="text-xs font-bold text-emerald-400 bg-emerald-950/40 px-2.5 py-1 rounded-xl border border-emerald-500/30">
+                            24/7 Incall &amp; Outcall
+                          </span>
+                        </div>
+
+                        {/* Circular Action Buttons (Call, WhatsApp & Telegram) */}
+                        <div className="flex items-center gap-2.5">
+                          {profile.phone && (
+                            <a
+                              href={`tel:${profile.phone}`}
+                              className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-white hover:bg-rose-50 text-rose-600 flex items-center justify-center shadow-lg transition hover:scale-110 border border-slate-200"
+                              title="Call Now"
+                            >
+                              <Phone className="h-5 w-5 fill-rose-600" />
+                            </a>
+                          )}
+                          <a
+                            href={`https://wa.me/${(profile.whatsapp || profile.phone || "919876500000").replace(/[^0-9]/g, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-lg transition hover:scale-110"
+                            title="Chat on WhatsApp"
+                          >
+                            <MessageCircle className="h-5 w-5 fill-white" />
+                          </a>
+                          <a
+                            href={
+                              profile.telegram
+                                ? profile.telegram.startsWith("http")
+                                  ? profile.telegram
+                                  : `https://t.me/${profile.telegram.replace("@", "")}`
+                                : `https://t.me/+91${(profile.phone || "").replace(/[^0-9]/g, "")}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center shadow-lg transition hover:scale-110"
+                            title="Chat on Telegram"
+                          >
+                            <Send className="h-4.5 w-4.5 fill-white text-white -ml-0.5" />
+                          </a>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
+            </div>
 
               {/* PAGINATION CONTROLS */}
               {totalPages > 1 && (

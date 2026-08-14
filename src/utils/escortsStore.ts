@@ -27,6 +27,7 @@ export interface EscortProfileItem {
   packageType: string;
   isVerified: boolean;
   isVip: boolean;
+  isSuperTop?: boolean;
   status: "APPROVED" | "PENDING_APPROVAL" | "REJECTED";
   submittedAt: string;
   submittedBy?: string;
@@ -170,8 +171,8 @@ export async function setEscortStatus(id: string, status: "APPROVED" | "PENDING_
   }
 }
 
-/** Set VIP / Verified / Standard placement (admin) */
-export async function setEscortPlacement(id: string, placement: "VIP" | "VERIFIED" | "STANDARD"): Promise<boolean> {
+/** Set SUPER_TOP / VIP / Verified / Standard placement (admin) */
+export async function setEscortPlacement(id: string, placement: "SUPER_TOP" | "VIP" | "VERIFIED" | "STANDARD"): Promise<boolean> {
   try {
     const res = await fetch(`${BACKEND_URL}/api/escorts/${id}/placement`, {
       method: "PATCH",

@@ -28,20 +28,24 @@ import {
 import { getAdCmsConfig, AD_CMS_UPDATE_EVENT } from "@/utils/adCmsStore";
 import { getHomePageCmsConfig, registerNewCityIfMissing } from "@/utils/homepageCmsStore";
 import { AdCmsConfig } from "@/types/adCms";
-import { createEscortProfile, EscortProfileItem } from "@/utils/escortsStore";
+import { createEscortProfile, updateEscortProfile, EscortProfileItem } from "@/utils/escortsStore";
 
 interface PostAdWizardModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdSubmitted: (ad: any) => void;
+  initialStep?: number;
+  initialAd?: EscortProfileItem | null;
 }
 
 export function PostAdWizardModal({
   isOpen,
   onClose,
   onAdSubmitted,
+  initialStep = 1,
+  initialAd = null,
 }: PostAdWizardModalProps) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
@@ -119,11 +123,38 @@ export function PostAdWizardModal({
     photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
     galleryPhotos: [] as string[],
     videoUrl: "",
-    packageType: "VIP_SLOT", // STANDARD, VIP_SLOT, HERO_BANNER
+    packageType: "VIP_HOMEPAGE", // STANDARD, VIP_SLOT, VIP_HOMEPAGE, VERIFIED
     price: 4999,
     paymentMethod: "UPI_QR",
     utrTransactionId: "",
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialStep) setCurrentStep(initialStep);
+      if (initialAd) {
+        setFormData({
+          adTitle: initialAd.name || "",
+          category: initialAd.category || "Call Girls",
+          age: initialAd.age || 22,
+          cityArea: initialAd.location || initialAd.city || "Jaipur (Bani Park)",
+          tagline: initialAd.title || initialAd.description || "",
+          priceRate: initialAd.rate || "₹5,000 / hr",
+          offerDiscount: initialAd.availability || "24/7 Incall & Outcall",
+          phone: initialAd.phone || "",
+          whatsapp: initialAd.whatsapp || initialAd.phone || "",
+          telegram: initialAd.telegram || "",
+          photoUrl: initialAd.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+          galleryPhotos: initialAd.gallery || [],
+          videoUrl: initialAd.videoUrl || "",
+          packageType: (initialAd.packageType as any) || "VIP_HOMEPAGE",
+          price: initialAd.price || 4999,
+          paymentMethod: "UPI_QR",
+          utrTransactionId: "",
+        });
+      }
+    }
+  }, [isOpen, initialStep, initialAd]);
 
   if (!isOpen) return null;
 
@@ -252,6 +283,7 @@ export function PostAdWizardModal({
     const isVerified = formData.packageType?.includes("VERIFIED") || isVip;
 
     // Auto add to dynamic Escort Store
+    const currentUserEmail = (typeof window !== "undefined" ? localStorage.getItem("skokka_user_email") : null) || "";
     const newProfile: EscortProfileItem = {
       id: pendingAd.id,
       name: formData.adTitle || "Independent Escort",
@@ -271,16 +303,23 @@ export function PostAdWizardModal({
       videoUrl: formData.videoUrl,
       gallery: [formData.photoUrl].filter(Boolean) as string[],
       description: formData.tagline || `Independent high-class ${formData.category} companion available for 5-star hotel appointments in ${formData.cityArea}.`,
-      packageType: "FREE_STANDARD",
-      isVerified: false,
-      isVip: false,
-      price: 0,
+      packageType: formData.packageType || "FREE_STANDARD",
+      isVerified: isVerified,
+      isVip: isVip,
+      price: formData.price || 0,
       status: "PENDING_APPROVAL",
       submittedAt: pendingAd.submittedAt,
+      submittedBy: currentUserEmail, // ✅ Link ad to current user's account
     };
 
-    // Submit to MongoDB via backend API
-    await createEscortProfile(newProfile, false); // false = advertiser submitted (PENDING_APPROVAL)
+
+    // Submit to MongoDB via backend API (Update existing profile if initialAd provided, otherwise create)
+    if (initialAd && initialAd.id) {
+      newProfile.id = initialAd.id;
+      await updateEscortProfile(initialAd.id, newProfile);
+    } else {
+      await createEscortProfile(newProfile, false); // false = advertiser submitted (PENDING_APPROVAL)
+    }
     
     // Auto-register new City & Area into MongoDB Atlas Location Database
     try {
@@ -453,18 +492,33 @@ export function PostAdWizardModal({
                   </select>
                 </div>
 
+                {/* CATCHY AD TITLE HEADLINE (FULL LINE) */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-rose-400 uppercase tracking-wider block flex items-center justify-between">
+                    <span>Ad Catchy Title / Listing Headline *</span>
+                    <span className="text-[10px] text-slate-400 font-normal">Displayed as main bold title on escort listings</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. ✳️ Call Ritika 63671-57118 Only Cash ✳️ Genuine High Profile Jaipur Escorts Services 100% Safe"
+                    value={formData.adTitle}
+                    onChange={(e) => setFormData({ ...formData, adTitle: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs focus:border-rose-500 focus:outline-none placeholder:text-slate-600"
+                    required
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                      Escort Stage Name / Ad Title *
+                      Escort Companion Name *
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Ananya Sharma, Priya Patel"
-                      value={formData.adTitle}
-                      onChange={(e) => setFormData({ ...formData, adTitle: e.target.value })}
+                      placeholder="e.g. Ritika Sharma, Ananya"
+                      value={formData.tagline ? formData.tagline.split("•")[0] : ""}
+                      onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs focus:border-rose-500 focus:outline-none"
-                      required
                     />
                   </div>
 
@@ -474,7 +528,7 @@ export function PostAdWizardModal({
                     </label>
                     <input
                       type="number"
-                      placeholder="e.g. 22"
+                      placeholder="e.g. 23"
                       value={formData.age}
                       onChange={(e) => setFormData({ ...formData, age: parseInt(e.target.value) || 22 })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs focus:border-rose-500 focus:outline-none"
@@ -927,11 +981,12 @@ export function PostAdWizardModal({
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
-                      { id: "FREE_STANDARD", title: "Free Standard Listing", price: 0, desc: "Directory Only" },
-                      { id: "HOMEPAGE_STANDARD", title: "Homepage Standard", price: 999, desc: "Homepage Escorts List" },
-                      { id: "VERIFIED", title: "Verified Escort Package", price: 2499, desc: "Homepage Verified + Badge ✅" },
-                      { id: "VIP_PAGE", title: "VIP Page Feature", price: 3499, desc: "Dedicated /vip Page 👑" },
+                      { id: "SUPER_TOP", title: "⚡ SUPER TOP BOOSTER", price: 6999, desc: "#1 Rank At Very Top Of All Listings ⚡" },
                       { id: "VIP_HOMEPAGE", title: "VIP Homepage + /vip Page", price: 4999, desc: "BOTH Homepage VIP + /vip 🔥" },
+                      { id: "VIP_PAGE", title: "VIP Page Feature", price: 3499, desc: "Dedicated /vip Page 👑" },
+                      { id: "VERIFIED", title: "Verified Escort Package", price: 2499, desc: "Homepage Verified + Badge ✅" },
+                      { id: "HOMEPAGE_STANDARD", title: "Homepage Standard", price: 999, desc: "Homepage Escorts List" },
+                      { id: "FREE_STANDARD", title: "Free Standard Listing", price: 0, desc: "Directory Only" },
                     ].map((pkg) => {
                       const isSelected = formData.price === pkg.price;
                       return (
