@@ -109,13 +109,13 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
             isScrolled ? "h-0 opacity-0" : "opacity-100"
           }`}
         >
-          <div className="bg-gradient-to-r from-rose-950 via-rose-700 to-pink-700 border-b border-rose-800/50 px-3 py-1.5 text-center text-[10px] sm:text-xs font-black uppercase tracking-wider text-white shadow-md flex items-center justify-center gap-1.5 flex-wrap">
+          <div className="bg-gradient-to-r from-rose-950 via-rose-700 to-pink-700 border-b border-rose-800/50 px-2 sm:px-3 py-1 sm:py-1.5 text-center text-[9px] sm:text-xs font-black uppercase tracking-wider text-white shadow-md flex items-center justify-center gap-1 sm:gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
             <span className="text-amber-300">🔥</span>
             <span>NO. 1 ADULT CLASSIFIEDS PORTAL IN INDIA</span>
+            <span className="text-rose-300 hidden sm:inline">•</span>
+            <span className="hidden sm:inline">100% VERIFIED PROFILES</span>
             <span className="text-rose-300">•</span>
-            <span>100% VERIFIED PROFILES</span>
-            <span className="text-rose-300">•</span>
-            <span className="text-amber-300">DIRECT WHATSAPP & PHONE CONTACT</span>
+            <span className="text-amber-300">DIRECT CONTACT</span>
           </div>
         </div>
 
@@ -127,27 +127,27 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
               : "bg-transparent border-none shadow-none" 
           }`}
         >
-          <div className={`w-full flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 lg:px-8 transition-all duration-300 ${isScrolled ? "py-2.5 sm:py-3.5" : "py-4 sm:py-5"}`}>
+          <div className={`w-full flex items-center justify-between gap-1.5 sm:gap-4 px-2.5 sm:px-6 lg:px-8 transition-all duration-300 ${isScrolled ? "py-2 sm:py-3.5" : "py-3 sm:py-5"}`}>
             
-            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 group">
               {cmsConfig?.footer?.brandLogoUrl ? (
                 <img
                   src={cmsConfig.footer.brandLogoUrl}
                   alt="Brand Logo"
-                  className="h-10 sm:h-12 object-contain transition group-hover:scale-105"
+                  className="h-8 sm:h-12 object-contain transition group-hover:scale-105"
                 />
               ) : (
                 <>
-                  <div className="px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 shadow-lg shadow-rose-600/30 flex items-center justify-center">
-                    <span className="text-xl sm:text-2xl font-black tracking-widest text-white">
+                  <div className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 shadow-lg shadow-rose-600/30 flex items-center justify-center">
+                    <span className="text-base sm:text-2xl font-black tracking-wider text-white">
                       {cmsConfig?.footer?.brandName ? cmsConfig.footer.brandName.split(" ")[0] : "SKOKKA"}
                     </span>
                   </div>
                   <div className="flex flex-col leading-tight">
-                    <span className="text-[13px] sm:text-sm font-black text-amber-400 tracking-widest uppercase">
+                    <span className="text-[11px] sm:text-sm font-black text-amber-400 tracking-widest uppercase">
                       {cmsConfig?.footer?.brandName ? cmsConfig.footer.brandName.split(" ").slice(1).join(" ") || "INDIA" : "INDIA"}
                     </span>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-300 tracking-[0.2em] uppercase">
+                    <span className="text-[8px] sm:text-[10px] font-bold text-slate-300 tracking-[0.2em] uppercase">
                       {cmsConfig?.footer?.brandBadgeText || "CLASSIFIEDS"}
                     </span>
                   </div>
@@ -167,7 +167,7 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
               ))}
             </nav>
 
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <Link
                 href="/cities"
                 className="hidden xl:flex items-center gap-2 rounded-full bg-slate-900/60 backdrop-blur-sm px-4 py-2 text-[14px] xl:text-[15px] font-extrabold text-slate-200 hover:bg-slate-900/90 hover:text-rose-400 transition cursor-pointer"
@@ -186,18 +186,18 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
 
               <button
                 onClick={handlePostAdTrigger}
-                className="whitespace-nowrap rounded-full bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 px-6 py-2.5 text-[13px] xl:text-[14px] font-black uppercase tracking-wider text-white shadow-lg shadow-rose-600/40 transition duration-300 hover:from-rose-500 hover:to-pink-500 hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                className="whitespace-nowrap rounded-full bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 px-3 py-2 sm:px-6 sm:py-2.5 text-[11px] sm:text-[13px] xl:text-[14px] font-black uppercase tracking-wider text-white shadow-lg shadow-rose-600/40 transition duration-300 hover:from-rose-500 hover:to-pink-500 hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-1.5 cursor-pointer"
               >
-                <Plus className="h-4 w-4 stroke-[3]" />
-                <span>POST FREE AD</span>
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
+                <span>+ POST FREE AD</span>
               </button>
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-xl bg-slate-900/80 backdrop-blur-sm border-none text-slate-300 hover:text-white transition cursor-pointer"
+                className="lg:hidden p-1.5 sm:p-2 rounded-xl bg-slate-900/80 backdrop-blur-sm border-none text-slate-300 hover:text-white transition cursor-pointer"
                 aria-label="Toggle Mobile Menu"
               >
-                {isMobileMenuOpen ? <X className="h-6 w-6 text-rose-400" /> : <Menu className="h-6 w-6 text-rose-400" />}
+                {isMobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6 text-rose-400" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6 text-rose-400" />}
               </button>
             </div>
           </div>
