@@ -154,7 +154,7 @@ export const DEFAULT_AD_CMS_CONFIG: AdCmsConfig = {
   ],
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
 
 export function getAdCmsConfig(): AdCmsConfig {
   if (typeof window === "undefined") return DEFAULT_AD_CMS_CONFIG;

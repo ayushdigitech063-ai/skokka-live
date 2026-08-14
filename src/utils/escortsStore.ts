@@ -37,7 +37,7 @@ export interface EscortProfileItem {
 
 // ── Config ────────────────────────────────────────────────
 export const ESCORTS_UPDATE_EVENT = "skokka_escorts_config_updated";
-export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
 
 // ── In-memory cache ───────────────────────────────────────
 const CACHE_TTL_MS = 60_000; // 60 seconds

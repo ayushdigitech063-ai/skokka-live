@@ -18,7 +18,7 @@ const getBaseUrl = () => {
     // Ignore in non-Vite contexts
   }
 
-  return 'http://localhost:4000';
+  return 'https://skokka-backend-live.onrender.com';
 };
 
 const baseUrl = getBaseUrl();
@@ -27,7 +27,7 @@ export const CANDIDATE_API_URLS = Array.from(
   new Set(
     [
       baseUrl ? `${baseUrl}/api/profiles` : null,
-      'http://localhost:4000/api/profiles',
+      'https://skokka-backend-live.onrender.com/api/profiles',
     ].filter(Boolean)
   )
 );
