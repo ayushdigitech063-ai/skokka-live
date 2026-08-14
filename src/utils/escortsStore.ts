@@ -5,6 +5,7 @@
 
 export interface EscortProfileItem {
   id: string;
+  skId?: string;
   _mongoId?: string;
   name: string;
   title: string;
@@ -31,6 +32,7 @@ export interface EscortProfileItem {
   status: "APPROVED" | "PENDING_APPROVAL" | "REJECTED";
   submittedAt: string;
   submittedBy?: string;
+  utrNumber?: string;
 }
 
 // ── Config ────────────────────────────────────────────────
