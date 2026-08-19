@@ -44,7 +44,8 @@ export function AdminLayout() {
       
       if (token && storedUserStr) {
         // Cryptographically verify JWT Security Token with Backend Server API
-        fetch("/api/auth/verify", {
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+        fetch(`${BACKEND_URL}/auth/verify`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
