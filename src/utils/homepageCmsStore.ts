@@ -288,10 +288,19 @@ export function saveHomePageCmsConfig(config: HomePageCmsConfig): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     window.dispatchEvent(new Event(CMS_UPDATE_EVENT));
 
+    // Strip/clean heavy Base64 Data URLs before POST to avoid Nginx 413 Request Entity Too Large error
+    const payload = JSON.parse(JSON.stringify(config));
+    if (payload?.footer?.brandLogoUrl && payload.footer.brandLogoUrl.startsWith("data:image/")) {
+      payload.footer.brandLogoUrl = "/images/logo.png";
+    }
+    if (payload?.hero?.bgImage && payload.hero.bgImage.startsWith("data:image/")) {
+      payload.hero.bgImage = "/images/hero-sofa-model.png";
+    }
+
     fetch(`${BACKEND_URL}/settings/homepageCmsConfig`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(config),
+      body: JSON.stringify(payload),
     }).catch((err) => console.error("Failed to sync Homepage CMS config with MongoDB:", err));
   } catch (e) {
     console.error("Failed to save CMS config:", e);
