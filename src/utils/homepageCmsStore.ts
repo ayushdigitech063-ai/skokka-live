@@ -248,11 +248,26 @@ export async function fetchHomePageCmsConfigAsync(): Promise<HomePageCmsConfig> 
     if (res.ok) {
       const json = await res.json();
       if (json?.success && json?.data) {
-        const merged = {
+        const backendLogo = json.data?.footer?.brandLogoUrl;
+        const localLogo = local?.footer?.brandLogoUrl;
+        // Keep uploaded logo if local has one and backend returns empty/outdated string
+        const finalLogo = backendLogo || localLogo || "";
+
+        const merged: HomePageCmsConfig = {
           ...DEFAULT_HOMEPAGE_CMS_CONFIG,
+          ...local,
           ...json.data,
-          hero: { ...DEFAULT_HOMEPAGE_CMS_CONFIG.hero, ...json.data?.hero },
-          footer: { ...DEFAULT_HOMEPAGE_CMS_CONFIG.footer, ...json.data?.footer },
+          hero: {
+            ...DEFAULT_HOMEPAGE_CMS_CONFIG.hero,
+            ...local?.hero,
+            ...json.data?.hero,
+          },
+          footer: {
+            ...DEFAULT_HOMEPAGE_CMS_CONFIG.footer,
+            ...local?.footer,
+            ...json.data?.footer,
+            brandLogoUrl: finalLogo,
+          },
         };
         if (typeof window !== "undefined") {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));

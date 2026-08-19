@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { AdminUserData } from "./AdminLoginForm";
 import { fetchAllEscortsAdmin, ESCORTS_UPDATE_EVENT } from "@/utils/escortsStore";
-import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
+import { getHomePageCmsConfig, fetchHomePageCmsConfigAsync, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
 
 interface AdminTopBarProps {
   sidebarOpen: boolean;
@@ -49,6 +49,7 @@ export function AdminTopBar({
   useEffect(() => {
     const loadCms = () => setCmsConfig(getHomePageCmsConfig());
     loadCms();
+    fetchHomePageCmsConfigAsync().then(setCmsConfig);
     window.addEventListener(CMS_UPDATE_EVENT, loadCms);
     return () => window.removeEventListener(CMS_UPDATE_EVENT, loadCms);
   }, []);

@@ -40,6 +40,18 @@ export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Meta
         follow: true,
       },
     },
+    icons: {
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/favicon.png", type: "image/png" },
+        { url: "/icon.png", type: "image/png" },
+      ],
+      shortcut: ["/favicon.ico"],
+      apple: [
+        { url: "/apple-touch-icon.png" },
+        { url: "/apple-icon.png" },
+      ],
+    },
     alternates: {
       canonical: seoData.canonical,
     },

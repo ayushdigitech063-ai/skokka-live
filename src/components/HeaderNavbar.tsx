@@ -6,7 +6,7 @@ import { Crown, Plus, MapPin, Menu, X } from "lucide-react";
 import { DEFAULT_NAVBAR_ITEMS, NavbarMenuItem } from "@/components/admin/AdminPaidAdsTab";
 import { PostAdAuthModal } from "@/components/PostAdAuthModal";
 import { CreateAdModal } from "@/components/CreateAdModal";
-import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
+import { getHomePageCmsConfig, fetchHomePageCmsConfigAsync, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
 
 interface HeaderNavbarProps {
   onPostAdClick?: () => void;
@@ -52,6 +52,7 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
   useEffect(() => {
     const loadCms = () => setCmsConfig(getHomePageCmsConfig());
     loadCms();
+    fetchHomePageCmsConfigAsync().then(setCmsConfig);
     window.addEventListener(CMS_UPDATE_EVENT, loadCms);
     return () => window.removeEventListener(CMS_UPDATE_EVENT, loadCms);
   }, []);

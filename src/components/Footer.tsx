@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck, Mail, ExternalLink, Send } from "lucide-react";
 import Swal from "sweetalert2";
-import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
+import { getHomePageCmsConfig, fetchHomePageCmsConfigAsync, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
 import { HomePageCmsConfig } from "@/types/homepageCms";
 
 export function Footer() {
@@ -14,6 +14,7 @@ export function Footer() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setCmsConfig(getHomePageCmsConfig());
+      fetchHomePageCmsConfigAsync().then(setCmsConfig);
 
       const handleUpdate = () => {
         setCmsConfig(getHomePageCmsConfig());
