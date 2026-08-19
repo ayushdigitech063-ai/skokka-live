@@ -162,28 +162,21 @@ export function AdminTopBar({
             collapsed ? "w-20 justify-center" : "w-80"
           }`}
         >
-          {/* SKOKKA LOGO */}
+          {/* MYCITYQUEENS LOGO */}
           <button
             type="button"
             onClick={collapsed ? toggleSidebarCollapse : undefined}
             className="flex items-center gap-2 group shrink-0"
             title={collapsed ? "Expand Sidebar" : undefined}
           >
-            {cmsConfig?.footer?.brandLogoUrl ? (
-              <img
-                src={cmsConfig.footer.brandLogoUrl}
-                alt="Brand Logo"
-                className="h-8 sm:h-9 object-contain transition group-hover:scale-105"
-              />
-            ) : collapsed ? (
-              <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500 hover:scale-105 transition">
-                {(cmsConfig?.footer?.brandName || "SKOKKA")[0]}
-              </span>
-            ) : (
-              <span className="text-xl sm:text-2xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400 transition duration-300 group-hover:scale-105">
-                {cmsConfig?.footer?.brandName || "SKOKKA"}
-              </span>
-            )}
+            <img
+              src={cmsConfig?.footer?.brandLogoUrl || "/images/logo.png"}
+              alt="MyCityQueens Logo"
+              className="h-8 sm:h-10 object-contain transition group-hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/images/logo.png";
+              }}
+            />
           </button>
 
           <div className="flex items-center gap-2">

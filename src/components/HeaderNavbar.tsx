@@ -131,29 +131,14 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
           <div className={`w-full flex items-center justify-between gap-1.5 sm:gap-4 px-2.5 sm:px-6 lg:px-8 transition-all duration-300 ${isScrolled ? "py-2 sm:py-3.5" : "py-3 sm:py-5"}`}>
             
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 group">
-              {cmsConfig?.footer?.brandLogoUrl ? (
-                <img
-                  src={cmsConfig.footer.brandLogoUrl}
-                  alt="Brand Logo"
-                  className="h-8 sm:h-12 object-contain transition group-hover:scale-105"
-                />
-              ) : (
-                <>
-                  <div className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-600 to-pink-600 shadow-lg shadow-rose-600/30 flex items-center justify-center">
-                    <span className="text-base sm:text-2xl font-black tracking-wider text-white">
-                      {cmsConfig?.footer?.brandName ? cmsConfig.footer.brandName.split(" ")[0] : "SKOKKA"}
-                    </span>
-                  </div>
-                  <div className="flex flex-col leading-tight">
-                    <span className="text-[11px] sm:text-sm font-black text-amber-400 tracking-widest uppercase">
-                      {cmsConfig?.footer?.brandName ? cmsConfig.footer.brandName.split(" ").slice(1).join(" ") || "INDIA" : "INDIA"}
-                    </span>
-                    <span className="text-[8px] sm:text-[10px] font-bold text-slate-300 tracking-[0.2em] uppercase">
-                      {cmsConfig?.footer?.brandBadgeText || "CLASSIFIEDS"}
-                    </span>
-                  </div>
-                </>
-              )}
+              <img
+                src={cmsConfig?.footer?.brandLogoUrl || "/images/logo.png"}
+                alt="MyCityQueens Logo"
+                className="h-9 sm:h-14 object-contain transition group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/logo.png";
+                }}
+              />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-7 xl:gap-9">

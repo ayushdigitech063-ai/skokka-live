@@ -141,8 +141,8 @@ export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
     ],
   },
   footer: {
-    brandName: "SKOKKA INDIA",
-    brandLogoUrl: "",
+    brandName: "MYCITYQUEENS",
+    brandLogoUrl: "/images/logo.png",
     brandBadgeText: "Classifieds",
     brandTagline: "India's No. 1 Adult Escort Classifieds Directory. 100% AI Verified Profiles, Direct WhatsApp & Phone contact.",
     sslBadgeText: "256-Bit SSL Encrypted Channel",

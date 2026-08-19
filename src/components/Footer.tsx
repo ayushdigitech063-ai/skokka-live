@@ -82,17 +82,14 @@ export function Footer() {
           {/* Brand Col */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-3 group shrink-0">
-              {footerConfig?.brandLogoUrl ? (
-                <img
-                  src={footerConfig.brandLogoUrl}
-                  alt="Brand Logo"
-                  className="h-12 object-contain transition group-hover:scale-105"
-                />
-              ) : (
-                <span className="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400">
-                  {brandTitle}
-                </span>
-              )}
+              <img
+                src={footerConfig?.brandLogoUrl || "/images/logo.png"}
+                alt="MyCityQueens Logo"
+                className="h-12 sm:h-16 object-contain transition group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/logo.png";
+                }}
+              />
             </Link>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
               {footerSubtitle}

@@ -95,10 +95,12 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
         </div>
 
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="rounded-2xl bg-gradient-to-tr from-rose-600 via-pink-600 to-purple-600 px-4 py-2 shadow-lg shadow-rose-600/30">
-              <span className="text-2xl font-bold tracking-normal text-white">SKOKKA</span>
-            </div>
+          <div className="flex items-center justify-center mb-4">
+            <img
+              src="/images/logo.png"
+              alt="MyCityQueens Logo"
+              className="h-16 sm:h-20 object-contain drop-shadow-xl"
+            />
           </div>
           <h1 className="text-2xl font-semibold tracking-normal text-white flex items-center justify-center gap-2.5">
             Super Admin Control Access <ShieldCheck className="h-6 w-6 text-rose-500" />
