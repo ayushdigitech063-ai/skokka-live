@@ -104,7 +104,7 @@ export function UserDashboard({
         setUserEmail(paramEmail);
         localStorage.setItem("skokka_user_email", paramEmail);
 
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com"}/api/auth/activate-account`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/activate-account`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: paramEmail }),

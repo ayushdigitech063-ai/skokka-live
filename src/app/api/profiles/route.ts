@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
 // Proxy GET /api/profiles → backend GET /api/escorts (APPROVED only)
 export async function GET() {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts`, { cache: "no-store" });
+    const res = await fetch(`${BACKEND_URL}/escorts`, { cache: "no-store" });
     if (!res.ok) throw new Error(`Backend error: ${res.status}`);
     const json = await res.json();
     return NextResponse.json(json.data || [], { status: 200 });
@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const res = await fetch(`${BACKEND_URL}/api/escorts`, {
+    const res = await fetch(`${BACKEND_URL}/escorts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

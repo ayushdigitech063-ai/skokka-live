@@ -13,7 +13,7 @@ export function AdminInquiriesTab() {
   const fetchInquiries = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/inquiries`);
+      const res = await fetch(`${BACKEND_URL}/inquiries`);
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
         setInquiries(json.data);
@@ -31,7 +31,7 @@ export function AdminInquiriesTab() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/inquiries/${id}/status`, {
+      const res = await fetch(`${BACKEND_URL}/inquiries/${id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -68,7 +68,7 @@ export function AdminInquiriesTab() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/inquiries/${id}`, { method: "DELETE" });
+        const res = await fetch(`${BACKEND_URL}/inquiries/${id}`, { method: "DELETE" });
         if (res.ok) {
           fetchInquiries();
         }

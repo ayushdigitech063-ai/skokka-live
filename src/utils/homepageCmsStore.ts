@@ -1,6 +1,6 @@
 import { HomePageCmsConfig } from "../types/homepageCms";
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
 export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
   hero: {
@@ -244,7 +244,7 @@ export function getHomePageCmsConfig(): HomePageCmsConfig {
 export async function fetchHomePageCmsConfigAsync(): Promise<HomePageCmsConfig> {
   const local = getHomePageCmsConfig();
   try {
-    const res = await fetch(`${BACKEND_URL}/api/settings/homepageCmsConfig`);
+    const res = await fetch(`${BACKEND_URL}/settings/homepageCmsConfig`);
     if (res.ok) {
       const json = await res.json();
       if (json?.success && json?.data) {
@@ -273,7 +273,7 @@ export function saveHomePageCmsConfig(config: HomePageCmsConfig): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     window.dispatchEvent(new Event(CMS_UPDATE_EVENT));
 
-    fetch(`${BACKEND_URL}/api/settings/homepageCmsConfig`, {
+    fetch(`${BACKEND_URL}/settings/homepageCmsConfig`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(config),
@@ -289,7 +289,7 @@ export function resetHomePageCmsConfig(): HomePageCmsConfig {
     localStorage.removeItem(STORAGE_KEY);
     window.dispatchEvent(new Event(CMS_UPDATE_EVENT));
 
-    fetch(`${BACKEND_URL}/api/settings/homepageCmsConfig`, {
+    fetch(`${BACKEND_URL}/settings/homepageCmsConfig`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(DEFAULT_HOMEPAGE_CMS_CONFIG),

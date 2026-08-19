@@ -29,7 +29,7 @@ export default function ContactClientPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/inquiries`, {
+      const res = await fetch(`${BACKEND_URL}/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, department, subject, message }),

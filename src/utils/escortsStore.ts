@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────
 // escortsStore.ts  — Fully dynamic API-backed store (no seed data)
-// All data comes from: https://skokka-backend-live.onrender.com/api/escorts (MongoDB)
+// All data comes from: https://mycityqueen.com/x/api/escorts (MongoDB)
 // ─────────────────────────────────────────────────────────────────
 
 export interface EscortProfileItem {
@@ -37,7 +37,7 @@ export interface EscortProfileItem {
 
 // ── Config ────────────────────────────────────────────────
 export const ESCORTS_UPDATE_EVENT = "skokka_escorts_config_updated";
-export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+export const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
 // ── In-memory cache ───────────────────────────────────────
 const CACHE_TTL_MS = 60_000; // 60 seconds
@@ -59,7 +59,7 @@ export async function fetchEscortProfiles(forceRefresh = false): Promise<EscortP
 
   _inflight = (async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/escorts`, { cache: "no-store" });
+      const res = await fetch(`${BACKEND_URL}/escorts`, { cache: "no-store" });
       if (res.status === 429) {
         console.warn("fetchEscortProfiles: rate limited (429) — returning cached data");
         return _cachedProfiles || [];
@@ -91,7 +91,7 @@ export function invalidateEscortsCache() {
 /** Fetch all profiles (admin panel — includes pending & rejected) */
 export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[]> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/admin`, { cache: "no-store" });
+    const res = await fetch(`${BACKEND_URL}/escorts/admin`, { cache: "no-store" });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const json = await res.json();
     return json.data || [];
@@ -104,7 +104,7 @@ export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[]> {
 /** Fetch single profile by id */
 export async function fetchEscortById(id: string): Promise<EscortProfileItem | null> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/${id}`, { cache: "no-store" });
+    const res = await fetch(`${BACKEND_URL}/escorts/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data || null;
@@ -117,7 +117,7 @@ export async function fetchEscortById(id: string): Promise<EscortProfileItem | n
 /** Create new escort profile */
 export async function createEscortProfile(data: Partial<EscortProfileItem>, isAdmin = false): Promise<EscortProfileItem | null> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts`, {
+    const res = await fetch(`${BACKEND_URL}/escorts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -139,7 +139,7 @@ export async function createEscortProfile(data: Partial<EscortProfileItem>, isAd
 /** Update escort profile (admin) */
 export async function updateEscortProfile(id: string, data: Partial<EscortProfileItem>): Promise<EscortProfileItem | null> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/${id}`, {
+    const res = await fetch(`${BACKEND_URL}/escorts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -158,7 +158,7 @@ export async function updateEscortProfile(id: string, data: Partial<EscortProfil
 /** Approve / Reject profile (admin) */
 export async function setEscortStatus(id: string, status: "APPROVED" | "PENDING_APPROVAL" | "REJECTED"): Promise<boolean> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/${id}/status`, {
+    const res = await fetch(`${BACKEND_URL}/escorts/${id}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -176,7 +176,7 @@ export async function setEscortStatus(id: string, status: "APPROVED" | "PENDING_
 /** Set SUPER_TOP / VIP / Verified / Standard placement (admin) */
 export async function setEscortPlacement(id: string, placement: "SUPER_TOP" | "VIP" | "VERIFIED" | "STANDARD"): Promise<boolean> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/${id}/placement`, {
+    const res = await fetch(`${BACKEND_URL}/escorts/${id}/placement`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ placement }),
@@ -194,7 +194,7 @@ export async function setEscortPlacement(id: string, placement: "SUPER_TOP" | "V
 /** Delete escort profile (admin) */
 export async function deleteEscortProfile(id: string): Promise<boolean> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/${id}`, { method: "DELETE" });
+    const res = await fetch(`${BACKEND_URL}/escorts/${id}`, { method: "DELETE" });
     if (!res.ok) return false;
     invalidateEscortsCache();
     if (typeof window !== "undefined") window.dispatchEvent(new Event(ESCORTS_UPDATE_EVENT));
@@ -208,7 +208,7 @@ export async function deleteEscortProfile(id: string): Promise<boolean> {
 /** Trigger one-time seed of default profiles in MongoDB */
 export async function seedDefaultProfiles(): Promise<string> {
   try {
-    const res = await fetch(`${BACKEND_URL}/api/escorts/seed`, { method: "POST" });
+    const res = await fetch(`${BACKEND_URL}/escorts/seed`, { method: "POST" });
     const json = await res.json();
     invalidateEscortsCache();
     return json.message || "Done";

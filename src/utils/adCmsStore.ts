@@ -154,7 +154,7 @@ export const DEFAULT_AD_CMS_CONFIG: AdCmsConfig = {
   ],
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
 export function getAdCmsConfig(): AdCmsConfig {
   if (typeof window === "undefined") return DEFAULT_AD_CMS_CONFIG;
@@ -162,7 +162,7 @@ export function getAdCmsConfig(): AdCmsConfig {
     const raw = localStorage.getItem(AD_CMS_STORAGE_KEY);
     if (!raw) {
       // Async background fetch from MongoDB Atlas
-      fetch(`${BACKEND_URL}/api/settings/adCmsConfig`)
+      fetch(`${BACKEND_URL}/settings/adCmsConfig`)
         .then((res) => (res.ok ? res.json() : null))
         .then((json) => {
           if (json && json.data) {
@@ -197,7 +197,7 @@ export function saveAdCmsConfig(config: AdCmsConfig): void {
     window.dispatchEvent(new Event(AD_CMS_UPDATE_EVENT));
 
     // Save to MongoDB Atlas via backend API
-    fetch(`${BACKEND_URL}/api/settings/adCmsConfig`, {
+    fetch(`${BACKEND_URL}/settings/adCmsConfig`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(config),
@@ -214,7 +214,7 @@ export function resetAdCmsConfig(): AdCmsConfig {
     window.dispatchEvent(new Event(AD_CMS_UPDATE_EVENT));
 
     // Reset in MongoDB Atlas
-    fetch(`${BACKEND_URL}/api/settings/adCmsConfig`, {
+    fetch(`${BACKEND_URL}/settings/adCmsConfig`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(DEFAULT_AD_CMS_CONFIG),

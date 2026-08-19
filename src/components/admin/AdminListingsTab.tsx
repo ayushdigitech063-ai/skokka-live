@@ -61,11 +61,11 @@ export function AdminListingsTab() {
   const [selectedArea, setSelectedArea] = useState<string>("");
 
   React.useEffect(() => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
     
     Promise.all([
-      fetch(`${BACKEND_URL}/api/locations/tree`).then((r) => r.json()).catch(() => null),
-      fetch(`${BACKEND_URL}/api/locations/cities`).then((r) => r.json()).catch(() => null),
+      fetch(`${BACKEND_URL}/locations/tree`).then((r) => r.json()).catch(() => null),
+      fetch(`${BACKEND_URL}/locations/cities`).then((r) => r.json()).catch(() => null),
     ]).then(([treeRes, citiesRes]) => {
       if (treeRes && treeRes.success) {
         setLocationTree(treeRes.tree || []);
@@ -256,8 +256,8 @@ export function AdminListingsTab() {
     try {
       const city = selectedCity || newListing.cityArea.split("(")[0].trim() || "Jaipur";
       const area = selectedArea || (newListing.cityArea.includes("(") ? newListing.cityArea.split("(")[1].replace(")", "").trim() : "");
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
-      await fetch(`${BACKEND_URL}/api/locations/auto-register`, {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+      await fetch(`${BACKEND_URL}/locations/auto-register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

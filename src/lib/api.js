@@ -18,7 +18,7 @@ const getBaseUrl = () => {
     // Ignore in non-Vite contexts
   }
 
-  return 'https://skokka-backend-live.onrender.com';
+  return 'https://mycityqueen.com/x';
 };
 
 const baseUrl = getBaseUrl();
@@ -26,8 +26,8 @@ const baseUrl = getBaseUrl();
 export const CANDIDATE_API_URLS = Array.from(
   new Set(
     [
-      baseUrl ? `${baseUrl}/api/profiles` : null,
-      'https://skokka-backend-live.onrender.com/api/profiles',
+      baseUrl ? `${baseUrl}/profiles` : null,
+      'https://mycityqueen.com/x/profiles',
     ].filter(Boolean)
   )
 );

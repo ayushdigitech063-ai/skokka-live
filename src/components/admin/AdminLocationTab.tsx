@@ -20,7 +20,7 @@ import {
 import Swal from "sweetalert2";
 import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://skokka-backend-live.onrender.com";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
 export function AdminLocationTab() {
   const [activeSubTab, setActiveSubTab] = useState<"all_tree" | "states" | "cities" | "areas">("all_tree");
@@ -66,7 +66,7 @@ export function AdminLocationTab() {
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/locations/auto-register`, {
+      const res = await fetch(`${BACKEND_URL}/locations/auto-register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,10 +103,10 @@ export function AdminLocationTab() {
     setLoading(true);
     try {
       const [resTree, resStates, resCities, resAreas] = await Promise.all([
-        fetch(`${BACKEND_URL}/api/locations/tree`).then((r) => r.json()),
-        fetch(`${BACKEND_URL}/api/locations/states?includeDeleted=false`).then((r) => r.json()),
-        fetch(`${BACKEND_URL}/api/locations/cities?includeDeleted=false`).then((r) => r.json()),
-        fetch(`${BACKEND_URL}/api/locations/areas?includeDeleted=false`).then((r) => r.json()),
+        fetch(`${BACKEND_URL}/locations/tree`).then((r) => r.json()),
+        fetch(`${BACKEND_URL}/locations/states?includeDeleted=false`).then((r) => r.json()),
+        fetch(`${BACKEND_URL}/locations/cities?includeDeleted=false`).then((r) => r.json()),
+        fetch(`${BACKEND_URL}/locations/areas?includeDeleted=false`).then((r) => r.json()),
       ]);
 
       if (resTree.success) setLocationTree(resTree.tree || []);
@@ -142,8 +142,8 @@ export function AdminLocationTab() {
 
     try {
       const url = editingState
-        ? `${BACKEND_URL}/api/locations/states/${editingState._id}`
-        : `${BACKEND_URL}/api/locations/states`;
+        ? `${BACKEND_URL}/locations/states/${editingState._id}`
+        : `${BACKEND_URL}/locations/states`;
       const method = editingState ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -178,7 +178,7 @@ export function AdminLocationTab() {
 
   const handleToggleState = async (id: string) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/locations/states/${id}/status`, {
+      const res = await fetch(`${BACKEND_URL}/locations/states/${id}/status`, {
         method: "PATCH",
         headers: getAuthHeaders(),
       });
@@ -201,7 +201,7 @@ export function AdminLocationTab() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/locations/states/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/locations/states/${id}`, {
           method: "DELETE",
           headers: getAuthHeaders(),
         });
@@ -228,8 +228,8 @@ export function AdminLocationTab() {
 
     try {
       const url = editingCity
-        ? `${BACKEND_URL}/api/locations/cities/${editingCity._id}`
-        : `${BACKEND_URL}/api/locations/cities`;
+        ? `${BACKEND_URL}/locations/cities/${editingCity._id}`
+        : `${BACKEND_URL}/locations/cities`;
       const method = editingCity ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -264,7 +264,7 @@ export function AdminLocationTab() {
 
   const handleToggleCity = async (id: string) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/locations/cities/${id}/status`, {
+      const res = await fetch(`${BACKEND_URL}/locations/cities/${id}/status`, {
         method: "PATCH",
         headers: getAuthHeaders(),
       });
@@ -287,7 +287,7 @@ export function AdminLocationTab() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/locations/cities/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/locations/cities/${id}`, {
           method: "DELETE",
           headers: getAuthHeaders(),
         });
@@ -314,8 +314,8 @@ export function AdminLocationTab() {
 
     try {
       const url = editingArea
-        ? `${BACKEND_URL}/api/locations/areas/${editingArea._id}`
-        : `${BACKEND_URL}/api/locations/areas`;
+        ? `${BACKEND_URL}/locations/areas/${editingArea._id}`
+        : `${BACKEND_URL}/locations/areas`;
       const method = editingArea ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -350,7 +350,7 @@ export function AdminLocationTab() {
 
   const handleToggleArea = async (id: string) => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/locations/areas/${id}/status`, {
+      const res = await fetch(`${BACKEND_URL}/locations/areas/${id}/status`, {
         method: "PATCH",
         headers: getAuthHeaders(),
       });
@@ -372,7 +372,7 @@ export function AdminLocationTab() {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`${BACKEND_URL}/api/locations/areas/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/locations/areas/${id}`, {
           method: "DELETE",
           headers: getAuthHeaders(),
         });
