@@ -18,7 +18,7 @@ interface AdminLoginFormProps {
 }
 
 export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
-  const [adminId, setAdminId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -28,8 +28,8 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
     e.preventDefault();
     setError("");
 
-    if (!adminId.trim() || !password.trim()) {
-      setError("Please enter Super Admin ID and Password.");
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter Super Admin Email Address and Password.");
       return;
     }
 
@@ -40,14 +40,14 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       const res = await fetch(`${BACKEND_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ adminId, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         setLoading(false);
-        setError(data.error || "Invalid Super Admin Credentials.");
+        setError(data.message || data.error || "Invalid Super Admin Credentials.");
         return;
       }
 
@@ -55,8 +55,8 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       localStorage.setItem("skokka_admin_session", JSON.stringify(data.user));
 
       const loggedUser: AdminUserData = {
-        id: data.user.id,
-        name: data.user.name || "Super Admin",
+        id: data.user.id || data.user._id,
+        name: data.user.fullName || data.user.name || "Super Admin",
         email: data.user.email,
         role: "Super Admin",
         avatar: data.user.avatar || "S",
@@ -108,23 +108,6 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
           </p>
         </div>
 
-        {/* Credentials Quick Fill */}
-        <div className="mb-6 p-4 rounded-2xl bg-[#050B1F] border border-rose-500/20 flex items-center justify-between text-xs">
-          <span className="text-rose-300 font-medium flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-amber-400" /> Root Super Admin Access:
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setAdminId("admin");
-              setPassword("admin123");
-            }}
-            className="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-lg border border-amber-400/20 hover:bg-amber-400/20 transition cursor-pointer"
-          >
-            Auto-Fill Credentials
-          </button>
-        </div>
-
         {error && (
           <div className="mb-6 p-3.5 rounded-2xl bg-rose-950/60 border border-rose-600/60 text-rose-200 text-xs font-semibold text-center">
             {error}
@@ -135,18 +118,18 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
           
           <div className="space-y-2">
             <label className="text-xs font-medium text-slate-300 uppercase tracking-wider">
-              Super Admin User ID / Email
+              Super Admin Email Address
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
                 <User className="h-4 w-4" />
               </div>
               <input
-                type="text"
+                type="email"
                 required
-                value={adminId}
-                onChange={(e) => setAdminId(e.target.value)}
-                placeholder="Enter super admin ID (admin)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@mycityqueen.com"
                 className="w-full pl-11 pr-4 py-3.5 text-sm font-normal rounded-2xl bg-[#050B1F] border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-500"
               />
             </div>
@@ -165,7 +148,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password (admin123)"
+                placeholder="••••••••••••"
                 className="w-full pl-11 pr-11 py-3.5 text-sm font-normal rounded-2xl bg-[#050B1F] border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-500"
               />
               <button

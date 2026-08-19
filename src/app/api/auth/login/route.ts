@@ -4,28 +4,28 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { adminId, password } = body;
+    const { email, adminId, password } = body;
+    const inputEmail = email || adminId;
 
-    if (!adminId || !password) {
+    if (!inputEmail || !password) {
       return NextResponse.json(
-        { error: "Admin User ID and Password are required." },
+        { error: "Super Admin Email Address and Password are required." },
         { status: 400 }
       );
     }
 
-    const cleanId = String(adminId).trim().toLowerCase();
+    const cleanId = String(inputEmail).trim().toLowerCase();
 
     // Check Root Super Admin credentials
     if (
-      cleanId === "admin" ||
-      cleanId === "admin@skokka.in" ||
-      cleanId === "sumit"
+      (cleanId === "admin@mycityqueen.com" || cleanId === "admin") &&
+      password === "Password@123"
     ) {
       // Generate Root Super Admin JWT Token
       const jwtPayload = {
         sub: "ADM-001",
-        name: "Sumit",
-        email: "admin@skokka.in",
+        name: "Super Admin",
+        email: "admin@mycityqueen.com",
         role: "Super Admin",
         avatar: "S",
         permissions: ["ALL"],
