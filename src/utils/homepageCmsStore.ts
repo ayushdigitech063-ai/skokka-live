@@ -10,7 +10,7 @@ export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
     titleSuffix: "",
     subtitle:
       "India's most trusted classified directory for independent escorts, high-class VIP companions & massage parlors.",
-    bgImage: "", 
+    bgImage: "/images/hero-bg.jpg", 
     // Yahan se Natasha wala bada box ka data hata diya hai, sirf chota text rakh sakte ho ya empty chhod do
     floatingModelName: "", 
     floatingModelRate: "", 
@@ -250,17 +250,21 @@ export async function fetchHomePageCmsConfigAsync(): Promise<HomePageCmsConfig> 
       if (json?.success && json?.data) {
         const backendLogo = json.data?.footer?.brandLogoUrl;
         const localLogo = local?.footer?.brandLogoUrl;
-        // Keep uploaded logo if local has one and backend returns empty/outdated string
-        const finalLogo = backendLogo || localLogo || "";
+        const finalLogo = backendLogo || localLogo || "/images/logo.png";
+
+        const backendHeroBg = json.data?.hero?.bgImage;
+        const localHeroBg = local?.hero?.bgImage;
+        const finalHeroBg = localHeroBg || backendHeroBg || "/images/hero-sofa-model.png";
 
         const merged: HomePageCmsConfig = {
           ...DEFAULT_HOMEPAGE_CMS_CONFIG,
-          ...local,
           ...json.data,
+          ...local,
           hero: {
             ...DEFAULT_HOMEPAGE_CMS_CONFIG.hero,
-            ...local?.hero,
             ...json.data?.hero,
+            ...local?.hero,
+            bgImage: finalHeroBg,
           },
           footer: {
             ...DEFAULT_HOMEPAGE_CMS_CONFIG.footer,
@@ -288,14 +292,8 @@ export function saveHomePageCmsConfig(config: HomePageCmsConfig): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
     window.dispatchEvent(new Event(CMS_UPDATE_EVENT));
 
-    // Strip/clean heavy Base64 Data URLs before POST to avoid Nginx 413 Request Entity Too Large error
+    // Prepare payload for POST sync
     const payload = JSON.parse(JSON.stringify(config));
-    if (payload?.footer?.brandLogoUrl && payload.footer.brandLogoUrl.startsWith("data:image/")) {
-      payload.footer.brandLogoUrl = "/images/logo.png";
-    }
-    if (payload?.hero?.bgImage && payload.hero.bgImage.startsWith("data:image/")) {
-      payload.hero.bgImage = "/images/hero-sofa-model.png";
-    }
 
     fetch(`${BACKEND_URL}/settings/homepageCmsConfig`, {
       method: "POST",
