@@ -48,7 +48,7 @@ export function PostAdWizardModal({
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
-  const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
+  const [isAgeVerified, setIsAgeVerified] = useState<boolean>(true);
   const [adCms, setAdCms] = useState<AdCmsConfig | null>(null);
 
   // Age Verification Gate Form State

@@ -202,7 +202,7 @@ export function PostAdAuthModal({
                 <span className="font-bold text-[#d5639b]">2.</span> Click <strong className="text-[#d5639b]">"🚀 VERIFY IDENTITY & ACTIVATE DASHBOARD"</strong>.
               </p>
               <p className="flex items-start gap-2 text-[12px] text-slate-600">
-                <span className="font-bold text-[#d5639b]">3.</span> Upload human selfie photo & 12-digit Aadhaar to open your Admin Dashboard!
+                <span className="font-bold text-[#d5639b]">3.</span> Access your Dashboard to create & post your classified ads instantly!
               </p>
             </div>
 
