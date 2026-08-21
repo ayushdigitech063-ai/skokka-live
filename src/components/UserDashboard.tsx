@@ -47,7 +47,7 @@ export function UserDashboard({
 }: UserDashboardProps) {
   const [userEmail, setUserEmail] = useState<string>(initialEmail || "");
   const [customerCode, setCustomerCode] = useState<string>("IN2B2SQX");
-  const [isAgeVerified, setIsAgeVerified] = useState<boolean>(false);
+  const [isAgeVerified, setIsAgeVerified] = useState<boolean>(true);
   const [showAgeVerifyModal, setShowAgeVerifyModal] = useState<boolean>(false);
   const [showPostAdModal, setShowPostAdModal] = useState<boolean>(false);
   const [showAdsManagerModal, setShowAdsManagerModal] = useState<boolean>(false);
@@ -149,12 +149,8 @@ export function UserDashboard({
       }
       setCustomerCode(code);
 
-      const ageVerified = localStorage.getItem("skokka_age_verified") === "true";
-      setIsAgeVerified(ageVerified);
-
-      if ((params.get("verify_login") === "true" || initialVerifyLogin) && !ageVerified) {
-        setShowAgeVerifyModal(true);
-      }
+      setIsAgeVerified(true);
+      localStorage.setItem("skokka_age_verified", "true");
 
       return () => {
         window.removeEventListener(AD_CMS_UPDATE_EVENT, handleCmsUpdate);
