@@ -14,6 +14,8 @@ import {
   ExternalLink
 } from "lucide-react";
 
+import { TurnstileWidget } from "@/components/TurnstileWidget";
+
 interface PostAdAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,9 +29,10 @@ export function PostAdAuthModal({
   onAuthenticated,
   onSuccessActivate,
 }: PostAdAuthModalProps) {
-  const [authTab, setAuthTab] = useState<"signup" | "login">("login");
+  const [authTab, setAuthTab] = useState<"signup" | "login">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(false);
@@ -95,15 +98,25 @@ export function PostAdAuthModal({
       return;
     }
 
+    if (!turnstileToken) {
+      Swal.fire({
+        title: "CAPTCHA Required",
+        text: "Please complete the Security CAPTCHA verification before proceeding.",
+        icon: "warning",
+        confirmButtonColor: "#d5639b",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       if (authTab === "signup") {
-        // 1. Check duplicate email & Register in MongoDB Atlas
+        // 1. Check duplicate email & Register in MongoDB Atlas with Turnstile Token
         const regRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/user-register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, turnstileToken }),
         });
         const regJson = await regRes.json();
 
@@ -122,11 +135,11 @@ export function PostAdAuthModal({
         setLoading(false);
         setInboxNotice(true); // Shows clean inbox notice
       } else {
-        // Direct Login Flow (For subsequent logins after email activation)
+        // Direct Login Flow with Turnstile Token
         const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/user-login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, turnstileToken }),
         });
         const loginJson = await loginRes.json();
 
@@ -422,21 +435,13 @@ export function PostAdAuthModal({
                 </div>
               )}
 
-              {/* CLOUDFLARE TURNSTILE CAPTCHA BOX */}
-              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/90 flex items-center justify-between shadow-2xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-7 w-7 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-xs text-slate-900 block leading-tight">Verification status</span>
-                    <span className="text-[10px] text-slate-500 hover:text-slate-700 underline cursor-pointer">Troubleshoot</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-extrabold tracking-widest text-slate-400 block uppercase">CLOUDFLARE</span>
-                  <span className="text-[9px] text-slate-400 hover:text-slate-600 cursor-pointer">Privacy • Help</span>
-                </div>
+              {/* CLOUDFLARE TURNSTILE CAPTCHA WIDGET */}
+              <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/90 shadow-2xs">
+                <TurnstileWidget
+                  onVerify={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken("")}
+                  theme="light"
+                />
               </div>
 
               {/* SUBMIT BUTTON */}

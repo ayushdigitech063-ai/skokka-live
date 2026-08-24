@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles, KeyRound, ArrowLeft } from "lucide-react";
 
+import { TurnstileWidget } from "@/components/TurnstileWidget";
+
 export interface AdminUserData {
   id: string;
   name: string;
@@ -20,6 +22,7 @@ interface AdminLoginFormProps {
 export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,11 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       return;
     }
 
+    if (!turnstileToken) {
+      setError("Please complete the Security CAPTCHA verification challenge.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -40,7 +48,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       const res = await fetch(`${BACKEND_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, turnstileToken }),
       });
 
       const data = await res.json();
@@ -161,6 +169,14 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+          </div>
+
+          <div className="p-3 rounded-2xl bg-[#050B1F] border border-slate-800 shadow-inner">
+            <TurnstileWidget
+              onVerify={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken("")}
+              theme="dark"
+            />
           </div>
 
           <button

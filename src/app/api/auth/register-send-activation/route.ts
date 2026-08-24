@@ -12,22 +12,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
-    const smtpPort = Number(process.env.SMTP_PORT) || 587;
-    const smtpUser = process.env.SMTP_USER || "ayushdigitech49@gmail.com";
-    const smtpPass = process.env.SMTP_PASS || "";
+    const emailUser = process.env.EMAIL_USER || "ayushdigitech063@gmail.com";
+    const emailPass = process.env.EMAIL_PASS || "";
 
     // Configure Nodemailer Gmail Transport
     const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: false,
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      tls: {
-        rejectUnauthorized: false,
+        user: emailUser,
+        pass: emailPass,
       },
     });
 
@@ -35,7 +30,7 @@ export async function POST(request: Request) {
     const activationUrl = `${appBaseUrl}/dashboard?verify_login=true&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
-      from: `"${process.env.FROM_NAME || 'Skokka Classifieds Concierge'}" <${smtpUser}>`,
+      from: `"${process.env.FROM_NAME || 'Skokka Classifieds Concierge'}" <${emailUser}>`,
       to: email,
       subject: "🚀 Activate Your Skokka Classifieds Admin Account",
       html: `
