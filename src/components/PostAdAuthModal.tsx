@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import {
   X,
@@ -14,7 +14,7 @@ import {
   ExternalLink
 } from "lucide-react";
 
-import { RecaptchaV2Widget } from "@/components/RecaptchaV2Widget";
+import { RecaptchaV2Widget, RecaptchaV2Ref } from "@/components/RecaptchaV2Widget";
 
 interface PostAdAuthModalProps {
   isOpen: boolean;
@@ -33,6 +33,7 @@ export function PostAdAuthModal({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<RecaptchaV2Ref>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(false);
@@ -122,6 +123,7 @@ export function PostAdAuthModal({
 
         if (!regRes.ok || !regJson.success) {
           setLoading(false);
+          recaptchaRef.current?.reset();
           setCaptchaToken(null);
           Swal.fire({
             title: "Registration Failed",
@@ -134,6 +136,7 @@ export function PostAdAuthModal({
 
         localStorage.setItem("skokka_user_email", email);
         setLoading(false);
+        recaptchaRef.current?.reset();
         setCaptchaToken(null);
         setInboxNotice(true); // Shows clean inbox notice
       } else {
@@ -147,6 +150,7 @@ export function PostAdAuthModal({
 
         if (!loginRes.ok || !loginJson.success) {
           setLoading(false);
+          recaptchaRef.current?.reset();
           setCaptchaToken(null);
           Swal.fire({
             title: "Login Failed",
@@ -163,6 +167,8 @@ export function PostAdAuthModal({
         }
 
         setLoading(false);
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
         if (onAuthenticated) onAuthenticated();
         if (onSuccessActivate) {
           onSuccessActivate({ email });
@@ -303,7 +309,11 @@ export function PostAdAuthModal({
             <div className="grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl mb-5 text-xs font-bold border border-slate-200/50">
               <button
                 type="button"
-                onClick={() => setAuthTab("signup")}
+                onClick={() => {
+                  setAuthTab("signup");
+                  recaptchaRef.current?.reset();
+                  setCaptchaToken(null);
+                }}
                 className={`py-2.5 rounded-xl transition-all duration-200 uppercase tracking-wider cursor-pointer ${
                   authTab === "signup"
                     ? "bg-gradient-to-r from-[#d5639b] to-[#c2417e] text-white shadow-md shadow-pink-500/20 font-extrabold"
@@ -315,7 +325,11 @@ export function PostAdAuthModal({
 
               <button
                 type="button"
-                onClick={() => setAuthTab("login")}
+                onClick={() => {
+                  setAuthTab("login");
+                  recaptchaRef.current?.reset();
+                  setCaptchaToken(null);
+                }}
                 className={`py-2.5 rounded-xl transition-all duration-200 uppercase tracking-wider cursor-pointer ${
                   authTab === "login"
                     ? "bg-gradient-to-r from-[#d5639b] to-[#c2417e] text-white shadow-md shadow-pink-500/20 font-extrabold"
@@ -441,6 +455,7 @@ export function PostAdAuthModal({
               {/* GOOGLE RECAPTCHA V2 CHECKBOX WIDGET */}
               <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/90 shadow-2xs">
                 <RecaptchaV2Widget
+                  ref={recaptchaRef}
                   onVerify={(token) => setCaptchaToken(token)}
                   theme="light"
                 />

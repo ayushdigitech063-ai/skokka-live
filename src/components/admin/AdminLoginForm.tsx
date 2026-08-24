@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles, KeyRound, ArrowLeft } from "lucide-react";
 
-import { RecaptchaV2Widget } from "@/components/RecaptchaV2Widget";
+import { RecaptchaV2Widget, RecaptchaV2Ref } from "@/components/RecaptchaV2Widget";
 
 export interface AdminUserData {
   id: string;
@@ -23,6 +23,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<RecaptchaV2Ref>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,12 +56,16 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
 
       if (!res.ok || !data.success) {
         setLoading(false);
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
         setError(data.message || data.error || "Invalid Super Admin Credentials.");
         return;
       }
 
       localStorage.setItem("skokka_jwt_token", data.token);
       localStorage.setItem("skokka_admin_session", JSON.stringify(data.user));
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
 
       const loggedUser: AdminUserData = {
         id: data.user.id || data.user._id,
@@ -173,6 +178,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
 
           <div className="p-3 rounded-2xl bg-[#050B1F] border border-slate-800 shadow-inner">
             <RecaptchaV2Widget
+              ref={recaptchaRef}
               onVerify={(token) => setCaptchaToken(token)}
               theme="dark"
             />
