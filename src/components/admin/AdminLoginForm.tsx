@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles, KeyRound, ArrowLeft } from "lucide-react";
 
-import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { RecaptchaV2Widget } from "@/components/RecaptchaV2Widget";
 
 export interface AdminUserData {
   id: string;
@@ -22,7 +22,7 @@ interface AdminLoginFormProps {
 export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,8 +36,8 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       return;
     }
 
-    if (!turnstileToken) {
-      setError("Please complete the Security CAPTCHA verification challenge.");
+    if (!captchaToken) {
+      setError("Please complete the CAPTCHA verification.");
       return;
     }
 
@@ -48,7 +48,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
       const res = await fetch(`${BACKEND_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, turnstileToken }),
+        body: JSON.stringify({ email, password, captchaToken }),
       });
 
       const data = await res.json();
@@ -172,9 +172,8 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
           </div>
 
           <div className="p-3 rounded-2xl bg-[#050B1F] border border-slate-800 shadow-inner">
-            <TurnstileWidget
-              onVerify={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken("")}
+            <RecaptchaV2Widget
+              onVerify={(token) => setCaptchaToken(token)}
               theme="dark"
             />
           </div>

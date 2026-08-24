@@ -14,7 +14,7 @@ import {
   ExternalLink
 } from "lucide-react";
 
-import { TurnstileWidget } from "@/components/TurnstileWidget";
+import { RecaptchaV2Widget } from "@/components/RecaptchaV2Widget";
 
 interface PostAdAuthModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export function PostAdAuthModal({
   const [authTab, setAuthTab] = useState<"signup" | "login">("signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [turnstileToken, setTurnstileToken] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedMarketing, setAcceptedMarketing] = useState(false);
@@ -98,10 +98,10 @@ export function PostAdAuthModal({
       return;
     }
 
-    if (!turnstileToken) {
+    if (!captchaToken) {
       Swal.fire({
-        title: "CAPTCHA Required",
-        text: "Please complete the Security CAPTCHA verification before proceeding.",
+        title: "CAPTCHA Verification Required",
+        text: "Please complete the CAPTCHA verification.",
         icon: "warning",
         confirmButtonColor: "#d5639b",
       });
@@ -112,19 +112,20 @@ export function PostAdAuthModal({
 
     try {
       if (authTab === "signup") {
-        // 1. Check duplicate email & Register in MongoDB Atlas with Turnstile Token
+        // 1. Check duplicate email & Register in MongoDB Atlas with Google reCAPTCHA Token
         const regRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/user-register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, turnstileToken }),
+          body: JSON.stringify({ email, password, captchaToken }),
         });
         const regJson = await regRes.json();
 
         if (!regRes.ok || !regJson.success) {
           setLoading(false);
+          setCaptchaToken(null);
           Swal.fire({
             title: "Registration Failed",
-            text: regJson.message || "This email is already registered. Please login instead.",
+            text: regJson.message || "Please complete the CAPTCHA verification.",
             icon: "warning",
             confirmButtonColor: "#d5639b",
           });
@@ -133,21 +134,23 @@ export function PostAdAuthModal({
 
         localStorage.setItem("skokka_user_email", email);
         setLoading(false);
+        setCaptchaToken(null);
         setInboxNotice(true); // Shows clean inbox notice
       } else {
-        // Direct Login Flow with Turnstile Token
+        // Direct Login Flow with Google reCAPTCHA Token
         const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/user-login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, turnstileToken }),
+          body: JSON.stringify({ email, password, captchaToken }),
         });
         const loginJson = await loginRes.json();
 
         if (!loginRes.ok || !loginJson.success) {
           setLoading(false);
+          setCaptchaToken(null);
           Swal.fire({
             title: "Login Failed",
-            text: loginJson.message || "Invalid email or password.",
+            text: loginJson.message || "Please complete the CAPTCHA verification.",
             icon: "error",
             confirmButtonColor: "#d5639b",
           });
@@ -435,11 +438,10 @@ export function PostAdAuthModal({
                 </div>
               )}
 
-              {/* CLOUDFLARE TURNSTILE CAPTCHA WIDGET */}
+              {/* GOOGLE RECAPTCHA V2 CHECKBOX WIDGET */}
               <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200/90 shadow-2xs">
-                <TurnstileWidget
-                  onVerify={(token) => setTurnstileToken(token)}
-                  onExpire={() => setTurnstileToken("")}
+                <RecaptchaV2Widget
+                  onVerify={(token) => setCaptchaToken(token)}
                   theme="light"
                 />
               </div>
