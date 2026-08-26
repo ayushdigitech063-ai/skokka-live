@@ -135,10 +135,27 @@ export function PostAdAuthModal({
         }
 
         localStorage.setItem("skokka_user_email", email);
+        if (regJson.user?.customerCode) {
+          localStorage.setItem("skokka_customer_code", regJson.user.customerCode);
+        }
         setLoading(false);
         recaptchaRef.current?.reset();
         setCaptchaToken(null);
-        setInboxNotice(true); // Shows clean inbox notice
+
+        Swal.fire({
+          title: "Account Created!",
+          text: "Registration successful! You are now logged in.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        if (onAuthenticated) onAuthenticated();
+        if (onSuccessActivate) {
+          onSuccessActivate({ email });
+        } else {
+          window.location.href = "/dashboard";
+        }
       } else {
         // Direct Login Flow with Google reCAPTCHA Token
         const loginRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/user-login`, {
@@ -202,96 +219,8 @@ export function PostAdAuthModal({
           <X className="h-4 w-4" />
         </button>
 
-        {/* INBOX NOTICE STATE */}
-        {inboxNotice ? (
-          <div className="text-center py-4 space-y-4">
-            <div className="h-16 w-16 bg-pink-50 rounded-2xl border border-pink-100 flex items-center justify-center mx-auto text-[#d5639b] shadow-sm">
-              <Mail className="h-8 w-8" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-slate-900">Check Your Email Inbox! 📩</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed px-2">
-                We sent an account activation link to <strong className="text-[#d5639b] font-semibold">{email}</strong> via Nodemailer.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-left text-xs text-slate-700 space-y-2">
-              <span className="font-bold text-slate-900 block text-xs">Next Steps:</span>
-              <p className="flex items-start gap-2 text-[12px] text-slate-600">
-                <span className="font-bold text-[#d5639b]">1.</span> Open your email client (Gmail/Outlook).
-              </p>
-              <p className="flex items-start gap-2 text-[12px] text-slate-600">
-                <span className="font-bold text-[#d5639b]">2.</span> Click <strong className="text-[#d5639b]">"🚀 VERIFY IDENTITY & ACTIVATE DASHBOARD"</strong>.
-              </p>
-              <p className="flex items-start gap-2 text-[12px] text-slate-600">
-                <span className="font-bold text-[#d5639b]">3.</span> Access your Dashboard to create & post your classified ads instantly!
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col gap-2.5">
-              <a
-                href="https://mail.google.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#d5639b] to-[#c2417e] hover:from-[#c2528b] hover:to-[#b1356f] text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-pink-500/25 transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                Open Gmail Inbox <ExternalLink className="h-4 w-4" />
-              </a>
-
-              <button
-                type="button"
-                disabled={resending}
-                onClick={async () => {
-                  setResending(true);
-                  try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x"}/auth/resend-activation`, {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ email }),
-                    });
-                    const json = await res.json();
-                    setResending(false);
-                    if (res.ok && json.success) {
-                      Swal.fire({
-                        title: "Email Resent! 📩",
-                        text: "A fresh activation link was dispatched to your inbox.",
-                        icon: "success",
-                        confirmButtonColor: "#d5639b",
-                      });
-                    } else {
-                      Swal.fire({
-                        title: "Resend Failed",
-                        text: json.message || "Could not resend activation link.",
-                        icon: "error",
-                        confirmButtonColor: "#d5639b",
-                      });
-                    }
-                  } catch (e: any) {
-                    setResending(false);
-                    Swal.fire({
-                      title: "Error",
-                      text: "Could not connect to backend server.",
-                      icon: "error",
-                      confirmButtonColor: "#d5639b",
-                    });
-                  }
-                }}
-                className="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs transition cursor-pointer disabled:opacity-50"
-              >
-                {resending ? "Sending fresh link..." : "Resend Activation Link 🔄"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setInboxNotice(false)}
-                className="text-xs text-slate-500 hover:text-slate-800 font-medium py-1 cursor-pointer transition"
-              >
-                Back to Sign Up
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
+        {/* AUTH MODAL CONTENT */}
+        <>
             {/* HEADER */}
             <div className="flex items-center gap-3 mb-5 pr-8">
               <div className="h-10 w-10 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-xl shrink-0 shadow-xs">
@@ -470,18 +399,16 @@ export function PostAdAuthModal({
                 {loading ? (
                   <span className="flex items-center gap-2 text-xs">
                     <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                    Mailing Activation Link...
+                    Processing...
                   </span>
                 ) : authTab === "signup" ? (
-                  "Create Account & Activate"
+                  "Create Account"
                 ) : (
                   "Login & Post Ad"
                 )}
               </button>
-
             </form>
           </>
-        )}
 
       </div>
     </div>
