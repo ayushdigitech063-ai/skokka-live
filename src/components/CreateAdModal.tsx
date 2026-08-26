@@ -138,7 +138,7 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
       description: formData.description || `High-class ${formData.category} available for outcalls and 5-star hotel appointments in ${formData.cityArea}.`,
       tags: [formData.category, "Independent", "Verified"],
       gallery: formData.galleryPhotos.length > 0 ? formData.galleryPhotos : [formData.photoUrl],
-      status: "PENDING_APPROVAL",
+      status: "APPROVED",
       submittedAt: new Date().toISOString(),
     };
 
@@ -149,20 +149,17 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
     // Close Modal and Show Success
     onClose();
     Swal.fire({
-      title: "⏳ Submitted for Super Admin Approval!",
+      title: "🎉 Ad Published Successfully!",
       html: `
         <div class="space-y-3 text-center">
-          <p class="text-sm text-slate-300">Your escort ad for <strong class="text-rose-400">${newProfile.name}</strong> has been submitted successfully!</p>
-          <p class="text-xs text-amber-300 font-semibold bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-            🔒 Super Admin Approval Required: Your listing will be reviewed by Super Admin and published live once approved.
-          </p>
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-amber-400">
-            Profile ID: ${newProfile.id} • Status: PENDING_APPROVAL
+          <p class="text-sm text-slate-300">Your escort ad for <strong class="text-rose-400">${newProfile.name}</strong> is now live and published!</p>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
+            Profile ID: ${newProfile.id} • Status: APPROVED & LIVE
           </div>
         </div>
       `,
-      icon: "info",
-      confirmButtonText: "Got It 👍",
+      icon: "success",
+      confirmButtonText: "Awesome 👍",
       confirmButtonColor: "#3b82f6",
       background: "#0B1437",
       color: "#ffffff",

@@ -307,7 +307,7 @@ export function PostAdWizardModal({
       isVerified: isVerified,
       isVip: isVip,
       price: formData.price || 0,
-      status: "PENDING_APPROVAL",
+      status: "APPROVED",
       submittedAt: pendingAd.submittedAt,
       submittedBy: currentUserEmail, // ✅ Link ad to current user's account
     };
@@ -318,7 +318,7 @@ export function PostAdWizardModal({
       newProfile.id = initialAd.id;
       await updateEscortProfile(initialAd.id, newProfile);
     } else {
-      await createEscortProfile(newProfile, false); // false = advertiser submitted (PENDING_APPROVAL)
+      await createEscortProfile(newProfile, false); // false = advertiser submitted
     }
     
     // Auto-register new City & Area into MongoDB Atlas Location Database
@@ -344,20 +344,17 @@ export function PostAdWizardModal({
     onClose();
 
     Swal.fire({
-      title: "⏳ Submitted for Super Admin Approval!",
+      title: "🎉 Ad Published Successfully!",
       html: `
         <div class="space-y-3 text-center">
-          <p class="text-sm text-slate-300">Escort ad for <strong class="text-rose-400">${newProfile.name}</strong> (${newProfile.category}) has been submitted successfully!</p>
-          <p class="text-xs text-amber-300 font-semibold bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-            🔒 Super Admin Approval Required: Your listing will be reviewed by Super Admin and published live once approved.
-          </p>
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-amber-400">
-            Ad ID: ${newProfile.id} • Status: PENDING_APPROVAL
+          <p class="text-sm text-slate-300">Escort ad for <strong class="text-rose-400">${newProfile.name}</strong> (${newProfile.category}) is now live and published!</p>
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
+            Ad ID: ${newProfile.id} • Status: APPROVED & LIVE
           </div>
         </div>
       `,
-      icon: "info",
-      confirmButtonText: "Got It 👍",
+      icon: "success",
+      confirmButtonText: "Awesome 👍",
       confirmButtonColor: "#3b82f6",
       background: "#0B1437",
       color: "#ffffff",
