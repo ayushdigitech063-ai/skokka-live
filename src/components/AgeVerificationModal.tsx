@@ -6,7 +6,7 @@ export default function AgeVerificationModal() {
   // Step 1: 18+ Age Warning, Step 2: Cookie Consent, Step null: Closed
   const [step, setStep] = useState<number | null>(null);
   const [denied, setDenied] = useState<boolean>(false);
-
+// sadglfasg
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
