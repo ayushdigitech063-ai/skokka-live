@@ -102,7 +102,7 @@ export function SiteHeader() {
           <div className="flex items-center justify-between gap-4 py-3.5">
             <Link href="/" className="flex items-center gap-3 shrink-0 group">
               <span className="text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400 transition duration-300 group-hover:scale-105">
-                SKOKKA
+                MYCITYQUEEN
               </span>
             </Link>
 
@@ -174,7 +174,7 @@ export function SiteHeader() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <span className="rounded-xl bg-gradient-to-tr from-rose-600 via-pink-600 to-rose-500 px-3 py-1.5 text-lg font-black tracking-wider text-white">
-                  SKOKKA
+                  MYCITYQUEEN
                 </span>
                 <span className="text-sm font-black tracking-widest text-amber-400">INDIA</span>
               </div>

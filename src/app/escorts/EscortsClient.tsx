@@ -454,7 +454,7 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
 
                       {/* Watermark Tag (Bottom Right) */}
                       <div className="absolute bottom-3 right-3 text-[10px] font-black text-white/50 tracking-widest uppercase z-10">
-                        skokka
+                        mycityqueen
                       </div>
                     </Link>
 
