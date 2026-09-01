@@ -452,11 +452,11 @@ export function UserDashboard({
 
             </div>
 
-            {/* SKOKKA NEWS CARD */}
+            {/* MYCITYQUEEN NEWS CARD */}
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-rose-500 uppercase tracking-wider">
                 <Info className="h-4 w-4" />
-                <span>Skokka Official Notice</span>
+                <span>MyCityQueen Official Notice</span>
               </div>
               <h3 className="text-sm font-extrabold text-slate-900">
                 Enhance your listing visibility with VIP Top Slots & Hero Banners
@@ -480,7 +480,7 @@ export function UserDashboard({
 
               <div className="space-y-2 text-xs text-slate-600 leading-relaxed font-medium">
                 <p>
-                  To post an ad on Skokka, we need to be sure that everyone using the platform is of age.
+                  To post an ad on MyCityQueen, we need to be sure that everyone using the platform is of age.
                 </p>
                 <div className="pt-1">
                   <strong className="text-slate-900 font-extrabold block uppercase tracking-wide text-[11px]">
@@ -493,7 +493,7 @@ export function UserDashboard({
                 <p className="text-[11px] text-slate-500">
                   You can see more information about the process check out our Privacy Policy on{" "}
                   <a href="/" className="text-rose-600 font-bold hover:underline">
-                    skokkaindia.com
+                    mycityqueen.com
                   </a>
                   . We&apos;ll get back to you soon!
                 </p>
@@ -874,7 +874,7 @@ export function UserDashboard({
             </div>
 
             <p className="text-xs text-slate-600 font-medium">
-              Mandatory identity verification required before posting classified ads on Skokka India.
+              Mandatory identity verification required before posting classified ads on MyCityQueen India.
             </p>
 
             <form onSubmit={handleSubmitAgeVerification} className="space-y-4">

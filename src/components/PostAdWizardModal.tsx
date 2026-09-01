@@ -57,7 +57,7 @@ export function PostAdWizardModal({
   const [verifyingAge, setVerifyingAge] = useState<boolean>(false);
 
   // Dynamic Super Admin UPI ID
-  const [superAdminUpiId, setSuperAdminUpiId] = useState("skokka@upi");
+  const [superAdminUpiId, setSuperAdminUpiId] = useState("mycityqueen@upi");
 
   // Dynamic Location Hierarchy State
   const [locationTree, setLocationTree] = useState<any[]>([]);
@@ -385,7 +385,7 @@ export function PostAdWizardModal({
                 Mandatory Verification Required
               </h2>
               <p className="text-xs text-slate-300 max-w-md mx-auto">
-                Age & identity verification is mandatory for all advertisers on Skokka India before posting classified ad campaigns.
+                Age & identity verification is mandatory for all advertisers on MyCityQueen India before posting classified ad campaigns.
               </p>
             </div>
 
@@ -1031,7 +1031,7 @@ export function PostAdWizardModal({
                       <div className="bg-white p-2.5 rounded-2xl shadow-lg shrink-0 border-2 border-rose-500/40 relative group">
                         <img
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                            `upi://pay?pa=${superAdminUpiId}&pn=Skokka%20Ad%20Payment&am=${formData.price}&cu=INR`
+                            `upi://pay?pa=${superAdminUpiId}&pn=MyCityQueen%20Ad%20Payment&am=${formData.price}&cu=INR`
                           )}`}
                           alt={`UPI QR for ₹${formData.price}`}
                           className="w-36 h-36 object-contain"
