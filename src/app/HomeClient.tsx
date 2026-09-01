@@ -109,7 +109,7 @@ export default function HomeClient() {
               </h1>
 
               <p className="text-sm sm:text-base lg:text-lg text-slate-200 leading-relaxed max-w-2xl font-semibold drop-shadow-lg px-2">
-                {cms?.hero?.subtitle || "India's most trusted classified directory for independent escorts, high-class VIP companions & massage parlors."}
+                {cms?.hero?.subtitle || "India's most trusted classified directory for independent escorts, high-class VIP companions & massage parlors on MyCityQueen."}
               </p>
 
               {/* SEARCH BAR */}

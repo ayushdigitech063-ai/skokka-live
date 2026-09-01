@@ -4,9 +4,9 @@
 import { capitalizeWords, SITE_NAME } from "./seoHelpers";
 
 export const getHomeTemplates = () => {
-  const title = `Verified Escorts & Call Girls in India | ${SITE_NAME}`;
-  const description = `Discover top-rated verified escort profiles, call girls, independent companions, and VIP adult meeting services across major Indian cities.`;
-  const shortDescription = `Browse verified adult escort profiles, independent companions, and VIP meeting services in top Indian cities.`;
+  const title = `MyCityQueen | Verified Profiles & Services in India`;
+  const description = `Discover top-rated verified escort profiles, call girls, independent companions, and VIP adult meeting services across major Indian cities on MyCityQueen.`;
+  const shortDescription = `Browse verified adult escort profiles, independent companions, and VIP meeting services in top Indian cities on MyCityQueen.`;
   return { title, description, shortDescription };
 };
 
