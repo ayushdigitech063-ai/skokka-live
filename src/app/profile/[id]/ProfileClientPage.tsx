@@ -134,7 +134,16 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
   }
 
   const profileData: EscortProfileItem = profile;
-  const currentGallery = profileData.gallery && profileData.gallery.length > 0 ? profileData.gallery : [profileData.photoUrl].filter(Boolean);
+  const rawList = [profileData.photoUrl, ...(profileData.gallery || [])].filter(Boolean) as string[];
+  const currentGallery = Array.from(new Set(rawList));
+
+  const handlePrevPhoto = () => {
+    setActivePhoto((prev) => (prev > 0 ? prev - 1 : currentGallery.length - 1));
+  };
+
+  const handleNextPhoto = () => {
+    setActivePhoto((prev) => (prev < currentGallery.length - 1 ? prev + 1 : 0));
+  };
 
   const handleToggleBookmark = () => {
     setIsSaved(!isSaved);
@@ -199,39 +208,78 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* LEFT COLUMN: Gallery & Main Image */}
+            {/* LEFT COLUMN: Gallery & Main Image Slider */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group">
+              <div className="relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group select-none">
                 <img
                   src={currentGallery[activePhoto] || profileData.photoUrl}
                   alt={profileData.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 
+                {/* Badges Overlay */}
                 {profileData.isVip ? (
-                  <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-full border border-amber-300 shadow-lg backdrop-blur-md flex items-center gap-1.5">
+                  <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-full border border-amber-300 shadow-lg backdrop-blur-md flex items-center gap-1.5 z-10">
                     <Crown className="h-4 w-4 fill-slate-950 text-slate-950" /> VIP FEATURED ⭐
                   </div>
                 ) : profileData.isVerified ? (
-                  <div className="absolute top-4 left-4 bg-emerald-500/90 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full border border-emerald-400 shadow-lg backdrop-blur-md flex items-center gap-1.5">
+                  <div className="absolute top-4 left-4 bg-emerald-500/90 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full border border-emerald-400 shadow-lg backdrop-blur-md flex items-center gap-1.5 z-10">
                     <ShieldCheck className="h-4 w-4" /> 100% VERIFIED MODEL
                   </div>
                 ) : null}
 
-                <div className="absolute bottom-4 right-4 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-amber-400 border border-amber-400/40 flex items-center gap-1">
+                {/* SLIDER NAVIGATION BUTTONS (IF MULTIPLE IMAGES) */}
+                {currentGallery.length > 1 && (
+                  <>
+                    <button
+                      onClick={handlePrevPhoto}
+                      aria-label="Previous Image"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/70 text-white hover:bg-rose-600 hover:scale-110 active:scale-95 transition shadow-2xl backdrop-blur-md border border-white/20 z-20 cursor-pointer"
+                    >
+                      <ChevronLeft className="h-6 w-6 stroke-[3]" />
+                    </button>
+                    <button
+                      onClick={handleNextPhoto}
+                      aria-label="Next Image"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/70 text-white hover:bg-rose-600 hover:scale-110 active:scale-95 transition shadow-2xl backdrop-blur-md border border-white/20 z-20 cursor-pointer"
+                    >
+                      <ChevronRight className="h-6 w-6 stroke-[3]" />
+                    </button>
+
+                    {/* IMAGE COUNTER BADGE */}
+                    <div className="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white border border-slate-700/60 z-10 flex items-center gap-1.5">
+                      <Camera className="h-3.5 w-3.5 text-rose-400" /> Photo {activePhoto + 1} of {currentGallery.length}
+                    </div>
+
+                    {/* DOT INDICATORS OVERLAY */}
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 bg-slate-950/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-800">
+                      {currentGallery.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setActivePhoto(idx)}
+                          className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                            activePhoto === idx ? "w-6 bg-rose-500 shadow-md shadow-rose-500/50" : "w-2 bg-slate-500/60 hover:bg-slate-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <div className="absolute bottom-4 right-4 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-amber-400 border border-amber-400/40 flex items-center gap-1 z-10">
                   <Star className="h-3.5 w-3.5 fill-amber-400" /> {profileData.rating || 4.9} / 5.0
                 </div>
               </div>
 
               {/* Thumbnails Row */}
               {currentGallery.length > 1 && (
-                <div className="flex items-center gap-3 overflow-x-auto pb-2">
+                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-rose-600">
                   {currentGallery.map((imgUrl, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActivePhoto(idx)}
                       className={`relative h-20 w-20 rounded-2xl overflow-hidden border-2 transition shrink-0 cursor-pointer ${
-                        activePhoto === idx ? "border-rose-500 scale-95 shadow-md shadow-rose-500/30" : "border-slate-800 opacity-60 hover:opacity-100"
+                        activePhoto === idx ? "border-rose-500 scale-95 shadow-lg shadow-rose-500/40 ring-2 ring-rose-500/30" : "border-slate-800 opacity-60 hover:opacity-100"
                       }`}
                     >
                       <img src={imgUrl} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />

@@ -35,7 +35,7 @@ export function Footer() {
     if (!emailInput.trim()) return;
     Swal.fire({
       title: "Subscribed! 🎉",
-      text: "Thank you for subscribing to Skokka VIP updates.",
+      text: "Thank you for subscribing to MyCityQueen VIP updates.",
       icon: "success",
       background: "#0B1437",
       color: "#ffffff",
@@ -45,7 +45,7 @@ export function Footer() {
   };
 
   const footerConfig = cmsConfig?.footer;
-  const brandTitle = footerConfig?.brandName || "SKOKKA INDIA";
+  const brandTitle = footerConfig?.brandName || "MYCITYQUEEN INDIA";
   const sslBadgeText = footerConfig?.sslBadgeText || "256-Bit SSL Encrypted Channel";
   const footerSubtitle = footerConfig?.brandTagline || cmsConfig?.hero?.subtitle || "India's No. 1 Adult Escort Classifieds Directory. 100% AI Verified Profiles, Direct WhatsApp & Phone contact.";
 
@@ -67,10 +67,10 @@ export function Footer() {
   const col4Desc = footerConfig?.col4Desc || "Get latest listing highlights & promotion discounts delivered directly.";
   const btnText = footerConfig?.newsletterButtonText || "Subscribe Now";
 
-  const supportEmail = footerConfig?.supportEmail || "support@skokka.in";
+  const supportEmail = footerConfig?.supportEmail || "support@mycityqueen.in";
   const whatsappNum = footerConfig?.whatsappNumber || "+91 98765 00000";
-  const copyrightText = footerConfig?.copyrightText || "© 2026 Skokka India Classifieds • 18+ Adult Escort Directory • All Rights Reserved";
-  const disclaimerText = footerConfig?.disclaimerText || "Disclaimer: All escort profiles listed are 18+ adult providers. Skokka enforces strict compliance, AI face verification, and 256-bit SSL encryption.";
+  const copyrightText = footerConfig?.copyrightText || "© 2026 MyCityQueen India Classifieds • 18+ Adult Escort Directory • All Rights Reserved";
+  const disclaimerText = footerConfig?.disclaimerText || "Disclaimer: All escort profiles listed are 18+ adult providers. MyCityQueen enforces strict compliance, AI face verification, and 256-bit SSL encryption.";
 
   return (
     <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 text-slate-300 font-sans w-full">

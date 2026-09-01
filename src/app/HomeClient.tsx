@@ -225,7 +225,7 @@ export default function HomeClient() {
                             e.preventDefault();
                             e.stopPropagation();
                             const phoneNum = (p as any).whatsapp || (p as any).phone || "919876500000"; 
-                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your profile on Skokka India.`, '_blank');
+                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your profile on MyCityQueen India.`, '_blank');
                           }}
                           className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-[12px] uppercase tracking-wider transition-all shadow-md shadow-emerald-900/30 flex items-center justify-center gap-1.5 text-center cursor-pointer"
                         >
@@ -330,7 +330,7 @@ export default function HomeClient() {
                             e.preventDefault();
                             e.stopPropagation();
                             const phoneNum = (p as any).whatsapp || (p as any).phone || "919876500000"; 
-                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your VIP profile on Skokka India.`, '_blank');
+                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your VIP profile on MyCityQueen India.`, '_blank');
                           }}
                           className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black text-[12px] uppercase tracking-wider transition-all shadow-md shadow-amber-900/30 flex items-center justify-center gap-1.5 text-center cursor-pointer"
                         >
@@ -512,10 +512,10 @@ export default function HomeClient() {
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500"></div>
                   
                   <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-                    {cms?.premierNetwork?.title || "About Skokka India Escort Portal"}
+                    {cms?.premierNetwork?.title || "About MyCityQueen India Escort Portal"}
                   </h2>
                   <p className="mt-5 text-[15px] sm:text-[17px] leading-relaxed text-slate-300 max-w-4xl font-medium">
-                    {cms?.premierNetwork?.subtitle || "Skokka India is a trusted online classifieds destination connecting clients with verified escort agencies, independent call girls, and VIP companions across major metropolitan cities in India. All listings are curated for privacy, discretion, and luxury service standards."}
+                    {cms?.premierNetwork?.subtitle || "MyCityQueen India is a trusted online classifieds destination connecting clients with verified escort agencies, independent call girls, and VIP companions across major metropolitan cities in India. All listings are curated for privacy, discretion, and luxury service standards."}
                   </p>
                   
                   <div className="mt-10 flex flex-wrap gap-4 text-sm font-extrabold text-slate-200">

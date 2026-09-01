@@ -98,7 +98,7 @@ export default function ContactClientPage() {
 
           <div className="relative z-10 space-y-4 max-w-5xl mx-auto">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight sm:whitespace-nowrap">
-              Contact Skokka Concierge Desk
+              Contact MyCityQueen Concierge Desk
             </h1>
             <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed">
               Need help with model listing approval, UTR payment verification, or customer inquiries?
@@ -211,10 +211,10 @@ export default function ContactClientPage() {
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
                   <span className="text-xs font-extrabold text-rose-400 uppercase tracking-wider block">✉️ General Questions Email</span>
                   <a
-                    href={`mailto:${cmsConfig?.footer?.supportEmail || "support@skokka.in"}`}
+                    href={`mailto:${cmsConfig?.footer?.supportEmail || "support@mycityqueen.in"}`}
                     className="text-sm font-bold text-white hover:text-rose-300"
                   >
-                    {cmsConfig?.footer?.supportEmail || "support@skokka.in"}
+                    {cmsConfig?.footer?.supportEmail || "support@mycityqueen.in"}
                   </a>
                   <p className="text-[11px] text-slate-400">Any question or general inquiry.</p>
                 </div>
@@ -222,10 +222,10 @@ export default function ContactClientPage() {
                 <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-1">
                   <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider block">⚠️ Service Mistake / Escalation Email</span>
                   <a
-                    href={`mailto:reports@${(cmsConfig?.footer?.supportEmail || "support@skokka.in").split("@")[1] || "skokka.in"}`}
+                    href={`mailto:reports@${(cmsConfig?.footer?.supportEmail || "support@mycityqueen.in").split("@")[1] || "mycityqueen.in"}`}
                     className="text-sm font-bold text-white hover:text-amber-300"
                   >
-                    reports@{(cmsConfig?.footer?.supportEmail || "support@skokka.in").split("@")[1] || "skokka.in"}
+                    reports@{(cmsConfig?.footer?.supportEmail || "support@mycityqueen.in").split("@")[1] || "mycityqueen.in"}
                   </a>
                   <p className="text-[11px] text-slate-400">Dedicated desk for reporting service mistakes or listing errors.</p>
                 </div>

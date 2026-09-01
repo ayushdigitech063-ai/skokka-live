@@ -589,7 +589,7 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
                 <div className="p-4 bg-white rounded-2xl max-w-[200px] mx-auto shadow-xl">
                   <div className="h-40 w-40 bg-slate-950 rounded-xl flex flex-col items-center justify-center text-white space-y-2 p-2">
                     <QrCode className="h-16 w-16 text-emerald-400" />
-                    <span className="text-[10px] font-mono text-slate-300">UPI: skokka@upi</span>
+                    <span className="text-[10px] font-mono text-slate-300">UPI: mycityqueen@upi</span>
                   </div>
                 </div>
               ) : (

@@ -272,7 +272,7 @@ export default function VipClientPage() {
                   <a
                     href={`https://wa.me/${
                       vipProfile.whatsapp || "919876500000"
-                    }?text=${encodeURIComponent(`Hi ${vipProfile.name}, I found your VIP High-Class listing on Skokka!`)}`}
+                    }?text=${encodeURIComponent(`Hi ${vipProfile.name}, I found your VIP High-Class listing on MyCityQueen!`)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-pink-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1 text-center cursor-pointer"

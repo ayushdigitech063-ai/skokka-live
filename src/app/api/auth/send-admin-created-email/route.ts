@@ -35,16 +35,16 @@ export async function POST(request: Request) {
     const loginUrl = `${appBaseUrl}/admin?verify_login=true&email=${encodeURIComponent(email)}`;
 
     const mailOptions = {
-      from: `"${process.env.FROM_NAME || 'Skokka Enterprise Security'}" <${smtpUser}>`,
+      from: `"${process.env.FROM_NAME || 'MyCityQueen Enterprise Security'}" <${smtpUser}>`,
       to: email,
-      subject: "🔑 Your Skokka Admin Account Credentials & Activation",
+      subject: "🔑 Your MyCityQueen Admin Account Credentials & Activation",
       html: `
         <div style="font-family: Arial, sans-serif; padding: 25px; background-color: #050B1F; color: #ffffff; border-radius: 16px;">
-          <h2 style="color: #d5639b; margin-bottom: 5px;">SKOKKA ADMIN CONTROL PANEL</h2>
+          <h2 style="color: #d5639b; margin-bottom: 5px;">MYCITYQUEEN ADMIN CONTROL PANEL</h2>
           <p style="color: #94a3b8; font-size: 14px;">Super Admin Created Your Admin Account</p>
           <hr style="border-color: #1e293b; margin: 20px 0;" />
           <p>Hello <strong>${fullName || email.split("@")[0]}</strong>,</p>
-          <p>Super Admin has granted you Admin Access to manage escort classified listings on Skokka India. Your login credentials are as follows:</p>
+          <p>Super Admin has granted you Admin Access to manage escort classified listings on MyCityQueen India. Your login credentials are as follows:</p>
           
           <div style="background-color: #0B1437; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid #1e293b;">
             <p style="margin: 5px 0; font-size: 14px;"><strong>Admin Email / User ID:</strong> <span style="color: #38bdf8;">${email}</span></p>
