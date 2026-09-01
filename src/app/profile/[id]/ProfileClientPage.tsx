@@ -217,6 +217,11 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 
+                {/* Center Tilted Watermark Overlay */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-lg sm:text-2xl font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                  mycityqueen
+                </div>
+                
                 {/* Badges Overlay */}
                 {profileData.isVip ? (
                   <div className="absolute top-4 left-4 bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-full border border-amber-300 shadow-lg backdrop-blur-md flex items-center gap-1.5 z-10">
@@ -518,6 +523,10 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                           <span className="px-2 py-0.5 rounded-full bg-slate-950/80 text-amber-400 font-bold text-[10px] border border-amber-400/40 flex items-center gap-0.5">
                             <Star className="h-3 w-3 fill-amber-400" /> {simProfile.rating || 4.9}
                           </span>
+                        </div>
+                        {/* Center Tilted Watermark Overlay */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                          mycityqueen
                         </div>
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3 pt-10 z-10">
                           <h3 className="text-base font-black text-white group-hover:text-rose-400 transition truncate">

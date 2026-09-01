@@ -178,6 +178,10 @@ export default function HomeClient() {
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
                           </div>
+                          {/* Center Tilted Watermark Overlay */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                            mycityqueen
+                          </div>
                           {/* Gradient fade into the card body */}
                           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent z-10" />
                         </div>
@@ -282,6 +286,10 @@ export default function HomeClient() {
                               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
+                          </div>
+                          {/* Center Tilted Watermark Overlay */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                            mycityqueen
                           </div>
                           {/* Gradient fade into the card body */}
                           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent z-10" />

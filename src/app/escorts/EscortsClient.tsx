@@ -452,8 +452,8 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                         <span>📷 {photoCount}</span>
                       </div>
 
-                      {/* Watermark Tag (Bottom Right) */}
-                      <div className="absolute bottom-3 right-3 text-[10px] font-black text-white/50 tracking-widest uppercase z-10">
+                      {/* Tilted Center Watermark Tag */}
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
                         mycityqueen
                       </div>
                     </Link>

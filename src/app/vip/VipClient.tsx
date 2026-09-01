@@ -201,6 +201,11 @@ export default function VipClientPage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
 
+                    {/* Center Tilted Watermark Overlay */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                      mycityqueen
+                    </div>
+
                     {/* Top Badges */}
                     <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
                       <div className="px-3.5 py-1.5 rounded-full bg-amber-500/95 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5 border border-amber-400/40">
