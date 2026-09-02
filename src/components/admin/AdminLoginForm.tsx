@@ -6,6 +6,8 @@ import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, Sparkles, KeyRound, A
 
 import { RecaptchaV2Widget, RecaptchaV2Ref } from "@/components/RecaptchaV2Widget";
 
+import { setAuthToken } from "@/lib/auth";
+
 export interface AdminUserData {
   id: string;
   name: string;
@@ -62,8 +64,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
         return;
       }
 
-      localStorage.setItem("skokka_jwt_token", data.token);
-      localStorage.setItem("skokka_admin_session", JSON.stringify(data.user));
+      setAuthToken(data.token, data.user);
       recaptchaRef.current?.reset();
       setCaptchaToken(null);
 

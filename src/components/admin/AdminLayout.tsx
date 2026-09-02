@@ -7,6 +7,7 @@ import { AdminSidebar, AdminTab } from "./AdminSidebar";
 import { AdminOverview } from "./AdminOverview";
 import { AdminSettingsTab } from "./AdminSettingsTab";
 import { AdminLoginForm, AdminUserData } from "./AdminLoginForm";
+import { getAuthToken, setAuthToken, clearAuthToken } from "@/lib/auth";
 import { AdminAccessControlTab } from "./AdminAccessControlTab";
 import { AdminHomePageCmsTab } from "./AdminHomePageCmsTab";
 import { AdminListingsTab } from "./AdminListingsTab";
@@ -39,8 +40,8 @@ export function AdminLayout() {
         return;
       }
 
-      const token = localStorage.getItem("skokka_jwt_token");
-      const storedUserStr = localStorage.getItem("skokka_admin_user");
+      const token = getAuthToken();
+      const storedUserStr = localStorage.getItem("skokka_admin_user") || localStorage.getItem("skokka_admin_session");
       
       if (token && storedUserStr) {
         // Cryptographically verify JWT Security Token with Backend Server API
@@ -60,9 +61,7 @@ export function AdminLayout() {
               setIsAuthenticated(true);
             } else {
               // Token invalid or expired! Force clear session & logout
-              localStorage.removeItem("skokka_jwt_token");
-              localStorage.removeItem("skokka_admin_auth");
-              localStorage.removeItem("skokka_admin_user");
+              clearAuthToken();
               setIsAuthenticated(false);
               setCurrentUser(null);
             }
@@ -78,8 +77,12 @@ export function AdminLayout() {
   }, []);
 
   const handleLoginSuccess = (user: AdminUserData) => {
-    localStorage.setItem("skokka_admin_auth", "true");
-    localStorage.setItem("skokka_admin_user", JSON.stringify(user));
+    if (user.jwtToken) {
+      setAuthToken(user.jwtToken, user);
+    } else {
+      localStorage.setItem("skokka_admin_auth", "true");
+      localStorage.setItem("skokka_admin_user", JSON.stringify(user));
+    }
     setCurrentUser(user);
     setIsAuthenticated(true);
   };
@@ -98,9 +101,7 @@ export function AdminLayout() {
       color: "#fff",
     }).then((result) => {
       if (result.isConfirmed) {
-        localStorage.removeItem("skokka_jwt_token");
-        localStorage.removeItem("skokka_admin_auth");
-        localStorage.removeItem("skokka_admin_user");
+        clearAuthToken();
         setIsAuthenticated(false);
         setCurrentUser(null);
 

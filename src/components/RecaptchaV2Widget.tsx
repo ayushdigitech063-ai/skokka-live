@@ -62,7 +62,12 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
       let script = document.getElementById("google-recaptcha-v2-script") as HTMLScriptElement;
 
       const renderWidget = () => {
-        if (window.grecaptcha && containerRef.current && widgetIdRef.current === null) {
+        if (
+          window.grecaptcha &&
+          containerRef.current &&
+          widgetIdRef.current === null &&
+          containerRef.current.children.length === 0
+        ) {
           try {
             widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
               sitekey: siteKey,
@@ -103,6 +108,9 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
             window.grecaptcha.reset(widgetIdRef.current);
           } catch {}
           widgetIdRef.current = null;
+        }
+        if (containerRef.current) {
+          containerRef.current.innerHTML = "";
         }
       };
     }, [siteKey, theme, onVerify]);

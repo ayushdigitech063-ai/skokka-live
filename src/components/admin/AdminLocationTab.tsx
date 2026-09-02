@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
+import { getAuthHeaders as getCentralAuthHeaders, getAuthToken } from "@/lib/auth";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -126,11 +127,7 @@ export function AdminLocationTab() {
 
   // Admin Auth Headers helper
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("skokka_admin_token") || localStorage.getItem("adminToken");
-    return {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+    return getCentralAuthHeaders();
   };
 
   // ==========================================
