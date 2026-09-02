@@ -42,6 +42,11 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<number | null>(null);
+    const onVerifyRef = useRef(onVerify);
+
+    useEffect(() => {
+      onVerifyRef.current = onVerify;
+    }, [onVerify]);
 
     const resetWidget = useCallback(() => {
       if (window.grecaptcha && widgetIdRef.current !== null) {
@@ -51,8 +56,8 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
           console.warn("reCAPTCHA reset error:", e);
         }
       }
-      onVerify(null);
-    }, [onVerify]);
+      onVerifyRef.current(null);
+    }, []);
 
     useImperativeHandle(ref, () => ({
       reset: resetWidget,
@@ -71,9 +76,9 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
           try {
             widgetIdRef.current = window.grecaptcha.render(containerRef.current, {
               sitekey: siteKey,
-              callback: (token: string) => onVerify(token),
-              "expired-callback": () => onVerify(null),
-              "error-callback": () => onVerify(null),
+              callback: (token: string) => onVerifyRef.current(token),
+              "expired-callback": () => onVerifyRef.current(null),
+              "error-callback": () => onVerifyRef.current(null),
               theme: theme,
             });
           } catch (e) {
@@ -96,7 +101,9 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
         if (window.grecaptcha) {
           renderWidget();
         } else {
+          const oldCallback = window.onloadRecaptchaCallback;
           window.onloadRecaptchaCallback = () => {
+            if (oldCallback) oldCallback();
             renderWidget();
           };
         }
@@ -113,7 +120,7 @@ export const RecaptchaV2Widget = forwardRef<RecaptchaV2Ref, RecaptchaV2WidgetPro
           containerRef.current.innerHTML = "";
         }
       };
-    }, [siteKey, theme, onVerify]);
+    }, [siteKey, theme]);
 
     return <div ref={containerRef} className="my-3 flex justify-center min-h-[78px]" />;
   }
