@@ -62,18 +62,31 @@ export function PostAdWizardModal({
   // Dynamic Location Hierarchy State
   const [locationTree, setLocationTree] = useState<any[]>([]);
   const [dbCities, setDbCities] = useState<any[]>([]);
+  const [dbAreas, setDbAreas] = useState<any[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedArea, setSelectedArea] = useState<string>("");
 
-  useEffect(() => {
+  const loadAllLocations = () => {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
     Promise.all([
       fetch(`${BACKEND_URL}/locations/tree`).then((r) => r.json()).catch(() => null),
-      fetch(`${BACKEND_URL}/locations/cities`).then((r) => r.json()).catch(() => null),
-    ]).then(([treeRes, citiesRes]) => {
+      fetch(`${BACKEND_URL}/locations/cities?includeDeleted=false`).then((r) => r.json()).catch(() => null),
+      fetch(`${BACKEND_URL}/locations/areas?includeDeleted=false`).then((r) => r.json()).catch(() => null),
+    ]).then(([treeRes, citiesRes, areasRes]) => {
       if (treeRes && treeRes.success) setLocationTree(treeRes.tree || []);
       if (citiesRes && citiesRes.success) setDbCities(citiesRes.cities || []);
+      if (areasRes && areasRes.success) setDbAreas(areasRes.areas || []);
     });
+  };
+
+  useEffect(() => {
+    loadAllLocations();
+    if (typeof window !== "undefined") {
+      window.addEventListener("skokka_locations_updated", loadAllLocations);
+      return () => {
+        window.removeEventListener("skokka_locations_updated", loadAllLocations);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -598,12 +611,64 @@ export function PostAdWizardModal({
                             Udaipur: ["Fateh Sagar", "Sukher"],
                             Ajmer: ["Pushkar Road", "Vaishali Nagar"],
                           };
-                          const treeCity = locationTree.flatMap((st) => st.cities || []).find((c: any) => c.name === selectedCity);
-                          const dbCity = dbCities.find((c: any) => c.name === selectedCity);
-                          const liveAreas = (treeCity?.areas || dbCity?.areas || []).map((a: any) => typeof a === "string" ? { name: a } : a);
-                          const defaultAreaObjs = (defaultAreasMap[selectedCity] || []).map((name) => ({ name }));
-                          const combined = [...liveAreas, ...defaultAreaObjs];
-                          const uniqueMap = new Map(combined.map((a) => [a.name, a]));
+
+                          const selCityNorm = selectedCity.trim().toLowerCase();
+
+                          // 1. Find matching city object
+                          const treeCity = locationTree
+                            .flatMap((st) => st.cities || [])
+                            .find((c: any) => {
+                              const cNorm = c.name?.trim().toLowerCase();
+                              return (
+                                cNorm === selCityNorm ||
+                                (selCityNorm === "bangalore" && cNorm === "bengaluru") ||
+                                (selCityNorm === "bengaluru" && cNorm === "bangalore")
+                              );
+                            });
+
+                          const dbCity = dbCities.find((c: any) => {
+                            const cNorm = c.name?.trim().toLowerCase();
+                            return (
+                              cNorm === selCityNorm ||
+                              (selCityNorm === "bangalore" && cNorm === "bengaluru") ||
+                              (selCityNorm === "bengaluru" && cNorm === "bangalore")
+                            );
+                          });
+
+                          const targetCityId = dbCity?._id || treeCity?._id;
+
+                          // 2. Filter dbAreas matching selected city
+                          const matchingDbAreas = dbAreas.filter((a: any) => {
+                            const aCityName = (a.cityId?.name || a.cityName || "").trim().toLowerCase();
+                            const aCityIdStr = String(a.cityId?._id || a.cityId || "");
+                            return (
+                              aCityName === selCityNorm ||
+                              (selCityNorm === "bangalore" && aCityName === "bengaluru") ||
+                              (selCityNorm === "bengaluru" && aCityName === "bangalore") ||
+                              (targetCityId && aCityIdStr === String(targetCityId))
+                            );
+                          });
+
+                          // 3. Embedded areas from city object
+                          const embeddedAreas = [...(treeCity?.areas || []), ...(dbCity?.areas || [])].map((a: any) =>
+                            typeof a === "string" ? { name: a } : a
+                          );
+
+                          // 4. Default fallback areas
+                          const defaultAreaObjs = (
+                            defaultAreasMap[selectedCity] ||
+                            defaultAreasMap[selCityNorm === "bengaluru" ? "Bangalore" : selectedCity] ||
+                            []
+                          ).map((name) => ({ name }));
+
+                          // Combine & deduplicate by name
+                          const combined = [...matchingDbAreas, ...embeddedAreas, ...defaultAreaObjs];
+                          const uniqueMap = new Map();
+                          combined.forEach((a) => {
+                            if (a && a.name && !uniqueMap.has(a.name.trim().toLowerCase())) {
+                              uniqueMap.set(a.name.trim().toLowerCase(), a);
+                            }
+                          });
 
                           return Array.from(uniqueMap.values()).map((ar: any) => (
                             <option key={ar._id || ar.name} value={ar.name}>

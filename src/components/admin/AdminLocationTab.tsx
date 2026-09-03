@@ -114,6 +114,10 @@ export function AdminLocationTab() {
       if (resStates.success) setStates(resStates.states || []);
       if (resCities.success) setCities(resCities.cities || []);
       if (resAreas.success) setAreas(resAreas.areas || []);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("skokka_locations_updated"));
+      }
     } catch (error: any) {
       console.error("Error fetching locations:", error);
     } finally {
