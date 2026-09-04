@@ -47,6 +47,7 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
   const [similarProfilesList, setSimilarProfilesList] = useState<EscortProfileItem[]>([]);
   const [cmsConfig, setCmsConfig] = useState<HomePageCmsConfig | null>(null);
   const [activePhoto, setActivePhoto] = useState(0);
+  const [isAutoplayPaused, setIsAutoplayPaused] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -96,6 +97,22 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
     }
   }, [rawId]);
 
+  const galleryList = profile
+    ? Array.from(new Set([profile.photoUrl, ...(profile.gallery || [])].filter(Boolean) as string[]))
+    : [];
+  const galleryCount = galleryList.length;
+
+  // Automatic Auto-Scroll / Slideshow for 2+ images (3.5s interval) - Top Level Hook
+  useEffect(() => {
+    if (galleryCount <= 1 || isAutoplayPaused) return;
+
+    const timer = setInterval(() => {
+      setActivePhoto((prev) => (prev + 1) % galleryCount);
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [galleryCount, isAutoplayPaused]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#050B1F] text-slate-100 flex flex-col justify-between">
@@ -134,8 +151,7 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
   }
 
   const profileData: EscortProfileItem = profile;
-  const rawList = [profileData.photoUrl, ...(profileData.gallery || [])].filter(Boolean) as string[];
-  const currentGallery = Array.from(new Set(rawList));
+  const currentGallery = galleryList;
 
   const handlePrevPhoto = () => {
     setActivePhoto((prev) => (prev > 0 ? prev - 1 : currentGallery.length - 1));
@@ -208,13 +224,17 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* LEFT COLUMN: Gallery & Main Image Slider */}
+            {/* LEFT COLUMN: Gallery & Main Image Slider (Auto-Scrolling) */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group select-none">
+              <div
+                onMouseEnter={() => setIsAutoplayPaused(true)}
+                onMouseLeave={() => setIsAutoplayPaused(false)}
+                className="relative aspect-[4/5] w-full rounded-3xl overflow-hidden bg-slate-950 border border-slate-800 shadow-2xl group select-none transition-all"
+              >
                 <img
                   src={currentGallery[activePhoto] || profileData.photoUrl}
                   alt={profileData.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-in-out"
                 />
                 
                 {/* Center Tilted Watermark Overlay */}

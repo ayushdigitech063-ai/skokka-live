@@ -339,16 +339,31 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
               </div>
             </div>
 
-            {/* TAGLINE & DESCRIPTION */}
+            {/* TAGLINE & DESCRIPTION (MAX 50 WORDS / 150 CHARS) */}
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1.5">Tagline / Title</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-bold text-slate-300 block">Tagline / Title</label>
+                <span className="text-[10px] text-amber-400 font-semibold">
+                  {formData.tagline.trim() ? `${formData.tagline.trim().split(/\s+/).filter(Boolean).length}/50 words` : "Max 50 words"} ({formData.tagline.length}/150 chars)
+                </span>
+              </div>
               <input
                 type="text"
                 placeholder="e.g. High class VIP companion in Jaipur. Available 24/7 for 5-star hotel outcalls."
                 value={formData.tagline}
-                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (val.length > 150) val = val.slice(0, 150);
+                  const words = val.trim().split(/\s+/).filter(Boolean);
+                  if (words.length > 50) val = words.slice(0, 50).join(" ");
+                  setFormData({ ...formData, tagline: val });
+                }}
+                maxLength={150}
                 className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs sm:text-sm focus:border-rose-500 focus:outline-none"
               />
+              <p className="text-[10px] text-slate-400 font-medium mt-1">
+                ⚠️ Title is limited to 1 line (Max 50 words / 150 chars).
+              </p>
             </div>
 
             <div>

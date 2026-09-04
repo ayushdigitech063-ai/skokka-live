@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { HeaderNavbar } from "@/components/HeaderNavbar";
 import { Footer } from "@/components/Footer";
+import { CityCategoryAccordion } from "@/components/CityCategoryAccordion";
 import {
   Search,
   Check,
@@ -461,9 +462,9 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                     {/* Right Column: Listing Info & Action Buttons */}
                     <div className="flex-1 p-5 md:p-6 flex flex-col justify-between space-y-4">
                       <div className="space-y-2.5">
-                        {/* Catchy Main Title Headline (Bold Pink / Rose Font) */}
+                        {/* Catchy Main Title Headline (Bold Pink / Rose Font - Line Clamped to 1-2 lines) */}
                         <Link href={getProfileUrl(profile)} className="block group-hover:text-rose-400 transition">
-                          <h3 className="text-base sm:text-lg font-black text-[#f43f5e] hover:text-pink-300 leading-snug tracking-tight">
+                          <h3 className="text-base sm:text-lg font-black text-[#f43f5e] hover:text-pink-300 leading-snug tracking-tight line-clamp-1 sm:line-clamp-2">
                             {displayTitle}
                           </h3>
                         </Link>
@@ -589,6 +590,17 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                   </button>
                 </div>
               )}
+
+              {/* DYNAMIC CITY AREA CATEGORIES ACCORDION */}
+              <CityCategoryAccordion
+                currentCity={selectedCity}
+                selectedArea={searchLocation}
+                onSelectArea={(area) => {
+                  setSearchLocation(area);
+                  setCurrentPage(1);
+                  window.scrollTo({ top: 350, behavior: "smooth" });
+                }}
+              />
             </div>
           )}
         </main>

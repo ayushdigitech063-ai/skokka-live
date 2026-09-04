@@ -502,20 +502,32 @@ export function PostAdWizardModal({
                   </select>
                 </div>
 
-                {/* CATCHY AD TITLE HEADLINE (FULL LINE) */}
+                {/* CATCHY AD TITLE HEADLINE (FULL LINE - MAX 50 WORDS / 150 CHARS) */}
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-rose-400 uppercase tracking-wider block flex items-center justify-between">
                     <span>Ad Catchy Title / Listing Headline *</span>
-                    <span className="text-[10px] text-slate-400 font-normal">Displayed as main bold title on escort listings</span>
+                    <span className="text-[10px] text-amber-400 font-semibold">
+                      {formData.adTitle.trim() ? `${formData.adTitle.trim().split(/\s+/).filter(Boolean).length}/50 words` : "Max 50 words"} ({formData.adTitle.length}/150 chars)
+                    </span>
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. ✳️ Call Ritika 63671-57118 Only Cash ✳️ Genuine High Profile Jaipur Escorts Services 100% Safe"
+                    placeholder="e.g. ✳️ Call Ritika Only Cash ✳️ Genuine High Profile Jaipur Escorts Services 100% Safe"
                     value={formData.adTitle}
-                    onChange={(e) => setFormData({ ...formData, adTitle: e.target.value })}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val.length > 150) val = val.slice(0, 150);
+                      const words = val.trim().split(/\s+/).filter(Boolean);
+                      if (words.length > 50) val = words.slice(0, 50).join(" ");
+                      setFormData({ ...formData, adTitle: val });
+                    }}
+                    maxLength={150}
                     className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs focus:border-rose-500 focus:outline-none placeholder:text-slate-600"
                     required
                   />
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    ⚠️ Title is strictly limited to 1 line (Max 50 words / 150 chars). Paragraphs are not allowed.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

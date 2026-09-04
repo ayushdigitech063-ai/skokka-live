@@ -796,12 +796,24 @@ export function AdminListingsTab() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Headline / Tagline</label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-300 block">Headline / Tagline</label>
+                    <span className="text-[10px] text-amber-400 font-semibold">
+                      {newListing.tagline.trim() ? `${newListing.tagline.trim().split(/\s+/).filter(Boolean).length}/50 words` : "Max 50 words"} ({newListing.tagline.length}/150 chars)
+                    </span>
+                  </div>
                   <input
                     type="text"
                     placeholder="e.g. Premium VIP Companion"
                     value={newListing.tagline}
-                    onChange={(e) => setNewListing({ ...newListing, tagline: e.target.value })}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val.length > 150) val = val.slice(0, 150);
+                      const words = val.trim().split(/\s+/).filter(Boolean);
+                      if (words.length > 50) val = words.slice(0, 50).join(" ");
+                      setNewListing({ ...newListing, tagline: val });
+                    }}
+                    maxLength={150}
                     className="w-full px-3.5 py-2.5 rounded-xl bg-[#050B1F] border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-rose-500/50 transition"
                   />
                 </div>
@@ -1218,11 +1230,23 @@ export function AdminListingsTab() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-200 block mb-1">Tagline</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-slate-200 block">Tagline</label>
+                    <span className="text-[10px] text-amber-400 font-semibold">
+                      {editingListing.tagline.trim() ? `${editingListing.tagline.trim().split(/\s+/).filter(Boolean).length}/50 words` : "Max 50 words"} ({editingListing.tagline.length}/150 chars)
+                    </span>
+                  </div>
                   <input
                     type="text"
                     value={editingListing.tagline}
-                    onChange={(e) => setEditingListing({ ...editingListing, tagline: e.target.value })}
+                    onChange={(e) => {
+                      let val = e.target.value;
+                      if (val.length > 150) val = val.slice(0, 150);
+                      const words = val.trim().split(/\s+/).filter(Boolean);
+                      if (words.length > 50) val = words.slice(0, 50).join(" ");
+                      setEditingListing({ ...editingListing, tagline: val });
+                    }}
+                    maxLength={150}
                     className="w-full px-4 py-2.5 rounded-xl bg-[#050B1F] border border-slate-800 text-slate-100 font-normal"
                   />
                 </div>

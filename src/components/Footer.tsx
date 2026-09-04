@@ -76,8 +76,8 @@ export function Footer() {
     <footer className="bg-slate-950 border-t border-slate-800/80 pt-16 pb-12 text-slate-300 font-sans w-full">
       <div className="w-full px-6 sm:px-12 lg:px-16 space-y-12">
         
-        {/* Top Footer Grid -> Wide & Spacious Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+        {/* Top Footer Grid -> 3 Columns Layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 lg:gap-12">
           
           {/* Brand Col */}
           <div className="space-y-4">
@@ -143,32 +143,6 @@ export function Footer() {
                 ✉ {supportEmail}
               </li>
             </ul>
-          </div>
-
-          {/* Column 4 Newsletter Subscribe */}
-          <div className="space-y-4">
-            <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-white border-b border-rose-900/50 pb-2">
-              {col4Heading}
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-              {col4Desc}
-            </p>
-            <form onSubmit={handleSubscribe} className="space-y-3">
-              <input
-                type="email"
-                required
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="Enter your email address..."
-                className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 transition font-medium"
-              />
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-500 hover:to-pink-500 font-black text-xs sm:text-sm text-white uppercase tracking-wider shadow-lg shadow-rose-600/30 hover:scale-[1.02] active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Send className="h-4 w-4" /> {btnText}
-              </button>
-            </form>
           </div>
 
         </div>
