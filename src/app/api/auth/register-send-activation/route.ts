@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const emailUser = process.env.EMAIL_USER || "ayushdigitech063@gmail.com";
+    const emailUser = process.env.EMAIL_USER || "info.mycityqueen@gmail.com";
     const emailPass = process.env.EMAIL_PASS || "";
 
     // Configure Nodemailer Gmail Transport

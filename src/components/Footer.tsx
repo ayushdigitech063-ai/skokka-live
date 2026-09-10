@@ -67,7 +67,7 @@ export function Footer() {
   const col4Desc = footerConfig?.col4Desc || "Get latest listing highlights & promotion discounts delivered directly.";
   const btnText = footerConfig?.newsletterButtonText || "Subscribe Now";
 
-  const supportEmail = footerConfig?.supportEmail || "support@mycityqueen.in";
+  const supportEmail = footerConfig?.supportEmail || "info.mycityqueen@gmail.com";
   const whatsappNum = footerConfig?.whatsappNumber || "+91 98765 00000";
   const copyrightText = footerConfig?.copyrightText || "© 2026 MyCityQueen India Classifieds • 18+ Adult Escort Directory • All Rights Reserved";
   const disclaimerText = footerConfig?.disclaimerText || "Disclaimer: All escort profiles listed are 18+ adult providers. MyCityQueen enforces strict compliance, AI face verification, and 256-bit SSL encryption.";

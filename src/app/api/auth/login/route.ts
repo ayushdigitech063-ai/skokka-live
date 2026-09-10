@@ -18,14 +18,14 @@ export async function POST(request: Request) {
 
     // Check Root Super Admin credentials
     if (
-      (cleanId === "admin@mycityqueen.com" || cleanId === "admin") &&
+      (cleanId === "admin@mycityqueen.com" || cleanId === "info.mycityqueen@gmail.com" || cleanId === "admin") &&
       password === "Password@123"
     ) {
       // Generate Root Super Admin JWT Token
       const jwtPayload = {
         sub: "ADM-001",
         name: "Super Admin",
-        email: "admin@mycityqueen.com",
+        email: cleanId.includes("@") ? cleanId : "info.mycityqueen@gmail.com",
         role: "Super Admin",
         avatar: "S",
         permissions: ["ALL"],

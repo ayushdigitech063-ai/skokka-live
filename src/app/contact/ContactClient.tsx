@@ -211,10 +211,10 @@ export default function ContactClientPage() {
                 <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
                   <span className="text-xs font-extrabold text-rose-400 uppercase tracking-wider block">✉️ General Questions Email</span>
                   <a
-                    href={`mailto:${cmsConfig?.footer?.supportEmail || "support@mycityqueen.in"}`}
+                    href={`mailto:${cmsConfig?.footer?.supportEmail || "info.mycityqueen@gmail.com"}`}
                     className="text-sm font-bold text-white hover:text-rose-300"
                   >
-                    {cmsConfig?.footer?.supportEmail || "support@mycityqueen.in"}
+                    {cmsConfig?.footer?.supportEmail || "info.mycityqueen@gmail.com"}
                   </a>
                   <p className="text-[11px] text-slate-400">Any question or general inquiry.</p>
                 </div>
@@ -222,10 +222,10 @@ export default function ContactClientPage() {
                 <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-1">
                   <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider block">⚠️ Service Mistake / Escalation Email</span>
                   <a
-                    href={`mailto:reports@${(cmsConfig?.footer?.supportEmail || "support@mycityqueen.in").split("@")[1] || "mycityqueen.in"}`}
+                    href={`mailto:${cmsConfig?.footer?.supportEmail || "info.mycityqueen@gmail.com"}`}
                     className="text-sm font-bold text-white hover:text-amber-300"
                   >
-                    reports@{(cmsConfig?.footer?.supportEmail || "support@mycityqueen.in").split("@")[1] || "mycityqueen.in"}
+                    {cmsConfig?.footer?.supportEmail || "info.mycityqueen@gmail.com"}
                   </a>
                   <p className="text-[11px] text-slate-400">Dedicated desk for reporting service mistakes or listing errors.</p>
                 </div>

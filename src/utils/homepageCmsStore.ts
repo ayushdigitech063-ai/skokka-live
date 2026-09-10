@@ -165,7 +165,7 @@ export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
     col4Desc: "Get latest listing highlights & promotion discounts delivered directly.",
     newsletterButtonText: "Subscribe Now",
 
-    supportEmail: "support@skokka.in",
+    supportEmail: "info.mycityqueen@gmail.com",
     whatsappNumber: "+91 98765 00000",
     telegramHandle: "@skokkaindia",
     disclaimerText: "Disclaimer: All escort profiles listed are 18+ adult providers. Skokka enforces strict compliance, AI face verification, and 256-bit SSL encryption.",
