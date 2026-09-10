@@ -547,7 +547,7 @@ export function UserDashboard({
 
           <div className="flex items-center gap-3">
             <a
-              href="https://wa.me/919876543210"
+              href="https://wa.me/919128685478"
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center gap-2 border border-emerald-200 transition"
