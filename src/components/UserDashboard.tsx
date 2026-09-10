@@ -555,13 +555,14 @@ export function UserDashboard({
               <MessageCircle className="h-4 w-4 text-emerald-600" /> WhatsApp
             </a>
             <a
-              href="https://t.me/skokkaindia"
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs flex items-center gap-2 border border-sky-200 transition"
-            >
-              <Send className="h-4 w-4 text-sky-600" /> Telegram
-            </a>
+  href="https://t.me/+919128685478"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="px-4 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs flex items-center gap-2 border border-sky-200 transition"
+>
+  <Send className="h-4 w-4 text-sky-600" />
+  Telegram
+</a>
           </div>
         </div>
 
