@@ -209,6 +209,20 @@ export function PostAdWizardModal({
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+      if (file.size > maxSizeBytes) {
+        Swal.fire({
+          title: "File Too Large",
+          text: "Image size is too large. Please upload an image below 5 MB.",
+          icon: "error",
+          background: "#0B1437",
+          color: "#ffffff",
+          confirmButtonColor: "#f43f5e",
+        });
+        e.target.value = "";
+        return;
+      }
+
       setUploadingImage(true);
       const reader = new FileReader();
 
@@ -235,6 +249,20 @@ export function PostAdWizardModal({
   const handleVideoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+      if (file.size > maxSizeBytes) {
+        Swal.fire({
+          title: "File Too Large",
+          text: "Video size is too large. Please upload a file below 5 MB.",
+          icon: "error",
+          background: "#0B1437",
+          color: "#ffffff",
+          confirmButtonColor: "#f43f5e",
+        });
+        e.target.value = "";
+        return;
+      }
+
       setUploadingVideo(true);
       const reader = new FileReader();
 
@@ -325,53 +353,64 @@ export function PostAdWizardModal({
       submittedBy: currentUserEmail, // ✅ Link ad to current user's account
     };
 
-
-    // Submit to MongoDB via backend API (Update existing profile if initialAd provided, otherwise create)
-    if (initialAd && initialAd.id) {
-      newProfile.id = initialAd.id;
-      await updateEscortProfile(initialAd.id, newProfile);
-    } else {
-      await createEscortProfile(newProfile, false); // false = advertiser submitted
-    }
-    
-    // Auto-register new City & Area into MongoDB Atlas Location Database
     try {
-      const city = selectedCity || formData.cityArea.split("(")[0].trim() || "Jaipur";
-      const area = selectedArea || (formData.cityArea.includes("(") ? formData.cityArea.split("(")[1].replace(")", "").trim() : "");
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
-      await fetch(`${BACKEND_URL}/locations/auto-register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          stateName: "Rajasthan",
-          cityName: city,
-          areaName: area,
-        }),
-      });
-    } catch (err) {
-      console.error("Auto location register error:", err);
-    }
+      // Submit to MongoDB via backend API (Update existing profile if initialAd provided, otherwise create)
+      if (initialAd && initialAd.id) {
+        newProfile.id = initialAd.id;
+        await updateEscortProfile(initialAd.id, newProfile);
+      } else {
+        await createEscortProfile(newProfile, false); // false = advertiser submitted
+      }
 
-    registerNewCityIfMissing(formData.cityArea);
-    onAdSubmitted(pendingAd);
-    onClose();
+      // Auto-register new City & Area into MongoDB Atlas Location Database
+      try {
+        const city = selectedCity || formData.cityArea.split("(")[0].trim() || "Jaipur";
+        const area = selectedArea || (formData.cityArea.includes("(") ? formData.cityArea.split("(")[1].replace(")", "").trim() : "");
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+        await fetch(`${BACKEND_URL}/locations/auto-register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            stateName: "Rajasthan",
+            cityName: city,
+            areaName: area,
+          }),
+        });
+      } catch (err) {
+        console.error("Auto location register error:", err);
+      }
 
-    Swal.fire({
-      title: "🎉 Ad Published Successfully!",
-      html: `
-        <div class="space-y-3 text-center">
-          <p class="text-sm text-slate-300">Escort ad for <strong class="text-rose-400">${newProfile.name}</strong> (${newProfile.category}) is now live and published!</p>
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
-            Ad ID: ${newProfile.id} • Status: APPROVED & LIVE
+      registerNewCityIfMissing(formData.cityArea);
+      onAdSubmitted(pendingAd);
+      onClose();
+
+      Swal.fire({
+        title: "🎉 Ad Published Successfully!",
+        html: `
+          <div class="space-y-3 text-center">
+            <p class="text-sm text-slate-300">Escort ad for <strong class="text-rose-400">${newProfile.name}</strong> (${newProfile.category}) is now live and published!</p>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
+              Ad ID: ${newProfile.id} • Status: APPROVED & LIVE
+            </div>
           </div>
-        </div>
-      `,
-      icon: "success",
-      confirmButtonText: "Awesome 👍",
-      confirmButtonColor: "#3b82f6",
-      background: "#0B1437",
-      color: "#ffffff",
-    });
+        `,
+        icon: "success",
+        confirmButtonText: "Awesome 👍",
+        confirmButtonColor: "#3b82f6",
+        background: "#0B1437",
+        color: "#ffffff",
+      });
+    } catch (err: any) {
+      console.error("Failed to publish ad:", err);
+      Swal.fire({
+        title: "Publish Failed",
+        text: err.message || "Something went wrong while publishing the ad. Please try again.",
+        icon: "error",
+        background: "#0B1437",
+        color: "#ffffff",
+        confirmButtonColor: "#f43f5e",
+      });
+    }
   };
 
   return (

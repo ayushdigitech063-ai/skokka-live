@@ -110,8 +110,8 @@ export function PostAdAuthModal({
 
       if (!res.ok || !data.success) {
         Swal.fire({
-          title: "Account Not Found",
-          text: data.message || "No registered account found with this email.",
+          title: "Failed to Send OTP",
+          text: data.message || "Email address is not registered.",
           icon: "error",
           confirmButtonColor: "#d5639b",
         });
@@ -120,17 +120,16 @@ export function PostAdAuthModal({
 
       setForgotStep(2);
       Swal.fire({
-        title: "OTP Sent!",
-        text: "A 6-digit verification code has been sent to your email address.",
+        title: "OTP Sent Successfully!",
+        text: "OTP sent successfully. Please check your inbox. If you don't see it, check your Spam/Junk folder.",
         icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
+        confirmButtonColor: "#d5639b",
       });
     } catch (err: any) {
       setForgotLoading(false);
       Swal.fire({
         title: "Connection Error",
-        text: err.message || "Could not connect to backend server.",
+        text: err.message || "Unable to send OTP. Please try again.",
         icon: "error",
         confirmButtonColor: "#d5639b",
       });

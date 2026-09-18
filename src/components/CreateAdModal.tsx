@@ -89,6 +89,21 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+    if (file.size > maxSizeBytes) {
+      Swal.fire({
+        title: "File Too Large",
+        text: "Image size is too large. Please upload an image below 5 MB.",
+        icon: "error",
+        background: "#0B1437",
+        color: "#ffffff",
+        confirmButtonColor: "#f43f5e",
+      });
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
 
     const reader = new FileReader();
@@ -142,28 +157,40 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
       submittedAt: new Date().toISOString(),
     };
 
-    // Submit to MongoDB backend
-    await createEscortProfile(newProfile, false);
-    registerNewCityIfMissing(formData.cityArea);
+    try {
+      // Submit to MongoDB backend
+      await createEscortProfile(newProfile, false);
+      registerNewCityIfMissing(formData.cityArea);
 
-    // Close Modal and Show Success
-    onClose();
-    Swal.fire({
-      title: "🎉 Ad Published Successfully!",
-      html: `
-        <div class="space-y-3 text-center">
-          <p class="text-sm text-slate-300">Your escort ad for <strong class="text-rose-400">${newProfile.name}</strong> is now live and published!</p>
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
-            Profile ID: ${newProfile.id} • Status: APPROVED & LIVE
+      // Close Modal and Show Success
+      onClose();
+      Swal.fire({
+        title: "🎉 Ad Published Successfully!",
+        html: `
+          <div class="space-y-3 text-center">
+            <p class="text-sm text-slate-300">Your escort ad for <strong class="text-rose-400">${newProfile.name}</strong> is now live and published!</p>
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
+              Profile ID: ${newProfile.id} • Status: APPROVED & LIVE
+            </div>
           </div>
-        </div>
-      `,
-      icon: "success",
-      confirmButtonText: "Awesome 👍",
-      confirmButtonColor: "#3b82f6",
-      background: "#0B1437",
-      color: "#ffffff",
-    });
+        `,
+        icon: "success",
+        confirmButtonText: "Awesome 👍",
+        confirmButtonColor: "#3b82f6",
+        background: "#0B1437",
+        color: "#ffffff",
+      });
+    } catch (err: any) {
+      console.error("Failed to publish ad:", err);
+      Swal.fire({
+        title: "Publish Failed",
+        text: err.message || "Something went wrong while publishing the ad. Please try again.",
+        icon: "error",
+        background: "#0B1437",
+        color: "#ffffff",
+        confirmButtonColor: "#f43f5e",
+      });
+    }
   };
 
   return (

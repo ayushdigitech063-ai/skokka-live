@@ -254,41 +254,43 @@ export function AdminListingsTab() {
       rating: 5.0,
       description: `${newListing.stageName} - ${newListing.tagline || newListing.category} in ${newListing.cityArea}.`,
     };
-    const created = await createEscortProfile(profile, true);
-    if (!created) {
+
+    try {
+      await createEscortProfile(profile, true);
+
+      // Auto-register new City & Area into MongoDB Location Database
+      try {
+        const city = selectedCity || newListing.cityArea.split("(")[0].trim() || "Jaipur";
+        const area = selectedArea || (newListing.cityArea.includes("(") ? newListing.cityArea.split("(")[1].replace(")", "").trim() : "");
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+        await fetch(`${BACKEND_URL}/locations/auto-register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            stateName: "Rajasthan",
+            cityName: city,
+            areaName: area,
+          }),
+        });
+      } catch (err) {
+        console.error("Auto location register error:", err);
+      }
+
+      fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+      setShowCreateModal(false);
+      setNewListing({ stageName: "", tagline: "", category: "VIP Escorts", age: 22, cityArea: "Jaipur (Bani Park)", phone: "", whatsapp: "", telegram: "", incallRate: "₹6,000 / hr", outcallRate: "₹10,000 / night", selfieVerified: true, isVipFeatured: false, photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" });
+      Swal.fire({ title: "New Listing Created! 🎉", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
+    } catch (err: any) {
+      console.error("Failed to create admin listing:", err);
       Swal.fire({
         title: "Creation Failed",
-        text: "Could not create listing. Please ensure the backend server is running and reachable.",
+        text: err.message || "Could not create listing. Please ensure the backend server is running and reachable.",
         icon: "error",
         background: "#0B1437",
         color: "#ffffff",
         confirmButtonColor: "#ef4444",
       });
-      return;
     }
-
-    // Auto-register new City & Area into MongoDB Location Database
-    try {
-      const city = selectedCity || newListing.cityArea.split("(")[0].trim() || "Jaipur";
-      const area = selectedArea || (newListing.cityArea.includes("(") ? newListing.cityArea.split("(")[1].replace(")", "").trim() : "");
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
-      await fetch(`${BACKEND_URL}/locations/auto-register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          stateName: "Rajasthan",
-          cityName: city,
-          areaName: area,
-        }),
-      });
-    } catch (err) {
-      console.error("Auto location register error:", err);
-    }
-
-    fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
-    setShowCreateModal(false);
-    setNewListing({ stageName: "", tagline: "", category: "VIP Escorts", age: 22, cityArea: "Jaipur (Bani Park)", phone: "", whatsapp: "", telegram: "", incallRate: "₹6,000 / hr", outcallRate: "₹10,000 / night", selfieVerified: true, isVipFeatured: false, photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" });
-    Swal.fire({ title: "New Listing Created! 🎉", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
   };
 
   const handleSaveListing = async (e: React.FormEvent) => {
@@ -299,25 +301,37 @@ export function AdminListingsTab() {
     const isVip = isSuperTop || placementType === "VIP";
     const isVerified = isVip || placementType === "VERIFIED";
 
-    await updateEscortProfile(editingListing.id, {
-      name: editingListing.stageName,
-      title: editingListing.tagline,
-      category: editingListing.category,
-      age: editingListing.age,
-      location: editingListing.cityArea,
-      city: editingListing.cityArea.split(" ")[0] || "Jaipur",
-      phone: editingListing.phone,
-      whatsapp: editingListing.whatsapp,
-      rate: editingListing.incallRate,
-      availability: editingListing.outcallRate,
-      photoUrl: editingListing.photoUrl,
-      isSuperTop: isSuperTop,
-      isVip: isVip,
-      isVerified: isVerified,
-      packageType: isSuperTop ? "SUPER TOP Booster ⚡" : isVip ? "VIP Featured ⭐" : isVerified ? "Verified Listing 🛡️" : "FREE_STANDARD",
-    });
-    fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
-    Swal.fire({ title: "Listing Updated! 🚀", text: "Changes saved to MongoDB.", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
+    try {
+      await updateEscortProfile(editingListing.id, {
+        name: editingListing.stageName,
+        title: editingListing.tagline,
+        category: editingListing.category,
+        age: editingListing.age,
+        location: editingListing.cityArea,
+        city: editingListing.cityArea.split(" ")[0] || "Jaipur",
+        phone: editingListing.phone,
+        whatsapp: editingListing.whatsapp,
+        rate: editingListing.incallRate,
+        availability: editingListing.outcallRate,
+        photoUrl: editingListing.photoUrl,
+        isSuperTop: isSuperTop,
+        isVip: isVip,
+        isVerified: isVerified,
+        packageType: isSuperTop ? "SUPER TOP Booster ⚡" : isVip ? "VIP Featured ⭐" : isVerified ? "Verified Listing 🛡️" : "FREE_STANDARD",
+      });
+      fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+      Swal.fire({ title: "Listing Updated! 🚀", text: "Changes saved to MongoDB.", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
+    } catch (err: any) {
+      console.error("Failed to update listing:", err);
+      Swal.fire({
+        title: "Update Failed",
+        text: err.message || "Could not update listing. Please try again.",
+        icon: "error",
+        background: "#0B1437",
+        color: "#ffffff",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
 
   // AI Face Detection Inspection Logic
@@ -338,6 +352,20 @@ export function AdminListingsTab() {
 
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+      if (file.size > maxSizeBytes) {
+        Swal.fire({
+          title: "File Too Large",
+          text: "Image size is too large. Please upload an image below 5 MB.",
+          icon: "error",
+          background: "#0B1437",
+          color: "#ffffff",
+          confirmButtonColor: "#f43f5e",
+        });
+        e.target.value = "";
+        return;
+      }
 
       // Validate via AI Face Inspection
       if (!validateHumanFace(file.name)) {
@@ -384,6 +412,20 @@ export function AdminListingsTab() {
   const handleMulterUploadCreate = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+      if (file.size > maxSizeBytes) {
+        Swal.fire({
+          title: "File Too Large",
+          text: "Image size is too large. Please upload an image below 5 MB.",
+          icon: "error",
+          background: "#0B1437",
+          color: "#ffffff",
+          confirmButtonColor: "#f43f5e",
+        });
+        e.target.value = "";
+        return;
+      }
 
       // Validate via AI Face Inspection
       if (!validateHumanFace(file.name)) {

@@ -115,44 +115,78 @@ export async function fetchEscortById(id: string): Promise<EscortProfileItem | n
 }
 
 /** Create new escort profile */
-export async function createEscortProfile(data: Partial<EscortProfileItem>, isAdmin = false): Promise<EscortProfileItem | null> {
+export async function createEscortProfile(data: Partial<EscortProfileItem>, isAdmin = false): Promise<EscortProfileItem> {
+  const res = await fetch(`${BACKEND_URL}/escorts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(isAdmin ? { "x-admin-create": "true" } : {}),
+    },
+    body: JSON.stringify(data),
+  });
+
+  let json: any = {};
   try {
-    const res = await fetch(`${BACKEND_URL}/escorts`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(isAdmin ? { "x-admin-create": "true" } : {}),
-      },
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Create failed");
-    invalidateEscortsCache();
-    if (typeof window !== "undefined") window.dispatchEvent(new Event(ESCORTS_UPDATE_EVENT));
-    return json.data || null;
-  } catch (err) {
-    console.error("createEscortProfile failed:", err);
-    return null;
+    json = await res.json();
+  } catch (e) {
+    // Body was not JSON (e.g. standard HTML/text error page from server/proxy)
   }
+
+  if (!res.ok) {
+    const errorMsg =
+      json?.message ||
+      json?.error ||
+      (res.status === 413
+        ? "File size is too large. Please upload an image below 5 MB."
+        : res.status === 500
+        ? "Something went wrong while publishing the ad. Please try again."
+        : `Request failed with status ${res.status}`);
+    throw new Error(errorMsg);
+  }
+
+  if (json.success === false) {
+    throw new Error(json.message || "Failed to create ad");
+  }
+
+  invalidateEscortsCache();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(ESCORTS_UPDATE_EVENT));
+  return json.data;
 }
 
 /** Update escort profile (admin) */
-export async function updateEscortProfile(id: string, data: Partial<EscortProfileItem>): Promise<EscortProfileItem | null> {
+export async function updateEscortProfile(id: string, data: Partial<EscortProfileItem>): Promise<EscortProfileItem> {
+  const res = await fetch(`${BACKEND_URL}/escorts/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  let json: any = {};
   try {
-    const res = await fetch(`${BACKEND_URL}/escorts/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Update failed");
-    invalidateEscortsCache();
-    if (typeof window !== "undefined") window.dispatchEvent(new Event(ESCORTS_UPDATE_EVENT));
-    return json.data || null;
-  } catch (err) {
-    console.error("updateEscortProfile failed:", err);
-    return null;
+    json = await res.json();
+  } catch (e) {
+    // Body was not JSON
   }
+
+  if (!res.ok) {
+    const errorMsg =
+      json?.message ||
+      json?.error ||
+      (res.status === 413
+        ? "File size is too large. Please upload an image below 5 MB."
+        : res.status === 500
+        ? "Something went wrong while publishing the ad. Please try again."
+        : `Update failed with status ${res.status}`);
+    throw new Error(errorMsg);
+  }
+
+  if (json.success === false) {
+    throw new Error(json.message || "Failed to update ad");
+  }
+
+  invalidateEscortsCache();
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(ESCORTS_UPDATE_EVENT));
+  return json.data;
 }
 
 /** Approve / Reject profile (admin) */
