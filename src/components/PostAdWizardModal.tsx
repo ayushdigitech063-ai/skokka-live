@@ -205,41 +205,73 @@ export function PostAdWizardModal({
     }, 1200);
   };
 
-  // Image Upload File Picker Handler
+  // Image Upload File Picker Handler with Auto-Compression
   const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
-      if (file.size > maxSizeBytes) {
-        Swal.fire({
-          title: "File Too Large",
-          text: "Image size is too large. Please upload an image below 5 MB.",
-          icon: "error",
-          background: "#0B1437",
-          color: "#ffffff",
-          confirmButtonColor: "#f43f5e",
-        });
-        e.target.value = "";
-        return;
-      }
-
       setUploadingImage(true);
+
       const reader = new FileReader();
-
       reader.onload = (event) => {
-        setFormData((prev) => ({ ...prev, photoUrl: event.target?.result as string }));
-        setUploadingImage(false);
+        const rawDataUrl = event.target?.result as string;
+        if (!rawDataUrl) {
+          setUploadingImage(false);
+          return;
+        }
 
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          icon: "success",
-          title: "Ad Cover Image Uploaded!",
-          showConfirmButton: false,
-          timer: 1800,
-          background: "#0B1437",
-          color: "#ffffff",
-        });
+        // Compress image using Canvas to ensure optimal lightweight Base64 string (~150KB - 300KB)
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Convert to web-optimized JPEG format with 82% quality
+            const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+            setFormData((prev) => ({ ...prev, photoUrl: compressedDataUrl }));
+          } else {
+            setFormData((prev) => ({ ...prev, photoUrl: rawDataUrl }));
+          }
+          setUploadingImage(false);
+
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Ad Cover Image Uploaded!",
+            showConfirmButton: false,
+            timer: 1800,
+            background: "#0B1437",
+            color: "#ffffff",
+          });
+        };
+
+        img.onerror = () => {
+          setFormData((prev) => ({ ...prev, photoUrl: rawDataUrl }));
+          setUploadingImage(false);
+        };
+
+        img.src = rawDataUrl;
       };
       reader.readAsDataURL(file);
     }
@@ -249,11 +281,11 @@ export function PostAdWizardModal({
   const handleVideoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
+      const maxSizeBytes = 35 * 1024 * 1024; // 35 MB limit
       if (file.size > maxSizeBytes) {
         Swal.fire({
           title: "File Too Large",
-          text: "Video size is too large. Please upload a file below 5 MB.",
+          text: "Video size is too large. Please upload a file below 35 MB.",
           icon: "error",
           background: "#0B1437",
           color: "#ffffff",

@@ -90,27 +90,56 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxSizeBytes = 5 * 1024 * 1024; // 5 MB limit
-    if (file.size > maxSizeBytes) {
-      Swal.fire({
-        title: "File Too Large",
-        text: "Image size is too large. Please upload an image below 5 MB.",
-        icon: "error",
-        background: "#0B1437",
-        color: "#ffffff",
-        confirmButtonColor: "#f43f5e",
-      });
-      e.target.value = "";
-      return;
-    }
-
     setUploading(true);
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      setUploading(false);
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) onSuccess(dataUrl);
+      const rawDataUrl = event.target?.result as string;
+      if (!rawDataUrl) {
+        setUploading(false);
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          onSuccess(compressedDataUrl);
+        } else {
+          onSuccess(rawDataUrl);
+        }
+        setUploading(false);
+      };
+
+      img.onerror = () => {
+        onSuccess(rawDataUrl);
+        setUploading(false);
+      };
+
+      img.src = rawDataUrl;
     };
     reader.readAsDataURL(file);
   };

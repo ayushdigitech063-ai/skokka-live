@@ -137,7 +137,7 @@ export async function createEscortProfile(data: Partial<EscortProfileItem>, isAd
       json?.message ||
       json?.error ||
       (res.status === 413
-        ? "File size is too large. Please upload an image below 5 MB."
+        ? "File size is too large. Please upload an image below 50 MB."
         : res.status === 500
         ? "Something went wrong while publishing the ad. Please try again."
         : `Request failed with status ${res.status}`);
@@ -173,7 +173,7 @@ export async function updateEscortProfile(id: string, data: Partial<EscortProfil
       json?.message ||
       json?.error ||
       (res.status === 413
-        ? "File size is too large. Please upload an image below 5 MB."
+        ? "File size is too large. Please upload an image below 50 MB."
         : res.status === 500
         ? "Something went wrong while publishing the ad. Please try again."
         : `Update failed with status ${res.status}`);
