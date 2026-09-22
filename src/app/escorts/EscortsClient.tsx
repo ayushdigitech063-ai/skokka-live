@@ -557,23 +557,59 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                   </button>
 
                   <div className="flex items-center gap-1.5 px-2">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                      <button
-                        key={pageNum}
-                        type="button"
-                        onClick={() => {
-                          setCurrentPage(pageNum);
-                          window.scrollTo({ top: 350, behavior: "smooth" });
-                        }}
-                        className={`h-9 w-9 rounded-2xl text-xs font-black transition cursor-pointer flex items-center justify-center shadow-md ${
-                          currentPage === pageNum
-                            ? "bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-rose-600/30 scale-105 border border-rose-400/40"
-                            : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    ))}
+                    {(() => {
+                      const pages: (number | string)[] = [];
+                      const maxVisible = 5;
+
+                      if (totalPages <= 7) {
+                        for (let i = 1; i <= totalPages; i++) pages.push(i);
+                      } else {
+                        pages.push(1);
+                        let start = Math.max(2, currentPage - 1);
+                        let end = Math.min(totalPages - 1, currentPage + 1);
+
+                        if (currentPage <= 3) {
+                          start = 2;
+                          end = 4;
+                        } else if (currentPage >= totalPages - 2) {
+                          start = totalPages - 3;
+                          end = totalPages - 1;
+                        }
+
+                        if (start > 2) pages.push("...");
+                        for (let i = start; i <= end; i++) pages.push(i);
+                        if (end < totalPages - 1) pages.push("...");
+                        pages.push(totalPages);
+                      }
+
+                      return pages.map((p, idx) => {
+                        if (p === "...") {
+                          return (
+                            <span key={`dots-${idx}`} className="px-2 text-xs font-bold text-slate-500">
+                              ...
+                            </span>
+                          );
+                        }
+                        const pageNum = p as number;
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => {
+                              setCurrentPage(pageNum);
+                              window.scrollTo({ top: 350, behavior: "smooth" });
+                            }}
+                            className={`h-9 w-9 rounded-2xl text-xs font-black transition cursor-pointer flex items-center justify-center shadow-md ${
+                              currentPage === pageNum
+                                ? "bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-rose-600/30 scale-105 border border-rose-400/40"
+                                : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
 
                   <button

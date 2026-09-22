@@ -60,11 +60,10 @@ export async function fetchEscortProfiles(forceRefresh = false): Promise<EscortP
   _inflight = (async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/escorts`, { cache: "no-store" });
-      if (res.status === 429) {
-        console.warn("fetchEscortProfiles: rate limited (429) — returning cached data");
+      if (!res.ok) {
+        console.warn(`fetchEscortProfiles: API returned ${res.status} status — falling back to cache/empty array`);
         return _cachedProfiles || [];
       }
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
       const json = await res.json();
       const data: EscortProfileItem[] = json.data || [];
       _cachedProfiles = data;

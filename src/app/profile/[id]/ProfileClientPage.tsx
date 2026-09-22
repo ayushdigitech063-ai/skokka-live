@@ -102,13 +102,13 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
     : [];
   const galleryCount = galleryList.length;
 
-  // Automatic Auto-Scroll / Slideshow for 2+ images (3.5s interval) - Top Level Hook
+  // Automatic Auto-Scroll / Slideshow for 2+ images (2.5s interval)
   useEffect(() => {
     if (galleryCount <= 1 || isAutoplayPaused) return;
 
     const timer = setInterval(() => {
       setActivePhoto((prev) => (prev + 1) % galleryCount);
-    }, 3500);
+    }, 2500);
 
     return () => clearInterval(timer);
   }, [galleryCount, isAutoplayPaused]);
@@ -236,11 +236,6 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                   alt={profileData.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-in-out"
                 />
-                
-                {/* Center Tilted Watermark Overlay */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-lg sm:text-2xl font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
-                  mycityqueen
-                </div>
                 
                 {/* Badges Overlay */}
                 {profileData.isVip ? (
