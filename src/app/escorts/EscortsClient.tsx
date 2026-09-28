@@ -447,29 +447,29 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                               backgroundImage: `url("${displayPhoto}")`
                             }}
                           />
+
+                          {/* Photo Navigation Arrows */}
+                          <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none z-10">
+                            <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
+                              <ChevronLeft className="h-4 w-4" />
+                            </span>
+                            <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
+                              <ChevronRight className="h-4 w-4" />
+                            </span>
+                          </div>
+
+                          {/* Photo Count Badge (Bottom Left) */}
+                          <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-bold text-white border border-slate-700 flex items-center gap-1 z-10 shadow">
+                            <span>📷 {photoCount}</span>
+                          </div>
+
+                          {/* Tilted Center Watermark Tag */}
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                            mycityqueen
+                          </div>
+                        </Link>
                       );
                     })()}
-
-                      {/* Photo Navigation Arrows */}
-                      <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none z-10">
-                        <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
-                          <ChevronLeft className="h-4 w-4" />
-                        </span>
-                        <span className="h-8 w-8 rounded-full bg-slate-950/70 text-white flex items-center justify-center backdrop-blur-sm">
-                          <ChevronRight className="h-4 w-4" />
-                        </span>
-                      </div>
-
-                      {/* Photo Count Badge (Bottom Left) */}
-                      <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-bold text-white border border-slate-700 flex items-center gap-1 z-10 shadow">
-                        <span>📷 {photoCount}</span>
-                      </div>
-
-                      {/* Tilted Center Watermark Tag */}
-                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
-                        mycityqueen
-                      </div>
-                    </Link>
 
                     {/* Right Column: Listing Info & Action Buttons */}
                     <div className="flex-1 p-5 md:p-6 flex flex-col justify-between space-y-4">
