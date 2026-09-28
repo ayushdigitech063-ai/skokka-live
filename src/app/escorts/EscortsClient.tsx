@@ -430,13 +430,25 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                     </div>
 
                     {/* Left Column: Photo Container (Taller height for rich visual appeal) */}
-                    <Link href={getProfileUrl(profile)} className="block relative w-full md:w-72 lg:w-80 h-72 sm:h-80 md:h-[260px] shrink-0 overflow-hidden bg-slate-950">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-95"
-                        style={{
-                          backgroundImage: `url('${profile.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80"}')`
-                        }}
-                      />
+                    {(() => {
+                      const isValidUrl =
+                        typeof profile.photoUrl === "string" &&
+                        profile.photoUrl.trim().length > 0 &&
+                        !profile.photoUrl.startsWith("data:");
+                      const displayPhoto = isValidUrl
+                        ? profile.photoUrl
+                        : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";
+
+                      return (
+                        <Link href={getProfileUrl(profile)} className="block relative w-full md:w-72 lg:w-80 h-72 sm:h-80 md:h-[260px] shrink-0 overflow-hidden bg-slate-950">
+                          <div
+                            className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-95"
+                            style={{
+                              backgroundImage: `url("${displayPhoto}")`
+                            }}
+                          />
+                      );
+                    })()}
 
                       {/* Photo Navigation Arrows */}
                       <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex items-center justify-between pointer-events-none z-10">
