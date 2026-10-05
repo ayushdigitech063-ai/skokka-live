@@ -123,7 +123,7 @@ export function UserDashboard({
           const isDummyEmail = !currentEmail || currentEmail === "user@skokka.com" || currentEmail === "admin@skokka.com";
 
           const myAds = (!isDummyEmail)
-            ? allProfiles.filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === currentEmail)
+            ? (allProfiles || []).filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === currentEmail)
             : [];
           setUserAds(myAds);
         });
@@ -1240,7 +1240,7 @@ export function UserDashboard({
           fetchAllEscortsAdmin().then((allProfiles) => {
             const uEmail = (localStorage.getItem("skokka_user_email") || "").toLowerCase().trim();
             const myAds = uEmail
-              ? allProfiles.filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === uEmail)
+              ? (allProfiles || []).filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === uEmail)
               : [];
             setUserAds(myAds);
           });

@@ -61,7 +61,7 @@ export function AdminTopBar({
       // 1. Fetch pending Escort/Ad approvals
       try {
         const allEscorts = await fetchAllEscortsAdmin();
-        const pendingList = allEscorts.filter((e) => e.status === "PENDING_APPROVAL");
+        const pendingList = (allEscorts || []).filter((e) => e.status === "PENDING_APPROVAL");
         pendingList.forEach((e) => {
           dynamicNotifs.push({
             id: e.id,

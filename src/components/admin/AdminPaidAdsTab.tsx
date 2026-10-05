@@ -205,7 +205,7 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
     setIsRefreshing(true);
     invalidateEscortsCache();
     const fresh = await fetchAllEscortsAdmin();
-    setEscortProfilesList(fresh);
+    if (fresh !== null) setEscortProfilesList(fresh);
     setIsRefreshing(false);
     Swal.fire({
       toast: true,
