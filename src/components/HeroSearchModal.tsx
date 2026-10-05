@@ -107,7 +107,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     setPlaceOfService([]);
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => { e.preventDefault(); if(!selectedState && !selectedCity && !keyword) { import("sweetalert2").then(Swal => Swal.default.fire({ icon: "warning", title: "Select Location", text: "Please select a State or City to search.", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#e11d48", toast: true, position: "top-end", timer: 3000, showConfirmButton: false })); return; }
     e.preventDefault();
     const params = new URLSearchParams();
     if (category && category !== "All Categories") params.set("tag", category);
