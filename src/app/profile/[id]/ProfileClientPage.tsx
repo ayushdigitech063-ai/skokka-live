@@ -539,10 +539,7 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                             <Star className="h-3 w-3 fill-amber-400" /> {simProfile.rating || 4.9}
                           </span>
                         </div>
-                        {/* Corner Watermark */}
-                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
-                            mycityqueen
-                          </div>
+                        
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3 pt-10 z-10">
                           <h3 className="text-base font-black text-white group-hover:text-rose-400 transition truncate">
                             {simProfile.name}{simProfile.age > 0 ? `, ${simProfile.age}` : ""}

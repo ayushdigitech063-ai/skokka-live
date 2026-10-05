@@ -374,7 +374,7 @@ export function PostAdWizardModal({
       telegram: formData.telegram || formData.whatsapp || formData.phone,
       photoUrl: formData.photoUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
       videoUrl: formData.videoUrl,
-      gallery: [formData.photoUrl].filter(Boolean) as string[],
+      gallery: Array.from(new Set([formData.photoUrl, ...(formData.galleryPhotos || [])].filter(Boolean))) as string[],
       description: formData.tagline || `Independent high-class ${formData.category} companion available for 5-star hotel appointments in ${formData.cityArea}.`,
       packageType: formData.packageType || "FREE_STANDARD",
       isVerified: isVerified,

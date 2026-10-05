@@ -517,10 +517,7 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                             <span>📷 {photoCount}</span>
                           </div>
 
-                          {/* Corner Watermark */}
-                            <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
-                              mycityqueen
-                            </div>
+                          
                         </Link>
                       );
                     })()}

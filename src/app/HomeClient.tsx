@@ -178,10 +178,7 @@ export default function HomeClient() {
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
                           </div>
-                          {/* Corner Watermark */}
-                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
-                            mycityqueen
-                          </div>
+                          
                           {/* Gradient fade into the card body */}
                           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent z-10" />
                         </div>
@@ -287,10 +284,7 @@ export default function HomeClient() {
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
                           </div>
-                          {/* Corner Watermark */}
-                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
-                            mycityqueen
-                          </div>
+                          
                           {/* Gradient fade into the card body */}
                           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900 to-transparent z-10" />
                         </div>
@@ -486,10 +480,7 @@ export default function HomeClient() {
                           <div className="absolute inset-0 bg-gradient-to-t from-[#050711] via-[#050711]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
                         </div>
 
-                        {/* Corner Watermark */}
-                          <div className="absolute bottom-3 right-3 text-xs sm:text-sm font-black text-white/50 uppercase tracking-widest pointer-events-none z-10 drop-shadow-md">
-                            mycityqueen
-                          </div>
+                        
 
                         {/* Top Badge */}
                         <div className="absolute top-4 right-4 z-20">
