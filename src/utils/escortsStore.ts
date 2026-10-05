@@ -45,6 +45,33 @@ let _cachedProfiles: EscortProfileItem[] | null = null;
 let _cacheTimestamp = 0;
 let _inflight: Promise<EscortProfileItem[]> | null = null;
 
+export function sanitizeUrl(url: string | undefined): string {
+  if (!url) return '';
+  let pUrl = url.replace(/\\/g, '/');
+  if (!pUrl.startsWith('http') && !pUrl.startsWith('data:')) {
+    if (!pUrl.startsWith('/')) pUrl = '/' + pUrl;
+    pUrl = BACKEND_URL + pUrl;
+  }
+  return pUrl;
+}
+
+export function sanitizeProfile(p: EscortProfileItem): EscortProfileItem {
+  if (p.photoUrl) p.photoUrl = sanitizeUrl(p.photoUrl);
+  if (p.gallery) {
+    if (typeof p.gallery === 'string') {
+      try {
+        p.gallery = JSON.parse(p.gallery);
+      } catch (e) {
+        p.gallery = (p.gallery as unknown as string).split(',').map(s => s.trim());
+      }
+    }
+    if (Array.isArray(p.gallery)) {
+      p.gallery = p.gallery.map(sanitizeUrl);
+    }
+  }
+  return p;
+}
+
 /** Fetch all APPROVED profiles — cached for 60s, deduplicated in-flight */
 export async function fetchEscortProfiles(forceRefresh = false): Promise<EscortProfileItem[]> {
   const now = Date.now();
@@ -65,7 +92,7 @@ export async function fetchEscortProfiles(forceRefresh = false): Promise<EscortP
         return _cachedProfiles || [];
       }
       const json = await res.json();
-      const data: EscortProfileItem[] = json.data || [];
+      const data: EscortProfileItem[] = (json.data || []).map(sanitizeProfile);
       _cachedProfiles = data;
       _cacheTimestamp = Date.now();
       return data;
@@ -93,7 +120,7 @@ export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[]> {
     const res = await fetch(`${BACKEND_URL}/escorts/admin`, { cache: "no-store" });
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const json = await res.json();
-    return json.data || [];
+    return (json.data || []).map(sanitizeProfile);
   } catch (err) {
     console.error("fetchAllEscortsAdmin failed:", err);
     return [];
@@ -106,7 +133,7 @@ export async function fetchEscortById(id: string): Promise<EscortProfileItem | n
     const res = await fetch(`${BACKEND_URL}/escorts/${id}`, { cache: "no-store" });
     if (!res.ok) return null;
     const json = await res.json();
-    return json.data || null;
+    return json.data ? sanitizeProfile(json.data) : null;
   } catch (err) {
     console.error("fetchEscortById failed:", err);
     return null;

@@ -19,8 +19,8 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   const [selectedCity, setSelectedCity] = useState(initialLocation || "");
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
-  // CMS Config State for Dynamic Cities & Filters created by Super Admin
-  const [dynamicCities, setDynamicCities] = useState<string[]>([]);
+  // CMS Config State
+  const [locationTree, setLocationTree] = useState<any[]>([]);
   const [cmsFilters, setCmsFilters] = useState<any>(null);
 
   // Filters State
@@ -47,18 +47,23 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   useEffect(() => {
     const loadCmsData = () => {
       const cms = getHomePageCmsConfig();
-      if (cms?.topCities?.cities) {
-        const cleanNames = cms.topCities.cities.map((c) =>
-          c.name.replace(/ Escorts| Call Girls| VIP Companions/g, "").trim()
-        );
-        setDynamicCities(Array.from(new Set(cleanNames.filter(Boolean))));
-      }
       if (cms?.searchModalFilters) {
         setCmsFilters(cms.searchModalFilters);
       }
     };
 
     loadCmsData();
+
+    // Fetch dynamic location tree
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+    fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.tree) {
+          setLocationTree(data.tree);
+        }
+      })
+      .catch(err => console.error("Error fetching location tree", err));
 
     if (typeof window !== "undefined") {
       window.addEventListener(CMS_UPDATE_EVENT, loadCmsData);
@@ -106,8 +111,8 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     e.preventDefault();
     const params = new URLSearchParams();
     if (category && category !== "All Categories") params.set("tag", category);
-    if (selectedCity) params.set("city", selectedCity);
-    else if (selectedDistrict) params.set("city", selectedDistrict);
+    if (selectedDistrict) params.set("city", selectedDistrict);
+    else if (selectedCity) params.set("city", selectedCity);
     else if (selectedState) params.set("city", selectedState);
 
     if (keyword) params.set("q", keyword);
@@ -128,6 +133,23 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
       setList([...list, item]);
     }
   };
+
+  // Derive dropdown options from locationTree
+  const availableStates = locationTree.map(st => st.name);
+  const selectedStateObj = locationTree.find(st => st.name === selectedState);
+  
+  // If state is selected, show its cities. Otherwise, show all cities in the DB.
+  const availableCities = selectedStateObj 
+    ? (selectedStateObj.cities || []).map((c: any) => c.name)
+    : locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
+
+  const selectedCityObj = locationTree
+    .flatMap(st => st.cities || [])
+    .find((c: any) => c.name === selectedCity);
+
+  const availableDistricts = selectedCityObj
+    ? (selectedCityObj.areas || []).map((a: any) => a.name)
+    : [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md transition-opacity animate-in fade-in duration-200">
@@ -185,18 +207,43 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
               </div>
             </div>
 
-            {/* Row 2: City & District Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Dynamic City Selection from Super Admin CMS */}
+            {/* Row 2: State, City & District Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              
+              {/* State Selection */}
+              <div className="relative">
+                <select
+                  value={selectedState}
+                  onChange={(e) => {
+                    setSelectedState(e.target.value);
+                    setSelectedCity("");
+                    setSelectedDistrict("");
+                  }}
+                  className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
+                >
+                  <option value="">All States</option>
+                  {availableStates.map((stName: string) => (
+                    <option key={`st-${stName}`} value={stName}>
+                      {stName}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+              </div>
+
+              {/* City Selection */}
               <div className="relative">
                 <select
                   value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setSelectedDistrict("");
+                  }}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
                 >
-                  <option value="">All the cities</option>
-                  {dynamicCities.map((cityName) => (
-                    <option key={`dynamic-${cityName}`} value={cityName}>
+                  <option value="">All Cities</option>
+                  {availableCities.map((cityName: string) => (
+                    <option key={`ct-${cityName}`} value={cityName}>
                       {cityName}
                     </option>
                   ))}
@@ -208,25 +255,20 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
               <div className="relative">
                 <select
                   value={selectedDistrict}
-                  disabled={!selectedCity}
+                  disabled={!selectedCity || availableDistricts.length === 0}
                   onChange={(e) => setSelectedDistrict(e.target.value)}
                   className={`w-full px-3.5 py-3 rounded-lg border text-sm shadow-sm appearance-none truncate ${
-                    selectedCity
+                    selectedCity && availableDistricts.length > 0
                       ? "bg-white border-slate-200 text-slate-800 cursor-pointer focus:border-rose-500 focus:outline-none"
                       : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
                 >
                   <option value="">Select District</option>
-                  {selectedCity && (
-                    <option value={`${selectedCity} Central`}>
-                      {selectedCity} Central
+                  {availableDistricts.map((areaName: string) => (
+                    <option key={`ar-${areaName}`} value={areaName}>
+                      {areaName}
                     </option>
-                  )}
-                  {selectedCity && (
-                    <option value={`${selectedCity} Suburbs`}>
-                      {selectedCity} Suburbs
-                    </option>
-                  )}
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
               </div>

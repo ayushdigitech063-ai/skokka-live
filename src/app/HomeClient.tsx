@@ -178,8 +178,8 @@ export default function HomeClient() {
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
                           </div>
-                          {/* Center Tilted Watermark Overlay */}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                          {/* Corner Watermark */}
+                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
                             mycityqueen
                           </div>
                           {/* Gradient fade into the card body */}
@@ -287,8 +287,8 @@ export default function HomeClient() {
                               <span>{(p as any).rating || 5.0}</span>
                             </div>
                           </div>
-                          {/* Center Tilted Watermark Overlay */}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
+                          {/* Corner Watermark */}
+                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
                             mycityqueen
                           </div>
                           {/* Gradient fade into the card body */}
@@ -473,37 +473,54 @@ export default function HomeClient() {
                       <Link
                         key={c.name || idx}
                         href={`/escorts/${pureCityName.toLowerCase().replace(/\s+/g, "-")}/`}
-                        className="group flex flex-col justify-between p-5 rounded-2xl bg-[#0e1225] border border-slate-800/80 hover:border-rose-500/40 transition-all duration-300 shadow-lg hover:shadow-rose-900/10 hover:-translate-y-0.5"
+                        className="group relative flex flex-col justify-end h-72 rounded-2xl bg-[#0e1225] border border-slate-800/80 hover:border-rose-500/50 transition-all duration-500 shadow-xl overflow-hidden"
                       >
-                        {/* Top row: icon + badge */}
-                        <div className="flex items-start justify-between mb-4">
-                          <span className="flex items-center justify-center h-11 w-11 rounded-xl bg-rose-700 text-white shadow-lg shadow-rose-900/40">
-                            <MapPin className="h-5 w-5 fill-white/20 stroke-white stroke-2" />
-                          </span>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-rose-300 bg-rose-500/15 border border-rose-500/25 px-3 py-1 rounded-full">
+                        {/* Background Image */}
+                        <div className="absolute inset-0 z-0">
+                          <img 
+                            src={`/assets/cities/new_city_${(idx % 5) + 1}.jpg`} 
+                            alt={pureCityName} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out" 
+                          />
+                          {/* Gradient Overlay for readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#050711] via-[#050711]/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500"></div>
+                        </div>
+
+                        {/* Corner Watermark */}
+                          <div className="absolute bottom-3 right-3 text-xs sm:text-sm font-black text-white/50 uppercase tracking-widest pointer-events-none z-10 drop-shadow-md">
+                            mycityqueen
+                          </div>
+
+                        {/* Top Badge */}
+                        <div className="absolute top-4 right-4 z-20">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-rose-300 bg-rose-500/30 border border-rose-500/50 px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
                             {c.highlight || "Popular"}
                           </span>
                         </div>
 
-                        {/* City name + live count */}
-                        <div className="mb-3">
-                          <h3 className="text-[17px] font-black text-white leading-snug group-hover:text-rose-300 transition-colors">
+                        {/* Drawer Content */}
+                        <div className="relative z-20 p-5 w-full bg-gradient-to-t from-[#050711] via-[#050711]/80 to-transparent">
+                          {/* Always visible: City name */}
+                          <h3 className="text-[20px] font-black text-white leading-snug drop-shadow-lg flex items-center gap-2 transform transition-transform duration-500 group-hover:-translate-y-1">
+                            <MapPin className="h-5 w-5 text-rose-500" />
                             {pureCityName} Escorts
                           </h3>
-                          <span className="text-[13px] font-bold text-amber-400 mt-1 block">
-                            {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
-                          </span>
+                          
+                          {/* Hidden content that slides up on hover */}
+                          <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-3 transition-all duration-500 ease-in-out">
+                            <span className="text-[13px] font-bold text-amber-400 block drop-shadow-md mb-2">
+                              {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
+                            </span>
+                            
+                            <p className="text-[12px] text-slate-300 leading-relaxed drop-shadow-md mb-4">
+                              Verified independent escorts &amp; high class companions in {pureCityName}.
+                            </p>
+
+                            <span className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-[11px] uppercase tracking-widest transition-colors block text-center shadow-lg">
+                              View {pureCityName} Escorts →
+                            </span>
+                          </div>
                         </div>
-
-                        {/* Description */}
-                        <p className="text-[12px] text-slate-400 leading-relaxed mb-5">
-                          Verified independent escorts &amp; high class companions in {pureCityName}.
-                        </p>
-
-                        {/* CTA button */}
-                        <span className="w-full py-2.5 rounded-xl bg-slate-900 border border-slate-700 group-hover:border-rose-500/50 group-hover:text-white text-slate-300 font-extrabold text-[11px] uppercase tracking-widest transition-colors block text-center">
-                          View {pureCityName} Escorts →
-                        </span>
                       </Link>
                     );
                   })}

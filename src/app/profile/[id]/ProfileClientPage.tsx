@@ -539,10 +539,10 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                             <Star className="h-3 w-3 fill-amber-400" /> {simProfile.rating || 4.9}
                           </span>
                         </div>
-                        {/* Center Tilted Watermark Overlay */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
-                          mycityqueen
-                        </div>
+                        {/* Corner Watermark */}
+                          <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
+                            mycityqueen
+                          </div>
                         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-3 pt-10 z-10">
                           <h3 className="text-base font-black text-white group-hover:text-rose-400 transition truncate">
                             {simProfile.name}{simProfile.age > 0 ? `, ${simProfile.age}` : ""}
@@ -573,6 +573,24 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                     </div>
                   );
                 })}
+            </div>
+          </div>
+
+          {/* DYNAMIC SEO CONTENT FOR ESCORT NAME & CITY */}
+          <div className="pt-8 border-t border-slate-800/80 space-y-4">
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
+              <UserCheck className="h-5 w-5 text-pink-400" />
+              More About {profileData.name} in {profileData.city}
+            </h2>
+            <div className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed space-y-3 bg-slate-900/40 p-5 rounded-2xl border border-slate-800/60 shadow-inner">
+              <p>
+                Looking for the best companion in <strong>{profileData.city}</strong>? <strong className="text-white">{profileData.name}</strong> is one of the most sought-after {profileData.category?.toLowerCase() || 'escorts'} available right now. 
+                Providing premium and unforgettable experiences, {profileData.name} ensures top-class service and maximum satisfaction for clients in and around the {profileData.location || profileData.city} area.
+              </p>
+              <p>
+                Whether you are traveling to {profileData.city} for business or just want a relaxing time, booking <strong className="text-white">{profileData.name}</strong> guarantees complete privacy, hygiene, and an amazing time. 
+                Explore more about {profileData.name}&apos;s verified photos, details, and directly contact her via WhatsApp or Phone to book your appointment today.
+              </p>
             </div>
           </div>
 

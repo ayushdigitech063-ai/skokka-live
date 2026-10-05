@@ -24,6 +24,7 @@ import {
   SlidersHorizontal,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   RefreshCw,
   Send
 } from "lucide-react";
@@ -76,6 +77,8 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
     window.history.pushState({}, "", newUrl);
   };
 
+  const [locationTree, setLocationTree] = useState<any[]>([]);
+
   useEffect(() => {
     setCms(getHomePageCmsConfig());
     fetchEscortProfiles().then(setProfiles);
@@ -87,6 +90,14 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
     else if (defaultCity) setSelectedCity(defaultCity);
     if (queryTag) setSelectedTag(queryTag);
     else if (defaultTag) setSelectedTag(defaultTag);
+
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+    fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.tree) setLocationTree(data.tree);
+      })
+      .catch(err => console.error(err));
 
     const handleCmsUpdate = () => setCms(getHomePageCmsConfig());
     const handleEscortsUpdate = () => fetchEscortProfiles().then(setProfiles);
@@ -274,56 +285,89 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
               </div>
             </div>
 
-            {/* CATEGORIES HORIZONTAL SCROLLING PILLS */}
-            <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                <Sparkles className="h-3.5 w-3.5 text-rose-400" />
-                <span>Categories</span>
-              </div>
-              <div className="flex items-center justify-center flex-wrap gap-2 pt-1">
-                {categories.map((cat) => {
-                  const isActive = selectedTag === cat.name;
-                  return (
-                    <button
-                      key={cat.name}
-                      type="button"
-                      onClick={() => handleSelectTag(cat.name)}
-                      className={`px-4 py-2 rounded-2xl text-xs font-bold transition duration-200 cursor-pointer flex items-center gap-1.5 shadow-md ${
-                        isActive
-                          ? "bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-rose-600/30 scale-105 border border-rose-400/40"
-                          : "bg-slate-900/80 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800"
-                      }`}
-                    >
-                      <span>{cat.emoji}</span>
-                      <span>{cat.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            {/* DROPDOWNS: CATEGORY, CITY, AREA */}
+            <div className="max-w-4xl mx-auto pt-2 pb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                
+                {/* Category Dropdown */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <Sparkles className="h-4 w-4 text-rose-400" />
+                  </div>
+                  <select
+                    value={selectedTag}
+                    onChange={(e) => handleSelectTag(e.target.value)}
+                    className="w-full pl-9 pr-10 py-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white font-semibold focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-md transition"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat.name} value={cat.name}>
+                        {cat.emoji} {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
 
-            {/* CITIES HORIZONTAL PILLS */}
-            <div className="flex items-center justify-center flex-wrap gap-1.5 pt-1 max-w-4xl mx-auto">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-rose-400" /> City:
-              </span>
-              {citiesList.map((c) => {
-                const isActive = selectedCity === c;
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => handleSelectCity(c)}
-                    className={`px-3 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${
-                      isActive
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 font-bold"
-                        : "bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800/80"
+                {/* City Dropdown */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <MapPin className="h-4 w-4 text-rose-400" />
+                  </div>
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => {
+                      handleSelectCity(e.target.value);
+                      setSearchLocation("");
+                    }}
+                    className="w-full pl-9 pr-10 py-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white font-semibold focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-md transition"
+                  >
+                    <option value="All Cities">All Cities</option>
+                    {(() => {
+                      const availCities = locationTree.length > 0 
+                        ? locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name))
+                        : citiesList.filter(c => c !== "All Cities");
+                      return availCities.map((cityName: string) => (
+                        <option key={cityName} value={cityName}>
+                          {cityName}
+                        </option>
+                      ));
+                    })()}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+
+                {/* Area Dropdown */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <MapPin className="h-4 w-4 text-rose-400" />
+                  </div>
+                  <select
+                    value={searchLocation}
+                    disabled={selectedCity === "All Cities"}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    className={`w-full pl-9 pr-10 py-3 rounded-2xl border text-sm shadow-md appearance-none transition truncate ${
+                      selectedCity !== "All Cities"
+                        ? "bg-slate-900/80 border-slate-700/80 text-white font-semibold cursor-pointer focus:border-rose-500 focus:outline-none"
+                        : "bg-slate-900/40 border-slate-800 text-slate-500 cursor-not-allowed font-medium"
                     }`}
                   >
-                    {c}
-                  </button>
-                );
-              })}
+                    <option value="">Select Area</option>
+                    {(() => {
+                      const selectedCityObj = locationTree
+                        .flatMap(st => st.cities || [])
+                        .find((c: any) => c.name === selectedCity);
+                      const availableAreas = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
+                      return availableAreas.map((areaName: string) => (
+                        <option key={areaName} value={areaName}>
+                          {areaName}
+                        </option>
+                      ));
+                    })()}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+
+              </div>
             </div>
           </div>
         </section>
@@ -435,17 +479,27 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                         typeof profile.photoUrl === "string" &&
                         profile.photoUrl.trim().length > 0 &&
                         !profile.photoUrl.startsWith("data:");
-                      const displayPhoto = isValidUrl
-                        ? profile.photoUrl
-                        : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";
+                      
+                      let displayPhoto = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";
+                      if (isValidUrl) {
+                        let pUrl = profile.photoUrl.replace(/\\/g, '/');
+                        if (!pUrl.startsWith('http') && !pUrl.startsWith('data:')) {
+                           if (!pUrl.startsWith('/')) pUrl = '/' + pUrl;
+                           pUrl = 'https://mycityqueen.com/x' + pUrl;
+                        }
+                        displayPhoto = pUrl;
+                      }
 
                       return (
                         <Link href={getProfileUrl(profile)} className="block relative w-full md:w-72 lg:w-80 h-72 sm:h-80 md:h-[260px] shrink-0 overflow-hidden bg-slate-950">
-                          <div
-                            className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500 opacity-95"
-                            style={{
-                              backgroundImage: `url("${displayPhoto}")`
+                          <img 
+                            src={displayPhoto}
+                            alt={profile.title || profile.name}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";
                             }}
+                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-95"
                           />
 
                           {/* Photo Navigation Arrows */}
@@ -463,10 +517,10 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                             <span>📷 {photoCount}</span>
                           </div>
 
-                          {/* Tilted Center Watermark Tag */}
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 text-sm sm:text-base font-black text-white/55 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-widest uppercase pointer-events-none z-10 whitespace-nowrap">
-                            mycityqueen
-                          </div>
+                          {/* Corner Watermark */}
+                            <div className="absolute bottom-2 right-2 text-[10px] sm:text-xs font-black text-white/50 tracking-wider uppercase pointer-events-none z-10 whitespace-nowrap drop-shadow-md">
+                              mycityqueen
+                            </div>
                         </Link>
                       );
                     })()}

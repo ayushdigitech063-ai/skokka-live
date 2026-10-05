@@ -2061,7 +2061,7 @@ export function AdminHomePageCmsTab({ activeTab = "homepage_cms" }: AdminHomePag
                   <label className="text-[11px] font-bold text-slate-300 uppercase">Copyright Line</label>
                   <input
                     type="text"
-                    value={config.footer?.copyrightText || "© 2026 Skokka India Classifieds • 18+ Adult Escort Directory • All Rights Reserved"}
+                    value={config.footer?.copyrightText || "© 2026 MyCityQueen Classifieds • 18+ Adult Escort Directory • All Rights Reserved"}
                     onChange={(e) =>
                       setConfig({
                         ...config,

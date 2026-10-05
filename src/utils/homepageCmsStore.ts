@@ -167,9 +167,9 @@ export const DEFAULT_HOMEPAGE_CMS_CONFIG: HomePageCmsConfig = {
 
     supportEmail: "info.mycityqueen@gmail.com",
     whatsappNumber: "+91 98765 00000",
-    telegramHandle: "@skokkaindia",
-    disclaimerText: "Disclaimer: All escort profiles listed are 18+ adult providers. Skokka enforces strict compliance, AI face verification, and 256-bit SSL encryption.",
-    copyrightText: "© 2026 Skokka India Classifieds • 18+ Adult Escort Directory • All Rights Reserved",
+    telegramHandle: "@mycityqueen",
+    disclaimerText: "Disclaimer: All escort profiles listed are 18+ adult providers. MyCityQueen enforces strict compliance, AI face verification, and 256-bit SSL encryption.",
+    copyrightText: "© 2026 MyCityQueen Classifieds • 18+ Adult Escort Directory • All Rights Reserved",
   },
   searchModalFilters: {
     nationalities: [

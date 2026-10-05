@@ -205,7 +205,7 @@ export function AdminLoginForm({ onLoginSuccess }: AdminLoginFormProps) {
         </form>
 
         <div className="mt-8 text-center text-[11px] font-normal text-slate-500 border-t border-slate-800/80 pt-4">
-          © 2026 Skokka India Classifieds • Super Admin Security System
+          © 2026 MyCityQueen Classifieds • Super Admin Security System
         </div>
 
       </div>

@@ -376,10 +376,6 @@ export function UserDashboard({
                     <span className="bg-rose-100/80 text-rose-600 px-2 py-0.5 rounded-md font-extrabold text-[11px]">Active</span>
                     <strong className="text-slate-900 text-sm font-black">{activeAdsCount}</strong>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Not published</span>
-                    <strong className="text-slate-900 text-sm font-bold">{notPublishedAdsCount}</strong>
-                  </div>
                 </div>
 
                 <button
@@ -986,18 +982,6 @@ export function UserDashboard({
                 <span className="text-xl font-black text-amber-300">{pendingApprovalAdsCount}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setAdsFilterTab("REJECTED")}
-                className={`p-4 rounded-2xl border text-left transition ${
-                  adsFilterTab === "REJECTED"
-                    ? "bg-slate-800 border-rose-500 text-white shadow-lg ring-1 ring-rose-500/50"
-                    : "bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300"
-                }`}
-              >
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Not Published</span>
-                <span className="text-xl font-black text-slate-300">{notPublishedAdsCount}</span>
-              </button>
             </div>
 
             {/* Section Header & Status Filter Pills */}
@@ -1035,17 +1019,6 @@ export function UserDashboard({
                   }`}
                 >
                   ⏳ Pending ({pendingApprovalAdsCount})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAdsFilterTab("REJECTED")}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase transition tracking-wider shrink-0 ${
-                    adsFilterTab === "REJECTED"
-                      ? "bg-slate-700 text-white shadow-md"
-                      : "bg-slate-900 hover:bg-slate-800 text-slate-400 border border-slate-800"
-                  }`}
-                >
-                  ❌ Not Published ({notPublishedAdsCount})
                 </button>
               </div>
 
