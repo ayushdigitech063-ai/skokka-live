@@ -110,7 +110,9 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
 
   useEffect(() => {
     setConfig(getAdCmsConfig());
-    const loadAll = () => fetchAllEscortsAdmin().then(setEscortProfilesList);
+    const loadAll = () => fetchAllEscortsAdmin().then((data) => {
+      if (data !== null) setEscortProfilesList(data);
+    });
     loadAll();
     window.addEventListener(ESCORTS_UPDATE_EVENT, loadAll);
     return () => window.removeEventListener(ESCORTS_UPDATE_EVENT, loadAll);
@@ -187,7 +189,7 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
       prev.map((ad) => (ad.id === id ? { ...ad, status: "APPROVED" } : ad))
     );
     await setEscortStatus(id, "APPROVED");
-    fetchAllEscortsAdmin().then(setEscortProfilesList);
+    fetchAllEscortsAdmin().then((data) => { if(data !== null) setEscortProfilesList(data); });
     Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Approval Done! ✅`, text: `${title} (${id}) is now APPROVED & LIVE.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
   };
 
@@ -196,7 +198,7 @@ export function AdminPaidAdsTab({ currentUser, activeTab = "ads" }: AdminPaidAds
       prev.map((ad) => (ad.id === id ? { ...ad, status: "REJECTED" } : ad))
     );
     await setEscortStatus(id, "REJECTED");
-    fetchAllEscortsAdmin().then(setEscortProfilesList);
+    fetchAllEscortsAdmin().then((data) => { if(data !== null) setEscortProfilesList(data); });
     Swal.fire({ toast: true, position: "top-end", icon: "info", title: `Ad Rejected`, text: `${title} (${id}) rejected.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
   };
   const handleRefreshAds = async () => {

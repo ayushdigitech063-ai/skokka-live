@@ -115,15 +115,15 @@ export function invalidateEscortsCache() {
 
 
 /** Fetch all profiles (admin panel — includes pending & rejected) */
-export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[]> {
+export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[] | null> {
   try {
     const res = await fetch(`${BACKEND_URL}/escorts/admin`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    if (!res.ok) return null;
     const json = await res.json();
     return (json.data || []).map(sanitizeProfile);
   } catch (err) {
     console.error("fetchAllEscortsAdmin failed:", err);
-    return [];
+    return null;
   }
 }
 

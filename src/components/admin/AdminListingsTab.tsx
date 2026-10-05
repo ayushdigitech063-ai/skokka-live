@@ -183,7 +183,7 @@ export function AdminListingsTab() {
   });
 
   useEffect(() => {
-    const loadAll = () => fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+    const loadAll = () => fetchAllEscortsAdmin().then((data) => { if(data !== null) { setListings(data.map(toListing)); } });
     loadAll();
     window.addEventListener(ESCORTS_UPDATE_EVENT, loadAll);
     return () => window.removeEventListener(ESCORTS_UPDATE_EVENT, loadAll);
@@ -192,19 +192,19 @@ export function AdminListingsTab() {
   const handleToggleVip = async (id: string, name: string, current: boolean) => {
     const placement = !current ? "VIP" : "STANDARD";
     await setEscortPlacement(id, placement);
-    fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+    fetchAllEscortsAdmin().then((data) => { if(data !== null) { setListings(data.map(toListing)); } });
     Swal.fire({ toast: true, position: "top-end", icon: "success", title: `${name} is now ${!current ? "VIP Featured ⭐" : "Standard Listing"}`, showConfirmButton: false, timer: 1500, background: "#0B1437", color: "#ffffff" });
   };
 
   const handleApproveListing = async (id: string, name: string) => {
     await setEscortStatus(id, "APPROVED");
-    fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
-    Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Listing Approved & Live! ✅`, text: `${name} is now visible on Skokka.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
+    setListings(prev => prev.map(item => item.id === id ? { ...item, status: "APPROVED" } : item));
+    Swal.fire({ toast: true, position: "top-end", icon: "success", title: `Listing Approved & Live! ✅`, text: `${name} is now visible.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
   };
 
   const handleRejectListing = async (id: string, name: string) => {
     await setEscortStatus(id, "REJECTED");
-    fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+    setListings(prev => prev.map(item => item.id === id ? { ...item, status: "REJECTED" } : item));
     Swal.fire({ toast: true, position: "top-end", icon: "info", title: `Listing Rejected ❌`, text: `${name} has been rejected.`, showConfirmButton: false, timer: 2000, background: "#0B1437", color: "#ffffff" });
   };
 
@@ -212,9 +212,13 @@ export function AdminListingsTab() {
     Swal.fire({ title: `Delete "${name}"?`, text: "This escort listing will be permanently removed.", icon: "warning", showCancelButton: true, confirmButtonText: "Yes, Delete", confirmButtonColor: "#f43f5e", cancelButtonColor: "#334155", background: "#0B1437", color: "#ffffff" })
       .then(async (result) => {
         if (result.isConfirmed) {
-          await deleteEscortProfile(id);
-          fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
-          Swal.fire({ title: "Listing Deleted", text: `${name} removed.`, icon: "success", background: "#0B1437", color: "#ffffff" });
+          const success = await deleteEscortProfile(id);
+          if (success) {
+            setListings(prev => prev.filter(item => item.id !== id));
+            Swal.fire({ title: "Listing Deleted", text: `${name} removed.`, icon: "success", background: "#0B1437", color: "#ffffff" });
+          } else {
+             Swal.fire({ title: "Network Error", text: `Could not delete ${name} due to network/rate limit. Try again shortly.`, icon: "error", background: "#0B1437", color: "#ffffff" });
+          }
         }
       });
   };
@@ -276,7 +280,7 @@ export function AdminListingsTab() {
         console.error("Auto location register error:", err);
       }
 
-      fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+      fetchAllEscortsAdmin().then((data) => { if(data !== null) { setListings(data.map(toListing)); } });
       setShowCreateModal(false);
       setNewListing({ stageName: "", tagline: "", category: "VIP Escorts", age: 22, cityArea: "Jaipur (Bani Park)", phone: "", whatsapp: "", telegram: "", incallRate: "₹6,000 / hr", outcallRate: "₹10,000 / night", selfieVerified: true, isVipFeatured: false, photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" });
       Swal.fire({ title: "New Listing Created! 🎉", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
@@ -319,7 +323,7 @@ export function AdminListingsTab() {
         isVerified: isVerified,
         packageType: isSuperTop ? "SUPER TOP Booster ⚡" : isVip ? "VIP Featured ⭐" : isVerified ? "Verified Listing 🛡️" : "FREE_STANDARD",
       });
-      fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+      fetchAllEscortsAdmin().then((data) => { if(data !== null) { setListings(data.map(toListing)); } });
       Swal.fire({ title: "Listing Updated! 🚀", text: "Changes saved to MongoDB.", icon: "success", background: "#0B1437", color: "#ffffff", confirmButtonColor: "#10b981" });
     } catch (err: any) {
       console.error("Failed to update listing:", err);
@@ -706,7 +710,7 @@ export function AdminListingsTab() {
                           const isSuper = item.isSuperTop;
                           const nextPlacement = isSuper ? "STANDARD" : "SUPER_TOP";
                           await setEscortPlacement(item.id, nextPlacement as any);
-                          fetchAllEscortsAdmin().then((data) => setListings(data.map(toListing)));
+                          fetchAllEscortsAdmin().then((data) => { if(data !== null) { setListings(data.map(toListing)); } });
                           Swal.fire({
                             toast: true,
                             position: "top-end",

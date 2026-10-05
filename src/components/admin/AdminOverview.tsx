@@ -35,7 +35,9 @@ export function AdminOverview({ currentUser }: AdminOverviewProps) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
 
   const loadProfiles = () => {
-    fetchAllEscortsAdmin().then(setProfiles);
+    fetchAllEscortsAdmin().then((data) => {
+      if (data !== null) setProfiles(data);
+    });
   };
 
   useEffect(() => {
