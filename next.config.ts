@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/escorts/:path*",
+        destination: "/escorts-service/:path*",
+        permanent: true,
+      },
+      {
         source: "/search.",
         destination: "/search",
         permanent: false,
