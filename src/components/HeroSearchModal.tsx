@@ -186,12 +186,25 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm"
                 >
-                  <option value="Call Girls">Call Girls</option>
-                  <option value="VIP Escorts">VIP Escorts</option>
-                  <option value="Independent Girls">Independent Girls</option>
-                  <option value="Russian Escorts">Russian Escorts</option>
-                  <option value="College Girls">College Girls</option>
-                  <option value="Massage Parlors">Massage Parlors</option>
+                                      <option value="Call Girl">Call Girl</option>
+                    <option value="Call Girls">Call Girls</option>
+                    <option value="Escort Service">Escort Service</option>
+                    <option value="Escort Services">Escort Services</option>
+                    <option value="Call Girl Service">Call Girl Service</option>
+                    <option value="Russian Escorts">Russian Escorts</option>
+                    <option value="Celebrity Escorts">Celebrity Escorts</option>
+                    <option value="VIP Escorts">VIP Escorts</option>
+                    <option value="College Girls Escorts">College Girls Escorts</option>
+                    <option value="Housewife Escorts">Housewife Escorts</option>
+                    <option value="Independent Escorts">Independent Escorts</option>
+                    <option value="High Profile Escorts">High Profile Escorts</option>
+                    <option value="Modern Escorts">Modern Escorts</option>
+                    <option value="Party Girls Escorts">Party Girls Escorts</option>
+                    <option value="Russian Call Girls">Russian Call Girls</option>
+                    <option value="Air Hostess Escorts">Air Hostess Escorts</option>
+                    <option value="Dating Escorts">Dating Escorts</option>
+                    <option value="Hotel Escorts">Hotel Escorts</option>
+                    <option value="Busty Escort">Busty Escort</option>
                 </select>
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
               </div>
