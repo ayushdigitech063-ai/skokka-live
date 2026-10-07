@@ -65,5 +65,5 @@ export const getProfileUrl = (p: { id?: string; skId?: string; name?: string; st
   // Extract just the city name (remove area suffix like "Jaipur (Bani Park)" → "jaipur")
   const citySlug = slugifyPath(rawCity.split("(")[0].trim());
   const slug = getProfileSlug(name, targetId);
-  return `/escorts-service/${slug}`;
+  return `/escorts-service/${citySlug}/${slug}`;
 };

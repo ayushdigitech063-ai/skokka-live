@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getProfileUrl } from "@/lib/seo/seoEngine";
 import { HeaderNavbar } from "@/components/HeaderNavbar";
 import { Footer } from "@/components/Footer";
 import { PostAdAuthModal } from "@/components/PostAdAuthModal";
@@ -162,7 +163,7 @@ export default function HomeClient() {
                       key={p.id}
                       className="group rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl hover:shadow-rose-900/30 hover:border-rose-500/50 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full"
                     >
-                      <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="flex-1 flex flex-col">
+                      <Link href={`${getProfileUrl(p)}`} className="flex-1 flex flex-col">
                         <div className="h-[280px] w-full bg-slate-800 relative overflow-hidden flex items-center justify-center">
                           <div
                             className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700 opacity-90"
@@ -218,7 +219,7 @@ export default function HomeClient() {
 
                       {/* Card Footer (Buttons) */}
                       <div className="px-5 py-4 bg-slate-950 border-t border-slate-800/80 grid grid-cols-2 gap-3 shrink-0">
-                        <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
+                        <Link href={`${getProfileUrl(p)}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
                           <Phone className="w-3.5 h-3.5" /> Details
                         </Link>
                         <button 
@@ -268,7 +269,7 @@ export default function HomeClient() {
                       key={p.id}
                       className="group rounded-3xl bg-slate-900 border border-amber-900/40 overflow-hidden shadow-xl hover:shadow-amber-900/30 hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full"
                     >
-                      <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="flex-1 flex flex-col">
+                      <Link href={`${getProfileUrl(p)}`} className="flex-1 flex flex-col">
                         <div className="h-[280px] w-full bg-slate-800 relative overflow-hidden flex items-center justify-center">
                           <div
                             className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700 opacity-90"
@@ -324,7 +325,7 @@ export default function HomeClient() {
 
                       {/* Card Footer (Buttons) */}
                       <div className="px-5 py-4 bg-slate-950 border-t border-slate-800/80 grid grid-cols-2 gap-3 shrink-0">
-                        <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
+                        <Link href={`${getProfileUrl(p)}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
                           <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Details
                         </Link>
                         <button 
