@@ -66,13 +66,13 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
     const cleanCity = city && city !== "All Cities" ? slugifyPath(city) : "";
     const cleanTag = tag && tag !== "All Escorts" ? slugifyPath(tag) : "";
 
-    let newUrl = "/escorts";
+    let newUrl = "/escorts-service";
     if (cleanCity && cleanTag) {
-      newUrl = `/escorts/${cleanCity}/${cleanTag}`;
+      newUrl = `/escorts-service/${cleanCity}/${cleanTag}`;
     } else if (cleanCity) {
-      newUrl = `/escorts/${cleanCity}`;
+      newUrl = `/escorts-service/${cleanCity}`;
     } else if (cleanTag) {
-      newUrl = `/escorts/${cleanTag}`;
+      newUrl = `/escorts-service/${cleanTag}`;
     }
     window.history.pushState({}, "", newUrl);
   };

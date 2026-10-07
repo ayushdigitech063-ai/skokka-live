@@ -51,7 +51,7 @@ export function Footer() {
 
   const col2Heading = footerConfig?.col2Heading || "EXPLORE CATEGORIES";
   const col2Links = footerConfig?.col2Links || [
-    { id: "1", emoji: "🔞", label: "Escorts Directory", url: "/escorts" },
+    { id: "1", emoji: "🔞", label: "Escorts Directory", url: "/escorts-service" },
     { id: "2", emoji: "📍", label: "Pan-India Escort Cities", url: "/cities" },
     { id: "3", emoji: "👑", label: "VIP Luxury Showcase", url: "/vip-profiles" },
     { id: "4", emoji: "✓", label: "AI Verified Standard", url: "/verified" },
@@ -108,7 +108,7 @@ export function Footer() {
             <ul className="space-y-3 text-xs sm:text-sm font-bold text-slate-300">
               {col2Links.map((l, idx) => (
                 <li key={l.id || idx}>
-                  <Link href={l.url || "/escorts"} className="hover:text-rose-400 transition flex items-center gap-2">
+                  <Link href={l.url || "/escorts-service"} className="hover:text-rose-400 transition flex items-center gap-2">
                     <span>{l.emoji || "👉"}</span> {l.label}
                   </Link>
                 </li>

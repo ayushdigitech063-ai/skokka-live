@@ -150,7 +150,7 @@ export default function HomeClient() {
                       {cms?.verifiedProfiles?.subtitle || "Every profile badge is identity-checked with live face matching & official verification."}
                     </p>
                   </div>
-                  <Link href="/escorts" className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-rose-500/50 hover:bg-slate-800 text-sm font-bold text-rose-400 transition-all shadow-md">
+                  <Link href="/escorts-service" className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-rose-500/50 hover:bg-slate-800 text-sm font-bold text-rose-400 transition-all shadow-md">
                     View All Verified <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </div>
@@ -162,7 +162,7 @@ export default function HomeClient() {
                       key={p.id}
                       className="group rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl hover:shadow-rose-900/30 hover:border-rose-500/50 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full"
                     >
-                      <Link href={`/profile/${p.id}`} className="flex-1 flex flex-col">
+                      <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="flex-1 flex flex-col">
                         <div className="h-[280px] w-full bg-slate-800 relative overflow-hidden flex items-center justify-center">
                           <div
                             className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700 opacity-90"
@@ -218,7 +218,7 @@ export default function HomeClient() {
 
                       {/* Card Footer (Buttons) */}
                       <div className="px-5 py-4 bg-slate-950 border-t border-slate-800/80 grid grid-cols-2 gap-3 shrink-0">
-                        <Link href={`/profile/${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
+                        <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
                           <Phone className="w-3.5 h-3.5" /> Details
                         </Link>
                         <button 
@@ -268,7 +268,7 @@ export default function HomeClient() {
                       key={p.id}
                       className="group rounded-3xl bg-slate-900 border border-amber-900/40 overflow-hidden shadow-xl hover:shadow-amber-900/30 hover:border-amber-500/50 transition-all duration-300 transform hover:-translate-y-1 flex flex-col h-full"
                     >
-                      <Link href={`/profile/${p.id}`} className="flex-1 flex flex-col">
+                      <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="flex-1 flex flex-col">
                         <div className="h-[280px] w-full bg-slate-800 relative overflow-hidden flex items-center justify-center">
                           <div
                             className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700 opacity-90"
@@ -324,7 +324,7 @@ export default function HomeClient() {
 
                       {/* Card Footer (Buttons) */}
                       <div className="px-5 py-4 bg-slate-950 border-t border-slate-800/80 grid grid-cols-2 gap-3 shrink-0">
-                        <Link href={`/profile/${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
+                        <Link href={`/escorts-service/${(p.name || 'escort').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${p.id}`} className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[12px] uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-1.5 text-center border border-slate-700">
                           <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Details
                         </Link>
                         <button 
@@ -376,7 +376,7 @@ export default function HomeClient() {
                       <div key={cat.label} className="group flex flex-col">
                         {/* Card */}
                         <Link
-                          href={`/escorts/${slugifyPath(cat.label)}`}
+                          href={`/escorts-service-service/${slugifyPath(cat.label)}`}
                           className="relative rounded-2xl overflow-hidden block"
                           style={{ aspectRatio: "16/10" }}
                         >
@@ -420,7 +420,7 @@ export default function HomeClient() {
                               {cat.cities.slice(0, 5).map((city) => (
                                 <Link
                                   key={city}
-                                  href={`/escorts/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
+                                  href={`/escorts-service-service/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
                                   className="text-[11px] font-semibold text-slate-300 border border-slate-600 hover:border-rose-500/60 hover:text-white px-2.5 py-1 rounded-full transition-colors duration-200 bg-slate-900/60"
                                 >
                                   {city}
@@ -466,7 +466,7 @@ export default function HomeClient() {
                     return (
                       <Link
                         key={c.name || idx}
-                        href={`/escorts/${pureCityName.toLowerCase().replace(/\s+/g, "-")}/`}
+                        href={`/escorts-service-service/${pureCityName.toLowerCase().replace(/\s+/g, "-")}/`}
                         className="group relative flex flex-col justify-end h-72 rounded-2xl bg-[#0e1225] border border-slate-800/80 hover:border-rose-500/50 transition-all duration-500 shadow-xl overflow-hidden"
                       >
                         {/* Background Image */}

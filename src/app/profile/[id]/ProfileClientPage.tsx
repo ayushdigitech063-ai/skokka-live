@@ -40,7 +40,14 @@ import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
 
 export default function ProfileClientPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
   const resolvedParams = params instanceof Promise ? use(params) : params;
-  const rawId = resolvedParams?.id ? String(resolvedParams.id) : "";
+  const rawIdParam = resolvedParams?.id ? String(resolvedParams.id) : "";
+  let rawId = rawIdParam;
+  const match = rawIdParam.match(/-(sk-\d+)$/i);
+  if (match) { 
+    rawId = match[1].toUpperCase(); 
+  } else if (rawIdParam.match(/-([a-f0-9]{24})$/i)) { 
+    rawId = (rawIdParam.match(/-([a-f0-9]{24})$/i) || [])[1] || rawIdParam;
+  }
 
   const [profile, setProfile] = useState<EscortProfileItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

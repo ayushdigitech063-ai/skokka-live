@@ -56,7 +56,7 @@ export const getProfileSlug = (name: string, id: string): string => {
 };
 
 /**
- * Generates full profile URL e.g. /escorts/jaipur/priya-sharma-sk-103
+ * Generates full profile URL e.g. /escorts-service/jaipur/priya-sharma-sk-103
  */
 export const getProfileUrl = (p: { id?: string; skId?: string; name?: string; stageName?: string; city?: string; location?: string }): string => {
   const targetId = p.skId || p.id || "SK-101";
@@ -65,5 +65,5 @@ export const getProfileUrl = (p: { id?: string; skId?: string; name?: string; st
   // Extract just the city name (remove area suffix like "Jaipur (Bani Park)" → "jaipur")
   const citySlug = slugifyPath(rawCity.split("(")[0].trim());
   const slug = getProfileSlug(name, targetId);
-  return `/escorts/${citySlug}/${slug}`;
+  return `/escorts-service/${slug}`;
 };

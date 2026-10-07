@@ -81,7 +81,7 @@ export function HeaderNavbar({ onPostAdClick }: HeaderNavbarProps) {
 
   const defaultNavLinks = [
     { label: "Home", href: "/" },
-    { label: "Escorts", href: "/escorts" },
+    { label: "Escorts", href: "/escorts-service" },
     { label: "Cities", href: "/cities" },
     { label: "Categories", href: "/categories" },
     { label: "Contact Us", href: "/contact" },
