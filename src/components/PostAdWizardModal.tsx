@@ -63,6 +63,7 @@ export function PostAdWizardModal({
   const [locationTree, setLocationTree] = useState<any[]>([]);
   const [dbCities, setDbCities] = useState<any[]>([]);
   const [dbAreas, setDbAreas] = useState<any[]>([]);
+  const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedArea, setSelectedArea] = useState<string>("");
 
@@ -629,141 +630,86 @@ export function PostAdWizardModal({
                   </div>
                 </div>
 
-                {/* DYNAMIC LOCATION (SELECT CITY -> SELECT AREA) */}
-                <div className="space-y-3 p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs font-semibold text-cyan-400 block mb-1">Select City *</label>
-                      <select
-                        value={selectedCity}
-                        onChange={(e) => {
-                          const cName = e.target.value;
-                          setSelectedCity(cName);
-                          setSelectedArea("");
-                          const full = cName ? cName : formData.cityArea;
-                          setFormData({ ...formData, cityArea: full });
-                        }}
-                        className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-cyan-500/50 cursor-pointer"
-                      >
-                        <option value="">-- Choose City --</option>
-                        {(() => {
-                          const defaultList = [
-                            { name: "Jaipur", tier: "Tier 2" },
-                            { name: "Delhi", tier: "Tier 1" },
-                            { name: "Mumbai", tier: "Tier 1" },
-                            { name: "Bangalore", tier: "Tier 1" },
-                            { name: "Goa", tier: "Tier 2" },
-                            { name: "Pune", tier: "Tier 2" },
-                            { name: "Udaipur", tier: "Tier 2" },
-                            { name: "Ajmer", tier: "Tier 2" },
-                          ];
-                          const treeCities = locationTree.flatMap((st) => st.cities || []);
-                          const allRaw = [...dbCities, ...treeCities, ...defaultList];
-                          const uniqueMap = new Map(allRaw.map((c) => [c.name, c]));
-                          return Array.from(uniqueMap.values()).map((ct: any) => (
-                            <option key={ct._id || ct.name} value={ct.name}>
-                              {ct.name} ({ct.tier || "City"})
-                            </option>
-                          ));
-                        })()}
-                      </select>
+                                {/* DYNAMIC LOCATION (SELECT STATE -> SELECT CITY -> SELECT AREA) */}
+                  <div className="space-y-3 p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {(() => {
+                        const availableStates = locationTree.map(st => st.name);
+                        const selectedStateObj = locationTree.find(st => st.name === selectedState);
+                        const availableCities = selectedStateObj 
+                          ? (selectedStateObj.cities || []).map((c: any) => c.name)
+                          : locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
+                        const selectedCityObj = locationTree.flatMap(st => st.cities || []).find((c: any) => c.name === selectedCity);
+                        const availableDistricts = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
+
+                        return (
+                          <>
+                            {/* State Selection */}
+                            <div>
+                              <label className="text-xs font-semibold text-rose-400 block mb-1">Select State</label>
+                              <select
+                                value={selectedState}
+                                onChange={(e) => {
+                                  setSelectedState(e.target.value);
+                                  setSelectedCity("");
+                                  setSelectedArea("");
+                                }}
+                                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-rose-500/50 cursor-pointer"
+                              >
+                                <option value="">-- Choose State --</option>
+                                {availableStates.map((stName: string) => (
+                                  <option key={stName} value={stName}>{stName}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* City Selection */}
+                            <div>
+                              <label className="text-xs font-semibold text-cyan-400 block mb-1">Select City *</label>
+                              <select
+                                value={selectedCity}
+                                onChange={(e) => {
+                                  const cName = e.target.value;
+                                  setSelectedCity(cName);
+                                  setSelectedArea("");
+                                  const full = cName ? cName : formData.cityArea;
+                                  setFormData({ ...formData, cityArea: full });
+                                }}
+                                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-cyan-500/50 cursor-pointer"
+                              >
+                                <option value="">-- Choose City --</option>
+                                {availableCities.map((cityName: string) => (
+                                  <option key={cityName} value={cityName}>{cityName}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* District Selection */}
+                            <div>
+                              <label className="text-xs font-semibold text-purple-400 block mb-1">Select Area / Locality</label>
+                              <select
+                                value={selectedArea}
+                                onChange={(e) => {
+                                  const aName = e.target.value;
+                                  setSelectedArea(aName);
+                                  const full = selectedCity ? (aName ? `${selectedCity} (${aName})` : selectedCity) : aName;
+                                  setFormData({ ...formData, cityArea: full });
+                                }}
+                                disabled={!selectedCity || availableDistricts.length === 0}
+                                className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-purple-500/50 cursor-pointer disabled:opacity-40"
+                              >
+                                <option value="">-- Choose Area --</option>
+                                {availableDistricts.map((dName: string) => (
+                                  <option key={dName} value={dName}>{dName}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
 
                     <div>
-                      <label className="text-xs font-semibold text-purple-400 block mb-1">Select Area / Locality</label>
-                      <select
-                        value={selectedArea}
-                        onChange={(e) => {
-                          const aName = e.target.value;
-                          setSelectedArea(aName);
-                          const full = selectedCity ? (aName ? `${selectedCity} (${aName})` : selectedCity) : aName;
-                          setFormData({ ...formData, cityArea: full });
-                        }}
-                        disabled={!selectedCity}
-                        className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-purple-500/50 cursor-pointer disabled:opacity-40"
-                      >
-                        <option value="">-- Choose Area (Optional) --</option>
-                        {(() => {
-                          const defaultAreasMap: Record<string, string[]> = {
-                            Jaipur: ["Bani Park", "Malviya Nagar", "C-Scheme", "Mansarovar", "Vaishali Nagar"],
-                            Delhi: ["Connaught Place", "South Extension", "Vasant Kunj", "Rohini"],
-                            Mumbai: ["Bandra West", "Juhu", "Andheri West", "Powai"],
-                            Bangalore: ["Koramangala", "Indiranagar", "Whitefield"],
-                            Goa: ["Calangute", "Baga", "Panjim"],
-                            Pune: ["Koregaon Park", "Viman Nagar"],
-                            Udaipur: ["Fateh Sagar", "Sukher"],
-                            Ajmer: ["Pushkar Road", "Vaishali Nagar"],
-                          };
-
-                          const selCityNorm = selectedCity.trim().toLowerCase();
-
-                          // 1. Find matching city object
-                          const treeCity = locationTree
-                            .flatMap((st) => st.cities || [])
-                            .find((c: any) => {
-                              const cNorm = c.name?.trim().toLowerCase();
-                              return (
-                                cNorm === selCityNorm ||
-                                (selCityNorm === "bangalore" && cNorm === "bengaluru") ||
-                                (selCityNorm === "bengaluru" && cNorm === "bangalore")
-                              );
-                            });
-
-                          const dbCity = dbCities.find((c: any) => {
-                            const cNorm = c.name?.trim().toLowerCase();
-                            return (
-                              cNorm === selCityNorm ||
-                              (selCityNorm === "bangalore" && cNorm === "bengaluru") ||
-                              (selCityNorm === "bengaluru" && cNorm === "bangalore")
-                            );
-                          });
-
-                          const targetCityId = dbCity?._id || treeCity?._id;
-
-                          // 2. Filter dbAreas matching selected city
-                          const matchingDbAreas = dbAreas.filter((a: any) => {
-                            const aCityName = (a.cityId?.name || a.cityName || "").trim().toLowerCase();
-                            const aCityIdStr = String(a.cityId?._id || a.cityId || "");
-                            return (
-                              aCityName === selCityNorm ||
-                              (selCityNorm === "bangalore" && aCityName === "bengaluru") ||
-                              (selCityNorm === "bengaluru" && aCityName === "bangalore") ||
-                              (targetCityId && aCityIdStr === String(targetCityId))
-                            );
-                          });
-
-                          // 3. Embedded areas from city object
-                          const embeddedAreas = [...(treeCity?.areas || []), ...(dbCity?.areas || [])].map((a: any) =>
-                            typeof a === "string" ? { name: a } : a
-                          );
-
-                          // 4. Default fallback areas
-                          const defaultAreaObjs = (
-                            defaultAreasMap[selectedCity] ||
-                            defaultAreasMap[selCityNorm === "bengaluru" ? "Bangalore" : selectedCity] ||
-                            []
-                          ).map((name) => ({ name }));
-
-                          // Combine & deduplicate by name
-                          const combined = [...matchingDbAreas, ...embeddedAreas, ...defaultAreaObjs];
-                          const uniqueMap = new Map();
-                          combined.forEach((a) => {
-                            if (a && a.name && !uniqueMap.has(a.name.trim().toLowerCase())) {
-                              uniqueMap.set(a.name.trim().toLowerCase(), a);
-                            }
-                          });
-
-                          return Array.from(uniqueMap.values()).map((ar: any) => (
-                            <option key={ar._id || ar.name} value={ar.name}>
-                              {ar.name} {ar.pincode ? `(${ar.pincode})` : ""}
-                            </option>
-                          ));
-                        })()}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
                     <label className="text-[11px] font-semibold text-slate-400 block mb-1">
                       Final Location Tag (Auto-generated or custom)
                     </label>
