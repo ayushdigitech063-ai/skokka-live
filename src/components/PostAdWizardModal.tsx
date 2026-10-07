@@ -646,7 +646,7 @@ export function PostAdWizardModal({
                           <>
                             {/* State Selection */}
                             <div>
-                              <label className="text-xs font-semibold text-rose-400 block mb-1">Select State</label>
+                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select State</label>
                               <select
                                 value={selectedState}
                                 onChange={(e) => {
@@ -665,7 +665,7 @@ export function PostAdWizardModal({
 
                             {/* City Selection */}
                             <div>
-                              <label className="text-xs font-semibold text-cyan-400 block mb-1">Select City *</label>
+                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select City *</label>
                               <select
                                 value={selectedCity}
                                 onChange={(e) => {
@@ -686,7 +686,7 @@ export function PostAdWizardModal({
 
                             {/* District Selection */}
                             <div>
-                              <label className="text-xs font-semibold text-purple-400 block mb-1">Select Area / Locality</label>
+                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select Area / Locality</label>
                               <select
                                 value={selectedArea}
                                 onChange={(e) => {

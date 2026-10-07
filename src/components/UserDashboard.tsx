@@ -323,7 +323,7 @@ export function UserDashboard({
               <User className="h-3.5 w-3.5 text-slate-500" />
               <span>Advertiser Private Area</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight break-all max-w-full">
               {userEmail}
             </h1>
             <p className="text-xs text-slate-500 font-mono">

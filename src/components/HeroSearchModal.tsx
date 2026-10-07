@@ -17,7 +17,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   const [keyword, setKeyword] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState(initialLocation || "");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedArea, setselectedArea] = useState("");
 
   // CMS Config State
   const [locationTree, setLocationTree] = useState<any[]>([]);
@@ -97,7 +97,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     setKeyword("");
     setSelectedState("");
     setSelectedCity("");
-    setSelectedDistrict("");
+    setselectedArea("");
     setNationality("");
     setBreast("");
     setHair("");
@@ -111,7 +111,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     e.preventDefault();
     const params = new URLSearchParams();
     if (category && category !== "All Categories") params.set("tag", category);
-    if (selectedDistrict) params.set("city", selectedDistrict);
+    if (selectedArea) params.set("city", selectedArea);
     else if (selectedCity) params.set("city", selectedCity);
     else if (selectedState) params.set("city", selectedState);
 
@@ -217,7 +217,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   onChange={(e) => {
                     setSelectedState(e.target.value);
                     setSelectedCity("");
-                    setSelectedDistrict("");
+                    setselectedArea("");
                   }}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
                 >
@@ -237,7 +237,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   value={selectedCity}
                   onChange={(e) => {
                     setSelectedCity(e.target.value);
-                    setSelectedDistrict("");
+                    setselectedArea("");
                   }}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
                 >
@@ -254,16 +254,16 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
               {/* District Selection */}
               <div className="relative">
                 <select
-                  value={selectedDistrict}
+                  value={selectedArea}
                   disabled={!selectedCity || availableDistricts.length === 0}
-                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  onChange={(e) => setselectedArea(e.target.value)}
                   className={`w-full px-3.5 py-3 rounded-lg border text-sm shadow-sm appearance-none truncate ${
                     selectedCity && availableDistricts.length > 0
                       ? "bg-white border-slate-200 text-slate-800 cursor-pointer focus:border-rose-500 focus:outline-none"
                       : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
                 >
-                  <option value="">Select District</option>
+                  <option value="">Select Area</option>
                   {availableDistricts.map((areaName: string) => (
                     <option key={`ar-${areaName}`} value={areaName}>
                       {areaName}
