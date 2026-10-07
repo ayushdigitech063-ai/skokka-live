@@ -25,7 +25,7 @@ import {
 export interface EscortListing {
   id: string;
   stageName: string;
-  category: "VIP Escorts" | "Call Girls" | "Independent Girls" | "Russian Escorts";
+  category: string;
   tagline: string;
   age: number;
   cityArea: string;
@@ -96,15 +96,26 @@ export function AdminListingsTab() {
       const cms = getHomePageCmsConfig();
       const cmsList = (cms?.categories?.categories || []).map((c) => c.label);
       const defaults = [
-        "VIP Escorts",
-        "Call Girls",
-        "Independent Girls",
-        "Russian Escorts",
-        "Massages",
-        "Male Escorts",
-        "Transsexual",
-        "Adult Meetings",
-      ];
+          "Call Girl",
+          "Call Girls",
+          "Escort Service",
+          "Escort Services",
+          "Call Girl Service",
+          "Russian Escorts",
+          "Celebrity Escorts",
+          "VIP Escorts",
+          "College Girls Escorts",
+          "Housewife Escorts",
+          "Independent Escorts",
+          "High Profile Escorts",
+          "Modern Escorts",
+          "Party Girls Escorts",
+          "Russian Call Girls",
+          "Air Hostess Escorts",
+          "Dating Escorts",
+          "Hotel Escorts",
+          "Busty Escort"
+        ];
       const merged = Array.from(new Set([...defaults, ...cmsList]));
       setCmsCategories(merged);
     };

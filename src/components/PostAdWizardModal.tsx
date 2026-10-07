@@ -556,16 +556,27 @@ export function PostAdWizardModal({
                   >
                     {Array.from(
                       new Set([
-                        "VIP Escorts",
-                        "Call Girls",
-                        "Independent Girls",
-                        "Russian Escorts",
-                        "Massages",
-                        "Male Escorts",
-                        "Transsexual",
-                        "Adult Meetings",
-                        ...(getHomePageCmsConfig()?.categories?.categories || []).map((c) => c.label),
-                      ])
+                          "Call Girl",
+                          "Call Girls",
+                          "Escort Service",
+                          "Escort Services",
+                          "Call Girl Service",
+                          "Russian Escorts",
+                          "Celebrity Escorts",
+                          "VIP Escorts",
+                          "College Girls Escorts",
+                          "Housewife Escorts",
+                          "Independent Escorts",
+                          "High Profile Escorts",
+                          "Modern Escorts",
+                          "Party Girls Escorts",
+                          "Russian Call Girls",
+                          "Air Hostess Escorts",
+                          "Dating Escorts",
+                          "Hotel Escorts",
+                          "Busty Escort",
+                          ...(getHomePageCmsConfig()?.categories?.categories || []).map((c) => c.label),
+                        ])
                     ).map((catName) => (
                       <option key={catName} value={catName}>
                         {catName}
@@ -646,7 +657,7 @@ export function PostAdWizardModal({
                           <>
                             {/* State Selection */}
                             <div>
-                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select State</label>
+                              <label className="text-xs font-semibold text-rose-400 block mb-1">Select State</label>
                               <select
                                 value={selectedState}
                                 onChange={(e) => {
@@ -665,7 +676,7 @@ export function PostAdWizardModal({
 
                             {/* City Selection */}
                             <div>
-                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select City *</label>
+                              <label className="text-xs font-semibold text-cyan-400 block mb-1">Select City *</label>
                               <select
                                 value={selectedCity}
                                 onChange={(e) => {
@@ -686,7 +697,7 @@ export function PostAdWizardModal({
 
                             {/* District Selection */}
                             <div>
-                              <label className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1">Select Area / Locality</label>
+                              <label className="text-xs font-semibold text-purple-400 block mb-1">Select Area / Locality</label>
                               <select
                                 value={selectedArea}
                                 onChange={(e) => {
