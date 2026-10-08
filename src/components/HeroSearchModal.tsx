@@ -17,7 +17,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   const [keyword, setKeyword] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState(initialLocation || "");
-  const [selectedArea, setselectedArea] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
 
   // CMS Config State
   const [locationTree, setLocationTree] = useState<any[]>([]);
@@ -97,7 +97,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     setKeyword("");
     setSelectedState("");
     setSelectedCity("");
-    setselectedArea("");
+    setSelectedDistrict("");
     setNationality("");
     setBreast("");
     setHair("");
@@ -111,7 +111,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     e.preventDefault();
     const params = new URLSearchParams();
     if (category && category !== "All Categories") params.set("tag", category);
-    if (selectedArea) params.set("city", selectedArea);
+    if (selectedDistrict) params.set("city", selectedDistrict);
     else if (selectedCity) params.set("city", selectedCity);
     else if (selectedState) params.set("city", selectedState);
 
@@ -136,12 +136,17 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
 
   // Derive dropdown options from locationTree
   const availableStates = locationTree.map(st => st.name);
-  const selectedStateObj = locationTree.find(st => st.name === selectedState);
+  const selectedStateObj = locationTree.find(st => st.name.replace(/\s+/g, ' ').trim().toLowerCase() === selectedState.replace(/\s+/g, ' ').trim().toLowerCase());
   
   // If state is selected, show its cities. Otherwise, show all cities in the DB.
-  const availableCities = selectedStateObj 
-    ? (selectedStateObj.cities || []).map((c: any) => c.name)
-    : locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
+  let availableCities: string[] = [];
+  if (selectedState) {
+    if (selectedStateObj && Array.isArray(selectedStateObj.cities)) {
+      availableCities = selectedStateObj.cities.map((c: any) => c.name);
+    }
+  } else {
+    availableCities = locationTree.flatMap(st => (Array.isArray(st.cities) ? st.cities : []).map((c: any) => c.name));
+  }
 
   const selectedCityObj = locationTree
     .flatMap(st => st.cities || [])
@@ -186,25 +191,12 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm"
                 >
-                                      <option value="Call Girl">Call Girl</option>
-                    <option value="Call Girls">Call Girls</option>
-                    <option value="Escort Service">Escort Service</option>
-                    <option value="Escort Services">Escort Services</option>
-                    <option value="Call Girl Service">Call Girl Service</option>
-                    <option value="Russian Escorts">Russian Escorts</option>
-                    <option value="Celebrity Escorts">Celebrity Escorts</option>
-                    <option value="VIP Escorts">VIP Escorts</option>
-                    <option value="College Girls Escorts">College Girls Escorts</option>
-                    <option value="Housewife Escorts">Housewife Escorts</option>
-                    <option value="Independent Escorts">Independent Escorts</option>
-                    <option value="High Profile Escorts">High Profile Escorts</option>
-                    <option value="Modern Escorts">Modern Escorts</option>
-                    <option value="Party Girls Escorts">Party Girls Escorts</option>
-                    <option value="Russian Call Girls">Russian Call Girls</option>
-                    <option value="Air Hostess Escorts">Air Hostess Escorts</option>
-                    <option value="Dating Escorts">Dating Escorts</option>
-                    <option value="Hotel Escorts">Hotel Escorts</option>
-                    <option value="Busty Escort">Busty Escort</option>
+                  <option value="Call Girls">Call Girls</option>
+                  <option value="VIP Escorts">VIP Escorts</option>
+                  <option value="Independent Girls">Independent Girls</option>
+                  <option value="Russian Escorts">Russian Escorts</option>
+                  <option value="College Girls">College Girls</option>
+                  <option value="Massage Parlors">Massage Parlors</option>
                 </select>
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
               </div>
@@ -230,7 +222,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   onChange={(e) => {
                     setSelectedState(e.target.value);
                     setSelectedCity("");
-                    setselectedArea("");
+                    setSelectedDistrict("");
                   }}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
                 >
@@ -250,7 +242,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                   value={selectedCity}
                   onChange={(e) => {
                     setSelectedCity(e.target.value);
-                    setselectedArea("");
+                    setSelectedDistrict("");
                   }}
                   className="w-full px-3.5 py-3 rounded-lg bg-white border border-slate-200 text-slate-800 font-medium focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-sm truncate"
                 >
@@ -267,16 +259,16 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
               {/* District Selection */}
               <div className="relative">
                 <select
-                  value={selectedArea}
+                  value={selectedDistrict}
                   disabled={!selectedCity || availableDistricts.length === 0}
-                  onChange={(e) => setselectedArea(e.target.value)}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
                   className={`w-full px-3.5 py-3 rounded-lg border text-sm shadow-sm appearance-none truncate ${
                     selectedCity && availableDistricts.length > 0
                       ? "bg-white border-slate-200 text-slate-800 cursor-pointer focus:border-rose-500 focus:outline-none"
                       : "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
                 >
-                  <option value="">Select Area</option>
+                  <option value="">Select District</option>
                   {availableDistricts.map((areaName: string) => (
                     <option key={`ar-${areaName}`} value={areaName}>
                       {areaName}

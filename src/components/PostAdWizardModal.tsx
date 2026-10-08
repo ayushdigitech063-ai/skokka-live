@@ -556,27 +556,9 @@ export function PostAdWizardModal({
                   >
                     {Array.from(
                       new Set([
-                          "Call Girl",
-                          "Call Girls",
-                          "Escort Service",
-                          "Escort Services",
-                          "Call Girl Service",
-                          "Russian Escorts",
-                          "Celebrity Escorts",
-                          "VIP Escorts",
-                          "College Girls Escorts",
-                          "Housewife Escorts",
-                          "Independent Escorts",
-                          "High Profile Escorts",
-                          "Modern Escorts",
-                          "Party Girls Escorts",
-                          "Russian Call Girls",
-                          "Air Hostess Escorts",
-                          "Dating Escorts",
-                          "Hotel Escorts",
-                          "Busty Escort",
-                          ...(getHomePageCmsConfig()?.categories?.categories || []).map((c) => c.label),
-                        ])
+                        "Call Girl", "Call Girls", "Escort Service", "Escort Services", "Call Girl Service", "Russian Escorts", "Celebrity Escorts", "VIP Escorts", "College Girls Escorts", "Housewife Escorts", "Independent Escorts", "High Profile Escorts", "Modern Escorts", "Party Girls Escorts", "Russian Call Girls", "Air Hostess Escorts", "Dating Escorts", "Hotel Escorts", "Busty Escort",
+                        ...(getHomePageCmsConfig()?.categories?.categories || []).map((c) => c.label),
+                      ])
                     ).map((catName) => (
                       <option key={catName} value={catName}>
                         {catName}
@@ -646,10 +628,15 @@ export function PostAdWizardModal({
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(() => {
                         const availableStates = locationTree.map(st => st.name);
-                        const selectedStateObj = locationTree.find(st => st.name === selectedState);
-                        const availableCities = selectedStateObj 
-                          ? (selectedStateObj.cities || []).map((c: any) => c.name)
-                          : locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
+                        const selectedStateObj = locationTree.find(st => st.name.replace(/\s+/g, ' ').trim().toLowerCase() === selectedState.replace(/\s+/g, ' ').trim().toLowerCase());
+                        let availableCities: string[] = [];
+                        if (selectedState) {
+                        if (selectedStateObj && Array.isArray(selectedStateObj.cities)) {
+                        availableCities = selectedStateObj.cities.map((c: any) => c.name);
+                        }
+                        } else {
+                        availableCities = locationTree.flatMap(st => (Array.isArray(st.cities) ? st.cities : []).map((c: any) => c.name));
+                        }
                         const selectedCityObj = locationTree.flatMap(st => st.cities || []).find((c: any) => c.name === selectedCity);
                         const availableDistricts = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
 
