@@ -377,7 +377,7 @@ export default function HomeClient() {
                       <div key={cat.label} className="group flex flex-col">
                         {/* Card */}
                         <Link
-                          href={`/escorts-service-service/${slugifyPath(cat.label)}`}
+                          href={`/escorts-service/${slugifyPath(cat.label)}`}
                           className="relative rounded-2xl overflow-hidden block"
                           style={{ aspectRatio: "16/10" }}
                         >
@@ -421,7 +421,7 @@ export default function HomeClient() {
                               {cat.cities.slice(0, 5).map((city) => (
                                 <Link
                                   key={city}
-                                  href={`/escorts-service-service/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
+                                  href={`/escorts-service/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
                                   className="text-[11px] font-semibold text-slate-300 border border-slate-600 hover:border-rose-500/60 hover:text-white px-2.5 py-1 rounded-full transition-colors duration-200 bg-slate-900/60"
                                 >
                                   {city}
@@ -467,7 +467,7 @@ export default function HomeClient() {
                     return (
                       <Link
                         key={c.name || idx}
-                        href={`/escorts-service-service/${pureCityName.toLowerCase().replace(/\s+/g, "-")}/`}
+                        href={`/escorts-service/${pureCityName.toLowerCase().replace(/\s+/g, "-")}/`}
                         className="group relative flex flex-col justify-end h-72 rounded-2xl bg-[#0e1225] border border-slate-800/80 hover:border-rose-500/50 transition-all duration-500 shadow-xl overflow-hidden"
                       >
                         {/* Background Image */}
