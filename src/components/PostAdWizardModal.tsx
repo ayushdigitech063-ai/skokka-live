@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
@@ -129,8 +129,8 @@ export function PostAdWizardModal({
     age: 22,
     cityArea: "Jaipur (Bani Park)",
     tagline: "",
-    priceRate: "₹5,000 / hr",
-    offerDiscount: "₹10,000 / night",
+    priceRate: "â‚¹5,000 / hr",
+    offerDiscount: "â‚¹10,000 / night",
     phone: "",
     whatsapp: "",
     telegram: "",
@@ -153,7 +153,7 @@ export function PostAdWizardModal({
           age: initialAd.age || 22,
           cityArea: initialAd.location || initialAd.city || "Jaipur (Bani Park)",
           tagline: initialAd.title || initialAd.description || "",
-          priceRate: initialAd.rate || "₹5,000 / hr",
+          priceRate: initialAd.rate || "â‚¹5,000 / hr",
           offerDiscount: initialAd.availability || "24/7 Incall & Outcall",
           phone: initialAd.phone || "",
           whatsapp: initialAd.whatsapp || initialAd.phone || "",
@@ -196,7 +196,7 @@ export function PostAdWizardModal({
       localStorage.setItem("skokka_age_verified", "true");
 
       Swal.fire({
-        title: "Verification Successful! 🎉",
+        title: "Verification Successful! ðŸŽ‰",
         text: "Age & identity verified. You can now post your ad campaign.",
         icon: "success",
         background: "#0B1437",
@@ -367,7 +367,7 @@ export function PostAdWizardModal({
       category: formData.category || "Call Girls",
       age: formData.age || 22,
       rating: 5.0,
-      rate: formData.priceRate || `₹5,000 / hr`,
+      rate: formData.priceRate || `â‚¹5,000 / hr`,
       availability: formData.offerDiscount || "24/7 Incall & Outcall",
       tags: ["Verified", formData.category, "Independent"],
       phone: formData.phone || "+91 98765 00000",
@@ -383,7 +383,7 @@ export function PostAdWizardModal({
       price: formData.price || 0,
       status: "APPROVED",
       submittedAt: pendingAd.submittedAt,
-      submittedBy: currentUserEmail, // ✅ Link ad to current user's account
+      submittedBy: currentUserEmail, // âœ… Link ad to current user's account
     };
 
     try {
@@ -418,17 +418,17 @@ export function PostAdWizardModal({
       onClose();
 
       Swal.fire({
-        title: "🎉 Ad Published Successfully!",
+        title: "ðŸŽ‰ Ad Published Successfully!",
         html: `
           <div class="space-y-3 text-center">
             <p class="text-sm text-slate-300">Escort ad for <strong class="text-rose-400">${newProfile.name}</strong> (${newProfile.category}) is now live and published!</p>
             <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400">
-              Ad ID: ${newProfile.id} • Status: APPROVED & LIVE
+              Ad ID: ${newProfile.id} â€¢ Status: APPROVED & LIVE
             </div>
           </div>
         `,
         icon: "success",
-        confirmButtonText: "Awesome 👍",
+        confirmButtonText: "Awesome ðŸ‘",
         confirmButtonColor: "#3b82f6",
         background: "#0B1437",
         color: "#ffffff",
@@ -577,7 +577,7 @@ export function PostAdWizardModal({
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. ✳️ Call Ritika Only Cash ✳️ Genuine High Profile Jaipur Escorts Services 100% Safe"
+                    placeholder="e.g. âœ³ï¸ Call Ritika Only Cash âœ³ï¸ Genuine High Profile Jaipur Escorts Services 100% Safe"
                     value={formData.adTitle}
                     onChange={(e) => {
                       let val = e.target.value;
@@ -591,7 +591,7 @@ export function PostAdWizardModal({
                     required
                   />
                   <p className="text-[10px] text-slate-400 font-medium">
-                    ⚠️ Title is strictly limited to 1 line (Max 50 words / 150 chars). Paragraphs are not allowed.
+                    âš ï¸ Title is strictly limited to 1 line (Max 50 words / 150 chars). Paragraphs are not allowed.
                   </p>
                 </div>
 
@@ -603,7 +603,7 @@ export function PostAdWizardModal({
                     <input
                       type="text"
                       placeholder="e.g. Ritika Sharma, Ananya"
-                      value={formData.tagline ? formData.tagline.split("•")[0] : ""}
+                      value={formData.tagline ? formData.tagline.split("â€¢")[0] : ""}
                       onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs focus:border-rose-500 focus:outline-none"
                     />
@@ -773,7 +773,7 @@ export function PostAdWizardModal({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. ₹1,499 / pack or ₹5,000 / hr"
+                      placeholder="e.g. â‚¹1,499 / pack or â‚¹5,000 / hr"
                       value={formData.priceRate}
                       onChange={(e) => setFormData({ ...formData, priceRate: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs"
@@ -785,7 +785,7 @@ export function PostAdWizardModal({
                     </label>
                     <input
                       type="text"
-                      placeholder="e.g. Buy 1 Get 1 Free • Free COD"
+                      placeholder="e.g. Buy 1 Get 1 Free â€¢ Free COD"
                       value={formData.offerDiscount}
                       onChange={(e) => setFormData({ ...formData, offerDiscount: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-xs"
@@ -894,7 +894,7 @@ export function PostAdWizardModal({
                 {/* AD MAIN COVER PHOTO UPLOAD */}
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
                   <label className="text-xs font-bold text-rose-400 uppercase tracking-wider block">
-                    📷 Main Profile Cover Photo
+                    ðŸ“· Main Profile Cover Photo
                   </label>
                   <div className="flex items-center gap-4">
                     <div className="h-20 w-20 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden shrink-0 relative">
@@ -928,12 +928,12 @@ export function PostAdWizardModal({
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <label className="text-xs font-bold text-purple-400 uppercase tracking-wider block">
-                      🖼️ Upload Up To 5 Gallery Photos
+                      ðŸ–¼ï¸ Upload Up To 5 Gallery Photos
                     </label>
                     
                     {/* BATCH 5 PHOTO SELECTOR BUTTON */}
                     <label className="px-3 py-1.5 rounded-xl bg-purple-600/90 hover:bg-purple-500 text-white font-bold text-[11px] inline-flex items-center gap-1.5 cursor-pointer transition shadow w-fit">
-                      <Upload className="h-3.5 w-3.5" /> 📸 Select 5 Photos At Once
+                      <Upload className="h-3.5 w-3.5" /> ðŸ“¸ Select 5 Photos At Once
                       <input
                         type="file"
                         accept="image/*"
@@ -990,7 +990,7 @@ export function PostAdWizardModal({
                                 }}
                                 className="absolute top-1 right-1 h-5 w-5 bg-rose-600 rounded-full text-white text-[10px] font-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow"
                               >
-                                ✕
+                                âœ•
                               </button>
                             </>
                           ) : (
@@ -1070,10 +1070,10 @@ export function PostAdWizardModal({
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
-                      { id: "SUPER_TOP", title: "⚡ SUPER TOP BOOSTER", price: 6999, desc: "#1 Rank At Very Top Of All Listings ⚡" },
-                      { id: "VIP_HOMEPAGE", title: "VIP Homepage + /vip Page", price: 4999, desc: "BOTH Homepage VIP + /vip 🔥" },
-                      { id: "VIP_PAGE", title: "VIP Page Feature", price: 3499, desc: "Dedicated /vip Page 👑" },
-                      { id: "VERIFIED", title: "Verified Escort Package", price: 2499, desc: "Homepage Verified + Badge ✅" },
+                      { id: "SUPER_TOP", title: "âš¡ SUPER TOP BOOSTER", price: 6999, desc: "#1 Rank At Very Top Of All Listings âš¡" },
+                      { id: "VIP_HOMEPAGE", title: "VIP Homepage + /vip Page", price: 4999, desc: "BOTH Homepage VIP + /vip ðŸ”¥" },
+                      { id: "VIP_PAGE", title: "VIP Page Feature", price: 3499, desc: "Dedicated /vip Page ðŸ‘‘" },
+                      { id: "VERIFIED", title: "Verified Escort Package", price: 2499, desc: "Homepage Verified + Badge âœ…" },
                       { id: "HOMEPAGE_STANDARD", title: "Homepage Standard", price: 999, desc: "Homepage Escorts List" },
                       { id: "FREE_STANDARD", title: "Free Standard Listing", price: 0, desc: "Directory Only" },
                     ].map((pkg) => {
@@ -1098,7 +1098,7 @@ export function PostAdWizardModal({
                           <div className="text-[11px] font-bold leading-tight">{pkg.title}</div>
                           <div className="text-[10px] text-slate-400 mt-0.5">{pkg.desc}</div>
                           <div className={`font-black text-sm mt-1.5 ${pkg.price === 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                            {pkg.price === 0 ? "FREE (₹0)" : `₹${pkg.price.toLocaleString("en-IN")}`}
+                            {pkg.price === 0 ? "FREE (â‚¹0)" : `â‚¹${pkg.price.toLocaleString("en-IN")}`}
                           </div>
                         </button>
                       );
@@ -1113,7 +1113,7 @@ export function PostAdWizardModal({
                       <QrCode className="h-4 w-4 text-rose-400" /> {formData.price === 0 ? "Free Listing Selected" : "Dynamic UPI Payment QR Code"}
                     </span>
                     <span className={`font-black text-base ${formData.price === 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                      {formData.price === 0 ? "₹0 FREE" : `₹${formData.price.toLocaleString("en-IN")}`}
+                      {formData.price === 0 ? "â‚¹0 FREE" : `â‚¹${formData.price.toLocaleString("en-IN")}`}
                     </span>
                   </div>
 
@@ -1125,18 +1125,18 @@ export function PostAdWizardModal({
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
                             `upi://pay?pa=${superAdminUpiId}&pn=MyCityQueen%20Ad%20Payment&am=${formData.price}&cu=INR`
                           )}`}
-                          alt={`UPI QR for ₹${formData.price}`}
+                          alt={`UPI QR for â‚¹${formData.price}`}
                           className="w-36 h-36 object-contain"
                         />
                         <div className="absolute -bottom-2 -right-2 bg-rose-600 text-white font-extrabold text-[10px] px-2 py-0.5 rounded-full shadow">
-                          ₹{formData.price.toLocaleString("en-IN")}
+                          â‚¹{formData.price.toLocaleString("en-IN")}
                         </div>
                       </div>
 
                       <div className="space-y-2 text-center sm:text-left flex-1">
                         <div className="space-y-1">
                           <strong className="text-xs font-bold text-white block">
-                            Scan to Pay ₹{formData.price.toLocaleString("en-IN")}
+                            Scan to Pay â‚¹{formData.price.toLocaleString("en-IN")}
                           </strong>
                           <p className="text-[11px] text-slate-400">
                             Scan using Google Pay, PhonePe, Paytm, BHIM, or any UPI App.
@@ -1173,7 +1173,7 @@ export function PostAdWizardModal({
                   ) : (
                     <div className="p-4 bg-emerald-950/60 border border-emerald-500/40 rounded-xl text-center text-emerald-300 text-xs font-bold">
                       <CheckCircle2 className="h-6 w-6 text-emerald-400 mx-auto mb-1" />
-                      <p>₹0 Free Standard Listing Selected! No Payment Required.</p>
+                      <p>â‚¹0 Free Standard Listing Selected! No Payment Required.</p>
                     </div>
                   )}
 
@@ -1208,7 +1208,7 @@ export function PostAdWizardModal({
                     className="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-500 hover:from-rose-500 hover:to-pink-500 font-extrabold text-white text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 transition cursor-pointer"
                   >
                     <Lock className="h-4 w-4" />
-                    <span>{formData.price === 0 ? "Publish Free Ad Now 🚀" : "Complete Payment & Publish Ad Now"}</span>
+                    <span>{formData.price === 0 ? "Publish Free Ad Now ðŸš€" : "Complete Payment & Publish Ad Now"}</span>
                   </button>
                 </div>
               </form>
@@ -1220,3 +1220,5 @@ export function PostAdWizardModal({
     </div>
   );
 }
+
+

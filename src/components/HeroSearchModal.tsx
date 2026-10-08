@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { X, Search, SlidersHorizontal, MapPin, ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
@@ -297,7 +297,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">🏳️</span> Nationality
+                  <span className="text-xs">ðŸ³ï¸</span> Nationality
                 </span>
                 <ChevronDown className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.nationality ? "rotate-180" : ""}`} />
               </button>
@@ -336,7 +336,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">👙</span> Breast
+                  <span className="text-xs">ðŸ‘™</span> Breast
                 </span>
                 <ChevronDown className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.breast ? "rotate-180" : ""}`} />
               </button>
@@ -373,7 +373,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">👩</span> Hair
+                  <span className="text-xs">ðŸ‘©</span> Hair
                 </span>
                 <ChevronDown className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.hair ? "rotate-180" : ""}`} />
               </button>
@@ -411,7 +411,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">💃</span> Body type
+                  <span className="text-xs">ðŸ’ƒ</span> Body type
                 </span>
                 <ChevronRight className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.bodyType ? "rotate-90" : ""}`} />
               </button>
@@ -449,7 +449,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">💖</span> Services
+                  <span className="text-xs">ðŸ’–</span> Services
                 </span>
                 <ChevronRight className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.services ? "rotate-90" : ""}`} />
               </button>
@@ -489,7 +489,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">👤</span> Attention to
+                  <span className="text-xs">ðŸ‘¤</span> Attention to
                 </span>
                 <ChevronRight className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.attentionTo ? "rotate-90" : ""}`} />
               </button>
@@ -526,7 +526,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
                 className="w-full flex items-center justify-between py-1 text-left font-semibold text-slate-800 hover:text-rose-600 transition"
               >
                 <span className="flex items-center gap-2">
-                  <span className="text-xs">📍</span> Place of service
+                  <span className="text-xs">ðŸ“</span> Place of service
                 </span>
                 <ChevronRight className={`h-4 w-4 text-rose-500 transition-transform duration-200 ${openSections.placeOfService ? "rotate-90" : ""}`} />
               </button>
@@ -583,3 +583,5 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     </div>
   );
 }
+
+
