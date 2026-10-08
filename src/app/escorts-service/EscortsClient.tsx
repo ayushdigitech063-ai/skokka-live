@@ -36,11 +36,12 @@ import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
 interface EscortsPageProps {
   defaultCity?: string;
   defaultTag?: string;
+  baseRoute?: string;
 }
 
 const ITEMS_PER_PAGE = 8;
 
-export default function EscortsClient({ defaultCity, defaultTag }: EscortsPageProps = {}) {
+export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service" }: EscortsPageProps = {}) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
   const [searchLocation, setSearchLocation] = useState("");
   const [selectedTag, setSelectedTag] = useState(defaultTag || "All Escorts");
@@ -66,13 +67,13 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
     const cleanCity = city && city !== "All Cities" ? slugifyPath(city) : "";
     const cleanTag = tag && tag !== "All Escorts" ? slugifyPath(tag) : "";
 
-    let newUrl = "/escorts-service";
+    let newUrl = baseRoute;
     if (cleanCity && cleanTag) {
-      newUrl = `/escorts-service/${cleanCity}/${cleanTag}`;
+      newUrl = `${baseRoute}/${cleanCity}/${cleanTag}`;
     } else if (cleanCity) {
-      newUrl = `/escorts-service/${cleanCity}`;
+      newUrl = `${baseRoute}/${cleanCity}`;
     } else if (cleanTag) {
-      newUrl = `/escorts-service/${cleanTag}`;
+      newUrl = `${baseRoute}/${cleanTag}`;
     }
     window.history.pushState({}, "", newUrl);
   };
@@ -495,6 +496,7 @@ export default function EscortsClient({ defaultCity, defaultTag }: EscortsPagePr
                           <img 
                             src={displayPhoto}
                             alt={profile.title || profile.name}
+                            title={profile.title || profile.name}
                             onError={(e) => {
                               e.currentTarget.onerror = null;
                               e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80";

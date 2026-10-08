@@ -147,6 +147,32 @@ export const buildVipSEO = (override?: IDBSEOOverride): Metadata => {
   return toNextMetadata(data);
 };
 
+export const buildCallGirlsSEO = (override?: IDBSEOOverride): Metadata => {
+  const data = resolveHomeSEO(override);
+  data.title = `Call Girls Directory | ${SITE_CONFIG.name}`;
+  data.description = `Browse our verified call girls directory across India. 100% genuine independent female companions are available 24/7 for incall and outcall meetings.`;
+  data.canonical = `https://${SITE_CONFIG.domain}/call-girls`;
+  data.ogUrl = data.canonical;
+  return toNextMetadata(data);
+};
+
+export const buildCallGirlsCitySEO = (cityName: string, override?: IDBSEOOverride): Metadata => {
+  const data = resolveCitySEO({ cityName, dbOverride: override });
+  const title = `Call Girls in ${cityName} | ${SITE_CONFIG.name}`;
+  const description = `Browse verified call girls profiles in ${cityName} with authentic photos and contact details. Premium high-class VIP independent companions available 24/7.`;
+  
+  data.title = override?.metaTitle || title;
+  data.description = override?.metaDescription || description;
+  data.canonical = override?.canonicalUrl || `https://${SITE_CONFIG.domain}/call-girls/${cityName.toLowerCase()}`;
+  data.ogTitle = data.title;
+  data.ogDescription = data.description;
+  data.ogUrl = data.canonical;
+  data.twitterTitle = data.title;
+  data.twitterDescription = data.description;
+
+  return toNextMetadata(data);
+};
+
 export const buildProfileSEO = (params: IProfileSEOParams): Metadata => {
   return toNextMetadata(resolveProfileSEO(params));
 };
