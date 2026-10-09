@@ -135,7 +135,8 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   };
 
   // Derive dropdown options from locationTree
-  const availableStates = locationTree.map(st => st.name);
+  let availableStates = locationTree.map(st => st.name);
+  availableStates = Array.from(new Set(availableStates));
   const selectedStateObj = locationTree.find(st => st.name.replace(/\s+/g, ' ').trim().toLowerCase() === selectedState.replace(/\s+/g, ' ').trim().toLowerCase());
   
   // If state is selected, show its cities. Otherwise, show all cities in the DB.
@@ -147,6 +148,8 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
   } else {
     availableCities = locationTree.flatMap(st => (Array.isArray(st.cities) ? st.cities : []).map((c: any) => c.name));
   }
+
+  availableCities = Array.from(new Set(availableCities));
 
   const selectedCityObj = locationTree
     .flatMap(st => st.cities || [])
@@ -583,6 +586,7 @@ export function HeroSearchModal({ isOpen, onClose, initialCategory = "Call Girls
     </div>
   );
 }
+
 
 
 
