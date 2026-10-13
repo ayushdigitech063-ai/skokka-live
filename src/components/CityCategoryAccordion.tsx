@@ -5,33 +5,73 @@ import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 interface CityCategoryAccordionProps {
   currentCity: string;
-  onSelectArea: (area: string) => void;
+  onSelectArea: (area: string, tag?: string) => void;
   selectedArea?: string;
 }
 
-const CITY_AREAS_MAP: Record<string, string[]> = {
+export const CITY_AREAS_MAP: Record<string, string[]> = {
   Bangalore: [
     "Banaswadi",
     "Bellandur",
-    "Btm",
-    "Btm Layout",
+    "BTM",
+    "BTM Layout",
     "Electronic City",
     "Hebbal",
-    "Hsr",
-    "Hsr Layout",
+    "HSR",
+    "HSR Layout",
     "Indiranagar",
     "Jayanagar",
-    "Jp Nagar",
+    "JP Nagar",
     "Kammanahalli",
     "Koramangala",
     "Madiwala",
     "Marathahalli",
-    "Mg Road",
-    "Rt Nagar",
+    "MG Road",
+    "RT Nagar",
     "Whitefield",
     "Yelahanka",
     "Rajajinagar",
     "Malleshwaram",
+    "Bannerghatta Road",
+    "Richmond Town",
+    "Ulsoor",
+    "Domlur",
+  ],
+  Chennai: [
+    "T Nagar",
+    "Anna Nagar",
+    "Adyar",
+    "Velachery",
+    "Nungambakkam",
+    "Mylapore",
+    "Alwarpet",
+    "Guindy",
+    "Besant Nagar",
+    "Egmore",
+    "Kilpauk",
+    "Kodambakkam",
+    "Vadapalani",
+    "Porur",
+    "Thiruvanmiyur",
+    "Sholinganallur",
+    "OMR",
+    "Tambaram",
+    "Chromepet",
+    "Pallavaram",
+    "Perambur",
+    "Ashok Nagar",
+    "Koyambedu",
+    "KK Nagar",
+    "Medavakkam",
+    "Mount Road",
+    "Madipakkam",
+    "Mogappair",
+    "Adambakkam",
+    "Alandur",
+    "Alapakkam",
+    "Ambattur",
+    "Avadi",
+    "Chepauk",
   ],
   Jaipur: [
     "Bani Park",
@@ -47,6 +87,8 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Jagatpura",
     "Vidhyadhar Nagar",
     "MI Road",
+    "Pratap Nagar",
+    "Civil Lines",
   ],
   Delhi: [
     "Connaught Place",
@@ -62,6 +104,11 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Aerocity",
     "Nehru Place",
     "Rajouri Garden",
+    "Pitampura",
+    "Greater Kailash",
+    "Green Park",
+    "Lajpat Nagar",
+    "Paschim Vihar",
   ],
   Mumbai: [
     "Bandra",
@@ -76,6 +123,11 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Worli",
     "Malad",
     "Santacruz",
+    "Kandivali",
+    "Goregaon",
+    "Ghatkopar",
+    "Kurla",
+    "Vashi",
   ],
   Goa: [
     "Calangute",
@@ -86,6 +138,10 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Arpora",
     "Morjim",
     "Porvorim",
+    "Vagator",
+    "Margao",
+    "Colva",
+    "Arambol",
   ],
   Pune: [
     "Koregaon Park",
@@ -95,6 +151,11 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Baner",
     "Kothrud",
     "Aundh",
+    "Wakad",
+    "Magarpatta",
+    "Hadapsar",
+    "Shivaji Nagar",
+    "Pimple Saudagar",
   ],
   Hyderabad: [
     "Banjara Hills",
@@ -104,6 +165,12 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Madhapur",
     "Kondapur",
     "Begumpet",
+    "Abids",
+    "Ameerpet",
+    "Kukatpally",
+    "Secunderabad",
+    "Manikonda",
+    "Somajiguda",
   ],
   Kolkata: [
     "Park Street",
@@ -113,6 +180,11 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Alipore",
     "Rajarhat",
     "Dum Dum",
+    "Howrah",
+    "Gariahat",
+    "Jadavpur",
+    "Esplanade",
+    "Behala",
   ],
   Ahmedabad: [
     "SG Highway",
@@ -122,16 +194,243 @@ const CITY_AREAS_MAP: Record<string, string[]> = {
     "Vastrapur",
     "Prahlad Nagar",
     "Navrangpura",
+    "Thaltej",
+    "Maninagar",
+    "Bopal",
+    "Paldi",
   ],
   Chandigarh: [
     "Sector 17",
     "Sector 35",
     "Sector 22",
     "Sector 8",
+    "Sector 9",
     "Mohali",
     "Zirakpur",
     "Panchkula",
+    "Sector 43",
+    "Sector 70 Mohali",
   ],
+  Lucknow: [
+    "Gomti Nagar",
+    "Hazratganj",
+    "Aliganj",
+    "Indira Nagar",
+    "Mahanagar",
+    "Alambagh",
+    "Ashiyana",
+    "Vikas Nagar",
+    "Jankipuram",
+  ],
+  Patna: [
+    "Boring Road",
+    "Kankarbagh",
+    "Bailey Road",
+    "Fraser Road",
+    "Rajendra Nagar",
+    "Danapur",
+    "Patliputra Colony",
+  ],
+  Surat: [
+    "Athwa",
+    "Vesu",
+    "Adajan",
+    "Varachha",
+    "Piplod",
+    "City Light",
+    "Ghod Dod Road",
+  ],
+  Indore: [
+    "Vijay Nagar",
+    "Palasia",
+    "Bhawarkua",
+    "Rajwada",
+    "Annapurna",
+    "Sapna Sangeeta",
+    "AB Road",
+  ],
+  Bhopal: [
+    "MP Nagar",
+    "Arera Colony",
+    "New Market",
+    "Kolar Road",
+    "Hoshangabad Road",
+    "Shahpura",
+  ],
+  Coimbatore: [
+    "RS Puram",
+    "Gandhipuram",
+    "Peelamedu",
+    "Saibaba Colony",
+    "Saravanampatti",
+    "Race Course",
+  ],
+  Kochi: [
+    "Marine Drive",
+    "MG Road",
+    "Kaloor",
+    "Edapally",
+    "Kakkanad",
+    "Fort Kochi",
+    "Palarivattom",
+  ],
+  Nagpur: [
+    "Dharampeth",
+    "Ramdaspeth",
+    "Sitabuldi",
+    "Civil Lines",
+    "Wardha Road",
+    "Manish Nagar",
+  ],
+  Vadodara: [
+    "Alkapuri",
+    "Sayajigunj",
+    "Fatehgunj",
+    "Gotri",
+    "Manjalpur",
+    "Vasna",
+  ],
+  Ludhiana: [
+    "Model Town",
+    "Sarabha Nagar",
+    "BRS Nagar",
+    "Ferozepur Road",
+    "Civil Lines",
+  ],
+  Agra: [
+    "Tajganj",
+    "Sanjay Place",
+    "Fatehabad Road",
+    "Dayalbagh",
+    "Kamla Nagar",
+  ],
+  Nashik: [
+    "College Road",
+    "Gangapur Road",
+    "Indira Nagar",
+    "Panchavati",
+    "CIDCO",
+  ],
+  Varanasi: [
+    "Cantt",
+    "Sigra",
+    "Lanka",
+    "Godowlia",
+    "Bhelupur",
+    "Shivpur",
+  ],
+  Gurgaon: [
+    "Cyber City",
+    "Sector 29",
+    "Golf Course Road",
+    "Sohna Road",
+    "DLF Phase 1",
+    "DLF Phase 2",
+    "DLF Phase 3",
+    "MG Road",
+  ],
+  Noida: [
+    "Sector 18",
+    "Sector 62",
+    "Sector 50",
+    "Sector 137",
+    "Greater Noida",
+    "Sector 76",
+    "Sector 15",
+  ],
+  Ghaziabad: [
+    "Indirapuram",
+    "Vaishali",
+    "Kaushambi",
+    "Raj Nagar",
+    "Vasundhara",
+    "Crossings Republik",
+  ],
+  Faridabad: [
+    "Sector 15",
+    "Sector 16",
+    "NIT Faridabad",
+    "Greenfield",
+    "Surajkund",
+  ],
+  Amritsar: [
+    "Ranjit Avenue",
+    "Mall Road",
+    "Lawrence Road",
+    "Majitha Road",
+  ],
+  Udaipur: [
+    "Fateh Sagar",
+    "Sukhadia Circle",
+    "Hiran Magri",
+    "Panchwati",
+    "City Palace Area",
+  ],
+  Ranchi: [
+    "Lalpur",
+    "Doranda",
+    "Harmu",
+    "Kanke Road",
+    "Main Road",
+  ],
+  Dehradun: [
+    "Rajpur Road",
+    "Clock Tower",
+    "Jakhan",
+    "Dharampur",
+    "Vasant Vihar",
+  ],
+  Visakhapatnam: [
+    "MVP Colony",
+    "Gajuwaka",
+    "Siripuram",
+    "Dwaraka Nagar",
+    "Rushikonda",
+  ],
+  Kanpur: [
+    "Civil Lines",
+    "Swaroop Nagar",
+    "Kakadeo",
+    "Mall Road",
+    "Kidwai Nagar",
+  ],
+  Meerut: [
+    "Shastri Nagar",
+    "Civil Lines",
+    "Modipuram",
+    "Ganga Nagar",
+  ],
+  Rajkot: [
+    "Kalawad Road",
+    "Yagnik Road",
+    "150 Feet Ring Road",
+    "University Road",
+  ],
+  Bhubaneswar: [
+    "Nayapalli",
+    "Saheed Nagar",
+    "Jaydev Vihar",
+    "Patia",
+    "Khandagiri",
+  ],
+};
+
+/**
+ * Case-insensitive & alias-aware helper to get static base areas for any Indian city.
+ */
+export const getCityBaseAreas = (cityName: string): string[] => {
+  if (!cityName || cityName === "All Cities") return CITY_AREAS_MAP["Bangalore"] || [];
+  const lower = cityName.trim().toLowerCase();
+
+  // Known city name aliases
+  if (lower === "bengaluru") return CITY_AREAS_MAP["Bangalore"] || [];
+  if (lower === "gurugram") return CITY_AREAS_MAP["Gurgaon"] || [];
+  if (lower === "prayagraj" || lower.includes("allahabad")) return CITY_AREAS_MAP["Allahabad"] || [];
+
+  const foundKey = Object.keys(CITY_AREAS_MAP).find(
+    (k) => k.toLowerCase() === lower
+  );
+  return foundKey ? CITY_AREAS_MAP[foundKey] : [];
 };
 
 export function CityCategoryAccordion({
@@ -143,47 +442,105 @@ export function CityCategoryAccordion({
   const [dynamicAreas, setDynamicAreas] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  // Normalize city name for display and data lookup
   const displayCity =
     currentCity && currentCity !== "All Cities" ? currentCity : "Bangalore";
 
-  const fetchCityAreas = () => {
+  const fetchCityAreas = async () => {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
-    fetch(`${BACKEND_URL}/locations/areas?includeDeleted=false`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && data.success && Array.isArray(data.areas)) {
-          const normCity = displayCity.trim().toLowerCase();
-          const dbAreaNames = data.areas
-            .filter((a: any) => {
-              const cName = (a.cityName || a.city || "").toString().trim().toLowerCase();
+    try {
+      const normCity = displayCity.trim().toLowerCase();
+
+      // 1. Fetch from /locations/areas
+      const res = await fetch(`${BACKEND_URL}/locations/areas?includeDeleted=false`);
+      const data = await res.json();
+
+      let dbAreaNames: string[] = [];
+      if (data && data.success && Array.isArray(data.areas)) {
+        dbAreaNames = data.areas
+          .filter((a: any) => {
+            const cName = (
+              a.cityId?.name ||
+              a.cityName ||
+              a.city ||
+              (typeof a.cityId === "string" ? a.cityId : "")
+            )
+              .toString()
+              .trim()
+              .toLowerCase();
+
+            return (
+              cName === normCity ||
+              (normCity === "bangalore" && cName === "bengaluru") ||
+              (normCity === "bengaluru" && cName === "bangalore") ||
+              (normCity === "gurgaon" && cName === "gurugram") ||
+              (normCity === "gurugram" && cName === "gurgaon")
+            );
+          })
+          .map((a: any) => a.name || a.areaName)
+          .filter(Boolean);
+      }
+
+      // 2. If nothing found in /locations/areas, also check /locations/tree
+      if (dbAreaNames.length === 0) {
+        const treeRes = await fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`);
+        const treeData = await treeRes.json();
+        if (treeData && treeData.success && Array.isArray(treeData.tree)) {
+          const cityObj = treeData.tree
+            .flatMap((st: any) => st.cities || [])
+            .find((c: any) => {
+              const cName = (c.name || "").toString().trim().toLowerCase();
               return (
                 cName === normCity ||
                 (normCity === "bangalore" && cName === "bengaluru") ||
                 (normCity === "bengaluru" && cName === "bangalore")
               );
-            })
-            .map((a: any) => a.name || a.areaName)
-            .filter(Boolean);
-
-          setDynamicAreas(dbAreaNames);
+            });
+          if (cityObj && Array.isArray(cityObj.areas)) {
+            dbAreaNames = cityObj.areas.map((a: any) => a.name).filter(Boolean);
+          }
         }
-      })
-      .catch(() => {});
+      }
+
+      setDynamicAreas(dbAreaNames);
+    } catch {
+      // Gracefully fall back to baseList if network is unavailable
+    }
   };
 
   useEffect(() => {
+    // Reset dynamic areas when city changes to prevent showing old city's areas
+    setDynamicAreas([]);
     fetchCityAreas();
+
     if (typeof window !== "undefined") {
-      window.addEventListener("skokka_locations_updated", fetchCityAreas);
+      const handler = () => fetchCityAreas();
+      window.addEventListener("skokka_locations_updated", handler);
       return () => {
-        window.removeEventListener("skokka_locations_updated", fetchCityAreas);
+        window.removeEventListener("skokka_locations_updated", handler);
       };
     }
   }, [displayCity]);
 
-  const baseList = CITY_AREAS_MAP[displayCity] || CITY_AREAS_MAP["Bangalore"] || [];
-  const allAreas = Array.from(new Set([...baseList, ...dynamicAreas]));
+  // Base list specifically for this city (NO fallback to Bangalore when currentCity is different!)
+  const baseList = getCityBaseAreas(displayCity);
+
+  // Combine static and dynamic areas, deduplicating case-insensitively
+  const combinedRaw = [...baseList, ...dynamicAreas];
+  const seenLower = new Set<string>();
+  const allAreas: string[] = [];
+
+  for (const item of combinedRaw) {
+    if (!item || typeof item !== "string") continue;
+    const clean = item.trim();
+    if (!clean) continue;
+    const lower = clean.toLowerCase();
+    if (!seenLower.has(lower)) {
+      seenLower.add(lower);
+      allAreas.push(clean);
+    }
+  }
 
   const categories = [
     { title: `Call Girls ${displayCity}`, emoji: "👄", tag: "Call Girls" },
@@ -234,28 +591,34 @@ export function CityCategoryAccordion({
 
               {isOpen && (
                 <div className="px-6 pb-6 pt-2 border-t border-slate-800/60 bg-[#090E24]/60">
-                  <div className="flex flex-wrap gap-2.5 pt-2">
-                    {allAreas.map((area) => {
-                      const isSelected =
-                        selectedArea.toLowerCase() === area.toLowerCase();
+                  {allAreas.length > 0 ? (
+                    <div className="flex flex-wrap gap-2.5 pt-2">
+                      {allAreas.map((area) => {
+                        const isSelected =
+                          selectedArea.toLowerCase() === area.toLowerCase();
 
-                      return (
-                        <button
-                          key={area}
-                          type="button"
-                          onClick={() => onSelectArea(area)}
-                          className={`px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 ${
-                            isSelected
-                              ? "bg-rose-600 text-white border-rose-400 shadow-rose-600/40"
-                              : "bg-slate-900/90 text-pink-400 hover:text-white hover:bg-rose-600/20 border-pink-500/40 hover:border-rose-400"
-                          }`}
-                        >
-                          <MapPin className="h-3 w-3 shrink-0" />
-                          <span>{area}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                        return (
+                          <button
+                            key={area}
+                            type="button"
+                            onClick={() => onSelectArea(isSelected ? "" : area, cat.tag)}
+                            className={`px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 ${
+                              isSelected
+                                ? "bg-rose-600 text-white border-rose-400 shadow-rose-600/40"
+                                : "bg-slate-900/90 text-pink-400 hover:text-white hover:bg-rose-600/20 border-pink-500/40 hover:border-rose-400"
+                            }`}
+                          >
+                            <MapPin className="h-3 w-3 shrink-0" />
+                            <span>{area}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="py-4 text-center text-xs text-slate-400">
+                      No specific areas found for {displayCity}. Select another city or browse all {displayCity} escorts.
+                    </div>
+                  )}
                 </div>
               )}
             </div>

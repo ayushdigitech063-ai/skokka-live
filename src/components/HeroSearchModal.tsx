@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { X, Search, SlidersHorizontal, MapPin, ChevronDown, ChevronRight, RotateCcw } from "lucide-react";
 import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore";
+import { getCityBaseAreas } from "@/components/CityCategoryAccordion";
 
 interface SearchModalProps {
   isOpen: boolean;

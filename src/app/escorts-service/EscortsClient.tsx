@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { HeaderNavbar } from "@/components/HeaderNavbar";
 import { Footer } from "@/components/Footer";
-import { CityCategoryAccordion } from "@/components/CityCategoryAccordion";
+import { CityCategoryAccordion, getCityBaseAreas } from "@/components/CityCategoryAccordion";
 import {
   Search,
   Check,
@@ -136,16 +136,39 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
   const citiesList = Array.from(
     new Set([
       "All Cities",
-      "Jaipur",
+      "Bangalore",
+      "Chennai",
       "Delhi",
       "Mumbai",
-      "Bangalore",
       "Hyderabad",
-      "Goa",
-      "Pune",
       "Kolkata",
+      "Pune",
+      "Jaipur",
+      "Goa",
       "Ahmedabad",
       "Chandigarh",
+      "Lucknow",
+      "Patna",
+      "Surat",
+      "Indore",
+      "Bhopal",
+      "Coimbatore",
+      "Kochi",
+      "Nagpur",
+      "Vadodara",
+      "Ludhiana",
+      "Agra",
+      "Nashik",
+      "Varanasi",
+      "Gurgaon",
+      "Noida",
+      "Ghaziabad",
+      "Faridabad",
+      "Amritsar",
+      "Udaipur",
+      "Ranchi",
+      "Dehradun",
+      "Visakhapatnam",
     ])
   );
 
@@ -324,10 +347,12 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   >
                     <option value="All Cities">All Cities</option>
                     {(() => {
-                      const availCities = locationTree.length > 0 
-                        ? locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name))
-                        : citiesList.filter(c => c !== "All Cities");
-                      return availCities.map((cityName: string) => (
+                      const treeCities = locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
+                      const combined = Array.from(new Set([...treeCities, ...citiesList]))
+                        .filter((c: string) => c && c !== "All Cities")
+                        .map((c: string) => c.trim())
+                        .sort((a, b) => a.localeCompare(b));
+                      return combined.map((cityName: string) => (
                         <option key={cityName} value={cityName}>
                           {cityName}
                         </option>
@@ -354,11 +379,26 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   >
                     <option value="">Select Area</option>
                     {(() => {
+                      const normSelected = selectedCity.trim().toLowerCase();
                       const selectedCityObj = locationTree
                         .flatMap(st => st.cities || [])
-                        .find((c: any) => c.name === selectedCity);
-                      const availableAreas = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
-                      return availableAreas.map((areaName: string) => (
+                        .find((c: any) => {
+                          const cName = (c.name || "").toString().trim().toLowerCase();
+                          return (
+                            cName === normSelected ||
+                            (normSelected === "bangalore" && cName === "bengaluru") ||
+                            (normSelected === "bengaluru" && cName === "bangalore") ||
+                            (normSelected === "gurgaon" && cName === "gurugram") ||
+                            (normSelected === "gurugram" && cName === "gurgaon")
+                          );
+                        });
+                      const treeAreas = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
+                      const fallbackAreas = getCityBaseAreas(selectedCity);
+                      const combinedAreas = Array.from(new Set([...treeAreas, ...fallbackAreas]))
+                        .filter(Boolean)
+                        .map((a: string) => a.trim())
+                        .sort((a, b) => a.localeCompare(b));
+                      return combinedAreas.map((areaName: string) => (
                         <option key={areaName} value={areaName}>
                           {areaName}
                         </option>
@@ -696,8 +736,11 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
               <CityCategoryAccordion
                 currentCity={selectedCity}
                 selectedArea={searchLocation}
-                onSelectArea={(area) => {
+                onSelectArea={(area, tag) => {
                   setSearchLocation(area);
+                  if (tag && tag !== "All Escorts") {
+                    setSelectedTag(tag);
+                  }
                   setCurrentPage(1);
                   window.scrollTo({ top: 350, behavior: "smooth" });
                 }}
