@@ -60,23 +60,29 @@ export const resolveStateSEO = (stateName: string, override?: IDBSEOOverride): I
   const title = appendSiteBranding(override?.metaTitle || fallback.title);
   const description = override?.metaDescription || fallback.description;
   const shortDescription = override?.shortDescription || fallback.shortDescription;
-  const canonical = buildCanonicalPath(override?.canonicalUrl || `/escorts/${slugifyPath(stateName)}`);
+  const slugPath = override?.customSlug || slugifyPath(stateName);
+  const canonical = buildCanonicalPath(override?.canonicalUrl || `/escorts-service/${slugPath}`);
   const ogImage = override?.ogImage || DEFAULT_OG_IMAGE;
+  const ogTitle = override?.ogTitle || title;
+  const ogDescription = override?.ogDescription || description;
 
   return {
     title,
     description,
     shortDescription,
     canonical,
-    ogTitle: title,
-    ogDescription: description,
+    keywords: override?.focusKeywords && override.focusKeywords.length > 0 ? override.focusKeywords : undefined,
+    ogTitle,
+    ogDescription,
     ogUrl: canonical,
     ogType: "website",
     ogImage,
     twitterCard: "summary_large_image",
-    twitterTitle: title,
-    twitterDescription: description,
+    twitterTitle: ogTitle,
+    twitterDescription: ogDescription,
     twitterImage: ogImage,
+    faqs: override?.faqs,
+    microServiceAreas: override?.microServiceAreas,
   };
 };
 

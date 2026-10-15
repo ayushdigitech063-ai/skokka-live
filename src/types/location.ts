@@ -3,16 +3,41 @@
  * Hierarchy: State -> City -> Area
  */
 
+export interface IStateFAQ {
+  _id?: string;
+  question: string;
+  answer: string;
+}
+
+export interface IStateSEOData {
+  customSlug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  popularDistricts?: string[];
+  faqs?: IStateFAQ[];
+}
+
 export interface IState {
   _id: string;
   name: string;
   code?: string;
   slug: string;
+  customSlug?: string;
   isActive: boolean;
   isDeleted: boolean;
   sortOrder: number;
   metaTitle?: string;
   metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  popularDistricts?: string[];
+  faqs?: IStateFAQ[];
   cities?: ICity[];
   createdAt?: string;
   updatedAt?: string;
@@ -87,6 +112,13 @@ export interface CreateStateInput {
   sortOrder?: number;
   metaTitle?: string;
   metaDescription?: string;
+  customSlug?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  popularDistricts?: string[];
+  faqs?: IStateFAQ[];
   isActive?: boolean;
 }
 

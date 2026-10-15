@@ -62,6 +62,17 @@ export function AdminCitySeoModal({
   // FAQ Accordion preview state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
+  // Background scroll lock when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev || "unset";
+      };
+    }
+  }, [isOpen]);
+
   // Initialize form when city changes
   useEffect(() => {
     if (city && isOpen) {

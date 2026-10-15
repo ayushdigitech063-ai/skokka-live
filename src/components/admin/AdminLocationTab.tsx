@@ -22,6 +22,7 @@ import Swal from "sweetalert2";
 import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
 import { getAuthHeaders as getCentralAuthHeaders, getAuthToken } from "@/lib/auth";
 import { AdminCitySeoModal } from "./AdminCitySeoModal";
+import { AdminStateSeoModal } from "./AdminStateSeoModal";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -54,6 +55,15 @@ export function AdminLocationTab() {
     setShowCitySeoModal(true);
   };
 
+  // Advanced State SEO Modal State
+  const [showStateSeoModal, setShowStateSeoModal] = useState(false);
+  const [seoState, setSeoState] = useState<IState | null>(null);
+
+  const handleOpenStateSeo = (state: IState) => {
+    setSeoState(state);
+    setShowStateSeoModal(true);
+  };
+
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [editingArea, setEditingArea] = useState<IArea | null>(null);
   const [areaForm, setAreaForm] = useState({ name: "", cityId: "", pincode: "", isPopular: false, sortOrder: 0 });
@@ -68,6 +78,27 @@ export function AdminLocationTab() {
     areaName: "",
     pincode: "",
   });
+
+  // Master Background Scroll Lock when ANY modal is open
+  const isAnyModalOpen =
+    showStateModal ||
+    showCityModal ||
+    showAreaModal ||
+    showUnifiedModal ||
+    showCitySeoModal ||
+    showStateSeoModal;
+
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev || "unset";
+      };
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isAnyModalOpen]);
 
   const handleSaveUnifiedLocation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -611,6 +642,17 @@ export function AdminLocationTab() {
 
                   <div className="flex items-center gap-2">
                     <button
+                      onClick={() => handleOpenStateSeo(st)}
+                      title={`Configure Advanced SEO & Social Sharing for ${st.name} State`}
+                      className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500/10 to-purple-500/10 text-rose-300 border border-rose-500/30 hover:from-rose-500 hover:to-purple-500 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <Globe className="h-3.5 w-3.5 text-rose-400" />
+                      <span>State SEO</span>
+                      {(st.customSlug || st.metaTitle || (st.faqs && st.faqs.length > 0)) && (
+                        <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-500" />
+                      )}
+                    </button>
+                    <button
                       onClick={() => {
                         setEditingCity(null);
                         setCityForm({ name: "", stateId: st._id, tier: "Tier 2", isPopular: false, sortOrder: 0 });
@@ -730,6 +772,7 @@ export function AdminLocationTab() {
                 <th className="p-4">Code</th>
                 <th className="p-4">SEO Slug</th>
                 <th className="p-4">Cities Count</th>
+                <th className="p-4">SEO &amp; Schemas</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -737,56 +780,92 @@ export function AdminLocationTab() {
             <tbody className="divide-y divide-slate-800 text-slate-200">
               {states.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-8 text-slate-500">
+                  <td colSpan={7} className="text-center py-8 text-slate-500">
                     No states created yet. Click "+ Add New State" above.
                   </td>
                 </tr>
               ) : (
-                states.map((st) => (
-                  <tr key={st._id} className="hover:bg-slate-800/40 transition">
-                    <td className="p-4 font-bold text-white flex items-center gap-2">
-                      <Map className="h-4 w-4 text-rose-400" />
-                      {st.name}
-                    </td>
-                    <td className="p-4 font-mono text-xs text-rose-300">{st.code || "-"}</td>
-                    <td className="p-4 text-slate-400 font-mono">{st.slug}</td>
-                    <td className="p-4 font-extrabold text-cyan-400">{st.cities?.length || 0} Cities</td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => handleToggleState(st._id)}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          st.isActive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : "bg-rose-500/10 text-rose-400 border border-rose-500/30"
-                        }`}
-                      >
-                        {st.isActive ? "Active" : "Disabled"}
-                      </button>
-                    </td>
-                    <td className="p-4 text-right space-x-2">
-                      <button
-                        onClick={() => {
-                          setEditingState(st);
-                          setStateForm({
-                            name: st.name,
-                            code: st.code || "",
-                            sortOrder: st.sortOrder || 0,
-                            metaTitle: st.metaTitle || "",
-                            metaDescription: st.metaDescription || "",
-                          });
-                          setShowStateModal(true);
-                        }}
-                        className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
-                      >
-                        <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteState(st._id, st.name)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                states.map((st) => {
+                  const hasCustomSeo = st.metaTitle || st.customSlug || (st.faqs && st.faqs.length > 0);
+                  return (
+                    <tr key={st._id} className="hover:bg-slate-800/40 transition">
+                      <td className="p-4 font-bold text-white flex items-center gap-2">
+                        <Map className="h-4 w-4 text-rose-400" />
+                        {st.name}
+                      </td>
+                      <td className="p-4 font-mono text-xs text-rose-300">{st.code || "-"}</td>
+                      <td className="p-4">
+                        <span className="text-slate-400 font-mono text-xs">
+                          {st.customSlug || st.slug}
+                        </span>
+                        {st.customSlug && (
+                          <span className="ml-1.5 px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 text-[9px] font-bold">
+                            Custom
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 font-extrabold text-cyan-400">{st.cities?.length || 0} Cities</td>
+                      <td className="p-4">
+                        {hasCustomSeo ? (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                              <Sparkles className="h-2.5 w-2.5" /> Configured ({st.faqs?.length || 0} FAQs)
+                            </span>
+                            {st.popularDistricts && st.popularDistricts.length > 0 && (
+                              <div className="text-[10px] text-rose-300 font-medium">
+                                {st.popularDistricts.length} Regional Hubs
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-slate-500 italic">Default State SEO</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => handleToggleState(st._id)}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            st.isActive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                          }`}
+                        >
+                          {st.isActive ? "Active" : "Disabled"}
+                        </button>
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenStateSeo(st)}
+                          title="Configure State SEO, Social & FAQs"
+                          className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-rose-600/20 to-purple-600/20 text-rose-300 border border-rose-500/30 hover:from-rose-600 hover:to-purple-600 hover:text-white transition inline-flex items-center gap-1.5 font-bold text-[11px] cursor-pointer"
+                        >
+                          <Globe className="h-3.5 w-3.5 text-rose-400" />
+                          <span>Configure SEO</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingState(st);
+                            setStateForm({
+                              name: st.name,
+                              code: st.code || "",
+                              sortOrder: st.sortOrder || 0,
+                              metaTitle: st.metaTitle || "",
+                              metaDescription: st.metaDescription || "",
+                            });
+                            setShowStateModal(true);
+                          }}
+                          className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteState(st._id, st.name)}
+                          className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -1306,6 +1385,14 @@ export function AdminLocationTab() {
         isOpen={showCitySeoModal}
         onClose={() => setShowCitySeoModal(false)}
         city={seoCity}
+        onSaved={fetchLocations}
+      />
+
+      {/* ADVANCED STATE SEO & SOCIAL SHARING MODAL */}
+      <AdminStateSeoModal
+        isOpen={showStateSeoModal}
+        onClose={() => setShowStateSeoModal(false)}
+        state={seoState}
         onSaved={fetchLocations}
       />
     </div>

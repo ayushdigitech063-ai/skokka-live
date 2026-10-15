@@ -5,9 +5,13 @@ import {
   getCityPageMetadata,
   fetchCitySeoData,
   CityJsonLd,
+  fetchLocationSeoData,
+  getStatePageMetadata,
+  StateJsonLd,
 } from "@/lib/seo/seoEngine";
 import EscortsClient from "../EscortsClient";
 import ProfileClientPage from "@/app/profile/[id]/ProfileClientPage";
+import { ICity, IState } from "@/types/location";
 
 interface Params {
   params: Promise<{ cityOrSlug: string }>;
@@ -26,9 +30,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     });
   }
 
-  const cityName = cityOrSlug
+  // Check if slug matches State or City
+  const loc = await fetchLocationSeoData(cityOrSlug);
+  if (loc && loc.type === "state") {
+    return getStatePageMetadata(cityOrSlug, (loc.data as IState).name);
+  }
+
+  const cityName = loc?.data?.name || (cityOrSlug
     ? cityOrSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
-    : "All Cities";
+    : "All Cities");
 
   return getCityPageMetadata(cityOrSlug, cityName);
 }
@@ -40,7 +50,20 @@ export default async function CityOrProfilePage({ params }: Params) {
     return <ProfileClientPage params={Promise.resolve({ id: cityOrSlug })} />;
   }
 
-  const cityData = await fetchCitySeoData(cityOrSlug);
+  const loc = await fetchLocationSeoData(cityOrSlug);
+
+  if (loc && loc.type === "state") {
+    const stateData = loc.data as IState;
+    const stateName = stateData.name;
+    return (
+      <>
+        <StateJsonLd state={stateData} stateName={stateName} />
+        <EscortsClient defaultCity={stateName} stateSeo={stateData} />
+      </>
+    );
+  }
+
+  const cityData = (loc?.type === "city" ? loc.data : await fetchCitySeoData(cityOrSlug)) as ICity | null;
   const cityName =
     cityData?.name ||
     (cityOrSlug

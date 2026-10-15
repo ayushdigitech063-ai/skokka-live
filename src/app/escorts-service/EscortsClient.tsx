@@ -33,18 +33,19 @@ import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore
 import { fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
 import { HomePageCmsConfig } from "@/types/homepageCms";
 import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
-import { ICity } from "@/types/location";
+import { ICity, IState } from "@/types/location";
 
 interface EscortsPageProps {
   defaultCity?: string;
   defaultTag?: string;
   baseRoute?: string;
   citySeo?: ICity;
+  stateSeo?: IState;
 }
 
 const ITEMS_PER_PAGE = 8;
 
-export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo }: EscortsPageProps = {}) {
+export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo }: EscortsPageProps = {}) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
@@ -750,8 +751,8 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                 }}
               />
 
-              {/* MICRO SERVICE LOCALITIES & PINCODES (LOCAL SEO) */}
-              {citySeo?.microServiceAreas && citySeo.microServiceAreas.length > 0 && (
+              {/* MICRO SERVICE LOCALITIES & PINCODES (LOCAL SEO) FOR CITY OR REGIONAL HUBS FOR STATE */}
+              {citySeo?.microServiceAreas && citySeo.microServiceAreas.length > 0 ? (
                 <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
                   <div className="flex items-center gap-2.5">
                     <div className="h-8 w-8 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
@@ -789,64 +790,108 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                     ))}
                   </div>
                 </div>
-              )}
-
-              {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) */}
-              {citySeo?.faqs && citySeo.faqs.length > 0 && (
-                <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                        <HelpCircle className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-extrabold text-white tracking-tight">
-                          Frequently Asked Questions - {selectedCity} Escorts
-                        </h3>
-                        <p className="text-[11px] text-slate-400">
-                          Everything you need to know about booking verified companions in {selectedCity}
-                        </p>
-                      </div>
+              ) : stateSeo?.popularDistricts && stateSeo.popularDistricts.length > 0 ? (
+                <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                      <MapPin className="h-4 w-4" />
                     </div>
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                      <Sparkles className="h-2.5 w-2.5" /> Schema Verified
-                    </span>
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white tracking-tight">
+                        Major Cities &amp; Regional Hubs across {stateSeo.name}
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        Direct incall &amp; outcall companion services across top districts in {stateSeo.name}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="space-y-2.5">
-                    {citySeo.faqs.map((faq, idx) => {
-                      const isOpen = openFaqIndex === idx;
-                      return (
-                        <div
-                          key={idx}
-                          className="rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden transition"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                            className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs font-bold text-white hover:text-amber-300 transition cursor-pointer"
-                          >
-                            <span className="flex items-center gap-2">
-                              <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
-                              <span>{faq.question}</span>
-                            </span>
-                            {isOpen ? (
-                              <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 transition-transform" />
-                            )}
-                          </button>
-                          {isOpen && (
-                            <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30">
-                              {faq.answer}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {stateSeo.popularDistricts.map((district, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCity(district);
+                          setCurrentPage(1);
+                          window.scrollTo({ top: 350, behavior: "smooth" });
+                        }}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                          selectedCity.toLowerCase() === district.toLowerCase()
+                            ? "bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-600/30"
+                            : "bg-slate-900/90 text-rose-300 border-rose-500/20 hover:border-rose-400/50 hover:bg-slate-800"
+                        }`}
+                      >
+                        <MapPin className="h-3 w-3" />
+                        <span>{district}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
+              ) : null}
+
+              {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) FOR CITY OR STATE */}
+              {(citySeo?.faqs && citySeo.faqs.length > 0) || (stateSeo?.faqs && stateSeo.faqs.length > 0) ? (
+                (() => {
+                  const activeFaqs = (citySeo?.faqs && citySeo.faqs.length > 0) ? citySeo.faqs : (stateSeo?.faqs || []);
+                  const locationLabel = citySeo ? selectedCity : (stateSeo?.name || selectedCity);
+                  return (
+                    <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <HelpCircle className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-extrabold text-white tracking-tight">
+                              Frequently Asked Questions - {locationLabel} Escorts
+                            </h3>
+                            <p className="text-[11px] text-slate-400">
+                              Everything you need to know about booking verified companions in {locationLabel}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                          <Sparkles className="h-2.5 w-2.5" /> Schema Verified
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {activeFaqs.map((faq, idx) => {
+                          const isOpen = openFaqIndex === idx;
+                          return (
+                            <div
+                              key={idx}
+                              className="rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden transition"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                                className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs font-bold text-white hover:text-amber-300 transition cursor-pointer"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
+                                  <span>{faq.question}</span>
+                                </span>
+                                {isOpen ? (
+                                  <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 transition-transform" />
+                                )}
+                              </button>
+                              {isOpen && (
+                                <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30">
+                                  {faq.answer}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : null}
             </div>
           )}
         </main>
