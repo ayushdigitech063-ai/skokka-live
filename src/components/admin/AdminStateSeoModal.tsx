@@ -35,7 +35,7 @@ export function AdminStateSeoModal({
   state,
   onSaved,
 }: AdminStateSeoModalProps) {
-  const [activeTab, setActiveTab] = useState<"meta" | "social" | "local" | "faqs" | "preview">("meta");
+  const [activeTab, setActiveTab] = useState<"meta" | "social" | "local" | "content" | "faqs" | "preview">("meta");
   const [saving, setSaving] = useState(false);
 
   // Form State
@@ -53,6 +53,7 @@ export function AdminStateSeoModal({
   const [popularDistricts, setPopularDistricts] = useState<string[]>([]);
   const [districtInput, setDistrictInput] = useState("");
 
+  const [pageContent, setPageContent] = useState("");
   const [faqs, setFaqs] = useState<IStateFAQ[]>([]);
 
   // Prevent background scrolling when modal is open
@@ -137,6 +138,8 @@ export function AdminStateSeoModal({
           },
         ]);
       }
+
+      setPageContent(state.pageContent || "");
 
       setActiveTab("meta");
     }
@@ -327,6 +330,7 @@ export function AdminStateSeoModal({
         ogTitle: ogTitle.trim(),
         ogDescription: ogDescription.trim(),
         popularDistricts,
+        pageContent: pageContent.trim(),
         faqs: cleanFaqs,
       };
 
@@ -430,6 +434,19 @@ export function AdminStateSeoModal({
           >
             <Map className="h-4 w-4" />
             <span>Regional Hubs ({popularDistricts.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("content")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === "content"
+                ? "bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-md shadow-rose-600/30"
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Page Content / Guide</span>
           </button>
 
           <button
@@ -873,6 +890,76 @@ export function AdminStateSeoModal({
                       </span>
                     ))
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================== */}
+          {/* TAB: PAGE CONTENT / EDITORIAL GUIDE (CUSTOM & AUTO) */}
+          {/* ==================================================== */}
+          {activeTab === "content" && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              <div className="p-4 rounded-2xl bg-rose-950/30 border border-rose-800/40 flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-bold text-white mb-1">
+                    State Editorial Guide &amp; SEO Page Content
+                  </h4>
+                  <p className="text-xs text-rose-200 leading-relaxed">
+                    Aap is box mein custom state verified escorts guide ya unique content likh sakte hain. <strong>Agar aap isko khali (blank) chhod dete hain</strong>, toh website automatic standard safety guide, trust badges, aur booking tips mein <em>{stateName}</em> ka naam dynamic replace karke auto-show karegi!
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                    Custom Editorial Content (Optional)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPageContent(
+                          `Welcome to the premier verified adult classifieds directory for ${stateName}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality across all top districts and cities in ${stateName}.`
+                        );
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-rose-300" />
+                      Load Default Template
+                    </button>
+                    {pageContent && (
+                      <button
+                        type="button"
+                        onClick={() => setPageContent("")}
+                        className="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-xs font-bold transition cursor-pointer"
+                      >
+                        Reset to Auto Dynamic
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  rows={8}
+                  value={pageContent}
+                  onChange={(e) => setPageContent(e.target.value)}
+                  placeholder={`Leave blank to auto-generate default dynamic companion guide for ${stateName}...`}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-sans leading-relaxed"
+                />
+
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span>
+                    Status:{" "}
+                    {pageContent.trim() ? (
+                      <strong className="text-emerald-400">Custom Content Active (Overrides Default)</strong>
+                    ) : (
+                      <strong className="text-rose-400">Auto Dynamic Mode (Auto State Replacement)</strong>
+                    )}
+                  </span>
+                  <span>{pageContent.length} characters</span>
                 </div>
               </div>
             </div>

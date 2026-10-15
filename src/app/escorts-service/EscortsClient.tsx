@@ -770,8 +770,10 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {citySeo?.metaDescription ||
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+                  {citySeo?.pageContent ||
+                    stateSeo?.pageContent ||
+                    citySeo?.metaDescription ||
                     stateSeo?.metaDescription ||
                     `Welcome to the premier verified adult classifieds directory for ${selectedCity}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with providers for hotel incall meetings and private doorstep outcalls across top colonies.`}
                 </p>

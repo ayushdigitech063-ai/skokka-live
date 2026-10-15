@@ -132,20 +132,20 @@ export function generateCityJsonLd(
   // FAQPage Schema - custom if set, or default fallback matching page content
   const fallbackFaqs = [
     {
-      question: `How do I book independent escorts in ${cityName}?`,
-      answer: `Browse verified profiles in ${cityName}, select your preferred companion, and connect directly via phone or WhatsApp. No advance payment is required for genuine independent escorts.`,
+      question: `How to book verified escorts in ${cityName}?`,
+      answer: `You can browse 100% verified escort profiles on our directory in ${cityName} and connect directly via WhatsApp or phone call without any advance booking charges.`,
     },
     {
-      question: `Are all escorts and call girls profiles verified in ${cityName}?`,
-      answer: `Yes, profiles displaying the 'Verified' badge have undergone selfie and document verification to ensure genuine photos and honest services.`,
+      question: `Are incall and outcall services available in ${cityName}?`,
+      answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${cityName}.`,
     },
     {
-      question: `What services are available in ${cityName}?`,
-      answer: `Independent escorts offer both incall (at their private residence/hotel) and outcall (at your residence or booked 5-star/luxury hotel) companion services across ${cityName}.`,
+      question: `What are the payment options for escort service in ${cityName}?`,
+      answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
     },
     {
-      question: `How can I avoid advance payment scams in ${cityName}?`,
-      answer: `Never transfer money, booking fees, or taxi charges in advance to anyone claiming to be an independent companion. Real independent escorts only accept direct payment upon meeting.`,
+      question: `Is customer privacy protected in ${cityName}?`,
+      answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
     },
   ];
 
@@ -155,6 +155,7 @@ export function generateCityJsonLd(
 
   const faqPageSchema: Record<string, any> = {
     "@type": "FAQPage",
+    name: `${cityName} Escorts FAQs`,
     mainEntity: candidateFaqs.map((faq) => ({
       "@type": "Question",
       name: faq.question,
@@ -332,20 +333,20 @@ export function generateStateJsonLd(
   // FAQPage Schema - custom if set, or default fallback matching page content
   const fallbackFaqs = [
     {
-      question: `How do I book independent escorts in ${stateName}?`,
-      answer: `Browse verified profiles across ${stateName}, select your preferred companion, and connect directly via phone or WhatsApp. No advance payment is required for genuine independent escorts.`,
+      question: `How to book verified escorts in ${stateName}?`,
+      answer: `You can browse 100% verified escort profiles on our directory across ${stateName} and connect directly via WhatsApp or phone call without any advance booking charges.`,
     },
     {
-      question: `Are all escorts and call girls profiles verified in ${stateName}?`,
-      answer: `Yes, profiles displaying the 'Verified' badge have undergone selfie and document verification to ensure genuine photos and honest services.`,
+      question: `Are incall and outcall services available in ${stateName}?`,
+      answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${stateName}.`,
     },
     {
-      question: `What services are available across ${stateName}?`,
-      answer: `Independent escorts offer both incall (at their private residence/hotel) and outcall (at your residence or booked 5-star/luxury hotel) companion services across ${stateName}.`,
+      question: `What are the payment options for escort service in ${stateName}?`,
+      answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
     },
     {
-      question: `How can I avoid advance payment scams in ${stateName}?`,
-      answer: `Never transfer money, booking fees, or taxi charges in advance to anyone claiming to be an independent companion. Real independent escorts only accept direct payment upon meeting.`,
+      question: `Is customer privacy protected in ${stateName}?`,
+      answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
     },
   ];
 
@@ -355,6 +356,7 @@ export function generateStateJsonLd(
 
   const faqPageSchema: Record<string, any> = {
     "@type": "FAQPage",
+    name: `${stateName} Escorts FAQs`,
     mainEntity: candidateFaqs.map((faq) => ({
       "@type": "Question",
       name: faq.question,

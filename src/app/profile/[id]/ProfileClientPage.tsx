@@ -30,7 +30,9 @@ import {
   Crown,
   Tag,
   UserCheck,
-  SendHorizontal
+  SendHorizontal,
+  HelpCircle,
+  ChevronDown
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { fetchEscortById, fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
@@ -59,6 +61,7 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
   const [contactName, setContactName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactMessage, setContactMessage] = useState("Hello, I'd like to book an appointment with you.");
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -684,6 +687,78 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                     <span>{areaName}, {profileData.city}</span>
                   </Link>
                 ))}
+            </div>
+          </div>
+
+          {/* SECTION 4: FREQUENTLY ASKED QUESTIONS - CITY ESCORTS */}
+          <div className="pt-8 border-t border-slate-800/80 space-y-4 pb-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <HelpCircle className="h-4 w-4" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
+                    Frequently Asked Questions - {profileData.city} Escorts
+                  </h2>
+                  <p className="text-[11px] text-slate-400">
+                    Important information about booking verified companions in {profileData.city}
+                  </p>
+                </div>
+              </div>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <Sparkles className="h-2.5 w-2.5" /> Verified Guidelines
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {[
+                {
+                  q: `How do I book an appointment with ${profileData.name} in ${profileData.city}?`,
+                  a: `You can reach out directly via WhatsApp or Phone call using the contact buttons above. Discuss your preferred meeting time and incall or outcall location directly.`
+                },
+                {
+                  q: `Are incall and outcall services available in ${profileData.city}?`,
+                  a: `Yes, verified companions provide incall at luxury 5-star hotels or private residences, as well as doorstep outcall visits across top areas in ${profileData.city}.`
+                },
+                {
+                  q: `How does payment work for escorts in ${profileData.city}?`,
+                  a: `Payment is made directly in cash or secure UPI upon meeting in person. Never transfer advance booking fees or deposits to anyone.`
+                },
+                {
+                  q: `Is client privacy and confidentiality protected?`,
+                  a: `Yes, 100% discretion and confidentiality is guaranteed. All personal interactions remain strictly private.`
+                }
+              ].map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                      className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs font-bold text-white hover:text-amber-300 transition cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
+                        <span>{item.q}</span>
+                      </span>
+                      {isOpen ? (
+                        <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 transition-transform" />
+                      )}
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60">
+                        {item.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

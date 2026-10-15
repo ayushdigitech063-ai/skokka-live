@@ -41,7 +41,7 @@ export function AdminCitySeoModal({
   city,
   onSaved,
 }: AdminCitySeoModalProps) {
-  const [activeTab, setActiveTab] = useState<"meta" | "social" | "local" | "faqs" | "preview">("meta");
+  const [activeTab, setActiveTab] = useState<"meta" | "social" | "local" | "content" | "faqs" | "preview">("meta");
   const [saving, setSaving] = useState(false);
 
   // Form State
@@ -59,6 +59,7 @@ export function AdminCitySeoModal({
   const [microServiceAreas, setMicroServiceAreas] = useState<string[]>([]);
   const [areaInput, setAreaInput] = useState("");
 
+  const [pageContent, setPageContent] = useState("");
   const [faqs, setFaqs] = useState<ICityFAQ[]>([]);
 
   // FAQ Accordion preview state
@@ -147,6 +148,9 @@ export function AdminCitySeoModal({
           },
         ]);
       }
+
+      // Page Content / Editorial
+      setPageContent(city.pageContent || "");
 
       setActiveTab("meta");
     }
@@ -338,6 +342,7 @@ export function AdminCitySeoModal({
         ogTitle: ogTitle.trim(),
         ogDescription: ogDescription.trim(),
         microServiceAreas,
+        pageContent: pageContent.trim(),
         faqs: cleanFaqs,
       };
 
@@ -441,6 +446,19 @@ export function AdminCitySeoModal({
           >
             <MapPin className="h-4 w-4" />
             <span>Local Ranking ({microServiceAreas.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("content")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === "content"
+                ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-600/30"
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Page Content / Guide</span>
           </button>
 
           <button
@@ -907,6 +925,76 @@ export function AdminCitySeoModal({
                       </span>
                     ))
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================================================== */}
+          {/* TAB: PAGE CONTENT / EDITORIAL GUIDE (CUSTOM & AUTO) */}
+          {/* ==================================================== */}
+          {activeTab === "content" && (
+            <div className="space-y-5 animate-in fade-in duration-200">
+              <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-800/40 flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-cyan-400 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-xs font-bold text-white mb-1">
+                    Custom Editorial Guide &amp; SEO Page Content
+                  </h4>
+                  <p className="text-xs text-cyan-200 leading-relaxed">
+                    Aap is box mein custom verified escorts guide ya unique content likh sakte hain. <strong>Agar aap isko khali (blank) chhod dete hain</strong>, toh website automatic standard safety guide, trust badges, aur booking tips mein <em>{cityName}</em> ka naam dynamic replace karke auto-show karegi!
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider">
+                    Custom Editorial Content (Optional)
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPageContent(
+                          `Welcome to the premier verified adult classifieds directory for ${cityName}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with providers for hotel incall meetings and private doorstep outcalls across top colonies.`
+                        );
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
+                      Load Default Template
+                    </button>
+                    {pageContent && (
+                      <button
+                        type="button"
+                        onClick={() => setPageContent("")}
+                        className="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-xs font-bold transition cursor-pointer"
+                      >
+                        Reset to Auto Dynamic
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <textarea
+                  rows={8}
+                  value={pageContent}
+                  onChange={(e) => setPageContent(e.target.value)}
+                  placeholder={`Leave blank to auto-generate default dynamic companion guide for ${cityName}...`}
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-500 font-sans leading-relaxed"
+                />
+
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span>
+                    Status:{" "}
+                    {pageContent.trim() ? (
+                      <strong className="text-emerald-400">Custom Content Active (Overrides Default)</strong>
+                    ) : (
+                      <strong className="text-cyan-400">Auto Dynamic Mode (Auto City Replacement)</strong>
+                    )}
+                  </span>
+                  <span>{pageContent.length} characters</span>
                 </div>
               </div>
             </div>

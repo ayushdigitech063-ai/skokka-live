@@ -18,6 +18,7 @@ export interface IStateSEOData {
   ogTitle?: string;
   ogDescription?: string;
   popularDistricts?: string[];
+  pageContent?: string;
   faqs?: IStateFAQ[];
 }
 
@@ -37,6 +38,7 @@ export interface IState {
   ogTitle?: string;
   ogDescription?: string;
   popularDistricts?: string[];
+  pageContent?: string;
   faqs?: IStateFAQ[];
   cities?: ICity[];
   createdAt?: string;
@@ -58,6 +60,7 @@ export interface ICitySEOData {
   ogTitle?: string;
   ogDescription?: string;
   microServiceAreas?: string[];
+  pageContent?: string;
   faqs?: ICityFAQ[];
 }
 
@@ -79,6 +82,7 @@ export interface ICity {
   ogTitle?: string;
   ogDescription?: string;
   microServiceAreas?: string[];
+  pageContent?: string;
   faqs?: ICityFAQ[];
   areas?: IArea[];
   createdAt?: string;
