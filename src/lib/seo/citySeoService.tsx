@@ -129,25 +129,41 @@ export function generateCityJsonLd(
     })),
   };
 
-  // FAQPage Schema
-  let faqPageSchema: Record<string, any> | null = null;
-  if (city?.faqs && city.faqs.length > 0) {
-    const validFaqs = city.faqs.filter((f) => f.question && f.answer);
-    if (validFaqs.length > 0) {
-      faqPageSchema = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: validFaqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
-        })),
-      };
-    }
-  }
+  // FAQPage Schema - custom if set, or default fallback matching page content
+  const fallbackFaqs = [
+    {
+      question: `How do I book independent escorts in ${cityName}?`,
+      answer: `Browse verified profiles in ${cityName}, select your preferred companion, and connect directly via phone or WhatsApp. No advance payment is required for genuine independent escorts.`,
+    },
+    {
+      question: `Are all escorts and call girls profiles verified in ${cityName}?`,
+      answer: `Yes, profiles displaying the 'Verified' badge have undergone selfie and document verification to ensure genuine photos and honest services.`,
+    },
+    {
+      question: `What services are available in ${cityName}?`,
+      answer: `Independent escorts offer both incall (at their private residence/hotel) and outcall (at your residence or booked 5-star/luxury hotel) companion services across ${cityName}.`,
+    },
+    {
+      question: `How can I avoid advance payment scams in ${cityName}?`,
+      answer: `Never transfer money, booking fees, or taxi charges in advance to anyone claiming to be an independent companion. Real independent escorts only accept direct payment upon meeting.`,
+    },
+  ];
+
+  const candidateFaqs = (city?.faqs && city.faqs.length > 0)
+    ? city.faqs.filter((f) => f.question && f.answer)
+    : fallbackFaqs;
+
+  const faqPageSchema: Record<string, any> = {
+    "@type": "FAQPage",
+    mainEntity: candidateFaqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
 
   return { localBusinessSchema, faqPageSchema };
 }
@@ -177,19 +193,20 @@ export function CityJsonLd({
     targetCanonical
   );
 
+  // Google recommended @graph format for combining multiple schemas
+  const graphSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      localBusinessSchema,
+      faqPageSchema,
+    ],
+  };
+
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
-      />
-      {faqPageSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }}
-        />
-      )}
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphSchema) }}
+    />
   );
 }
 
@@ -312,24 +329,41 @@ export function generateStateJsonLd(
     })),
   };
 
-  let faqPageSchema: Record<string, any> | null = null;
-  if (state?.faqs && state.faqs.length > 0) {
-    const validFaqs = state.faqs.filter((f) => f.question && f.answer);
-    if (validFaqs.length > 0) {
-      faqPageSchema = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: validFaqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
-        })),
-      };
-    }
-  }
+  // FAQPage Schema - custom if set, or default fallback matching page content
+  const fallbackFaqs = [
+    {
+      question: `How do I book independent escorts in ${stateName}?`,
+      answer: `Browse verified profiles across ${stateName}, select your preferred companion, and connect directly via phone or WhatsApp. No advance payment is required for genuine independent escorts.`,
+    },
+    {
+      question: `Are all escorts and call girls profiles verified in ${stateName}?`,
+      answer: `Yes, profiles displaying the 'Verified' badge have undergone selfie and document verification to ensure genuine photos and honest services.`,
+    },
+    {
+      question: `What services are available across ${stateName}?`,
+      answer: `Independent escorts offer both incall (at their private residence/hotel) and outcall (at your residence or booked 5-star/luxury hotel) companion services across ${stateName}.`,
+    },
+    {
+      question: `How can I avoid advance payment scams in ${stateName}?`,
+      answer: `Never transfer money, booking fees, or taxi charges in advance to anyone claiming to be an independent companion. Real independent escorts only accept direct payment upon meeting.`,
+    },
+  ];
+
+  const candidateFaqs = (state?.faqs && state.faqs.length > 0)
+    ? state.faqs.filter((f) => f.question && f.answer)
+    : fallbackFaqs;
+
+  const faqPageSchema: Record<string, any> = {
+    "@type": "FAQPage",
+    mainEntity: candidateFaqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
 
   return { localBusinessSchema, faqPageSchema };
 }
@@ -356,19 +390,20 @@ export function StateJsonLd({
     targetCanonical
   );
 
+  // Google recommended @graph format for combining multiple schemas
+  const graphSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      localBusinessSchema,
+      faqPageSchema,
+    ],
+  };
+
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
-      />
-      {faqPageSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema) }}
-        />
-      )}
-    </>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphSchema) }}
+    />
   );
 }
 
