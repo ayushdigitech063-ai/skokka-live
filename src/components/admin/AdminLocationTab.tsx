@@ -16,10 +16,12 @@ import {
   Layers,
   Check,
   AlertTriangle,
+  Globe,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
 import { getAuthHeaders as getCentralAuthHeaders, getAuthToken } from "@/lib/auth";
+import { AdminCitySeoModal } from "./AdminCitySeoModal";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -42,6 +44,15 @@ export function AdminLocationTab() {
   const [showCityModal, setShowCityModal] = useState(false);
   const [editingCity, setEditingCity] = useState<ICity | null>(null);
   const [cityForm, setCityForm] = useState({ name: "", stateId: "", tier: "Tier 2", isPopular: false, sortOrder: 0 });
+
+  // Advanced City SEO Modal State
+  const [showCitySeoModal, setShowCitySeoModal] = useState(false);
+  const [seoCity, setSeoCity] = useState<ICity | null>(null);
+
+  const handleOpenCitySeo = (city: ICity) => {
+    setSeoCity(city);
+    setShowCitySeoModal(true);
+  };
 
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [editingArea, setEditingArea] = useState<IArea | null>(null);
@@ -644,13 +655,24 @@ export function AdminLocationTab() {
 
                           <div className="flex items-center gap-1">
                             <button
+                              onClick={() => handleOpenCitySeo(ct)}
+                              title={`Configure Advanced SEO & Social Sharing for ${ct.name}`}
+                              className="px-2 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500 hover:text-white text-[10px] font-bold transition flex items-center gap-1 cursor-pointer"
+                            >
+                              <Globe className="h-3 w-3" />
+                              <span>SEO</span>
+                              {(ct.metaTitle || ct.customSlug || (ct.faqs && ct.faqs.length > 0)) && (
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                              )}
+                            </button>
+                            <button
                               onClick={() => {
                                 setEditingArea(null);
                                 setAreaForm({ name: "", cityId: ct._id, pincode: "", isPopular: false, sortOrder: 0 });
                                 setShowAreaModal(true);
                               }}
                               title={`Add Area in ${ct.name}`}
-                              className="p-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500 hover:text-white text-[10px] transition"
+                              className="p-1 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500 hover:text-white text-[10px] transition cursor-pointer"
                             >
                               <Plus className="h-3 w-3" />
                             </button>
@@ -666,7 +688,8 @@ export function AdminLocationTab() {
                                 });
                                 setShowCityModal(true);
                               }}
-                              className="p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
+                              title="Edit City Details"
+                              className="p-1 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
                             >
                               <Edit2 className="h-3 w-3" />
                             </button>
@@ -777,8 +800,8 @@ export function AdminLocationTab() {
                 <th className="p-4">City Name</th>
                 <th className="p-4">Parent State</th>
                 <th className="p-4">SEO Slug</th>
-                <th className="p-4">Tier / Category</th>
-                <th className="p-4">Popular</th>
+                <th className="p-4">Tier</th>
+                <th className="p-4">SEO &amp; Schemas</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -793,32 +816,56 @@ export function AdminLocationTab() {
               ) : (
                 filteredCities.map((ct) => {
                   const stateName = typeof ct.stateId === "object" ? ct.stateId?.name : "Unknown State";
+                  const hasCustomSeo = ct.metaTitle || ct.customSlug || (ct.faqs && ct.faqs.length > 0);
                   return (
                     <tr key={ct._id} className="hover:bg-slate-800/40 transition">
                       <td className="p-4 font-bold text-white flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-cyan-400" />
-                        {ct.name}
+                        <div>
+                          <span>{ct.name}</span>
+                          {ct.isPopular && (
+                            <span className="ml-2 text-amber-400 font-extrabold text-[10px]">
+                              ⭐ Popular
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-4 text-slate-300 font-medium">{stateName}</td>
-                      <td className="p-4 text-slate-400 font-mono">{ct.slug}</td>
+                      <td className="p-4">
+                        <span className="text-slate-400 font-mono text-xs">
+                          {ct.customSlug || ct.slug}
+                        </span>
+                        {ct.customSlug && (
+                          <span className="ml-1.5 px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 text-[9px] font-bold">
+                            Custom
+                          </span>
+                        )}
+                      </td>
                       <td className="p-4">
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-[11px] font-bold text-slate-300">
                           {ct.tier}
                         </span>
                       </td>
                       <td className="p-4">
-                        {ct.isPopular ? (
-                          <span className="text-amber-400 font-extrabold text-[11px] flex items-center gap-1">
-                            ⭐ Popular
-                          </span>
+                        {hasCustomSeo ? (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                              <Sparkles className="h-2.5 w-2.5" /> Configured ({ct.faqs?.length || 0} FAQs)
+                            </span>
+                            {ct.microServiceAreas && ct.microServiceAreas.length > 0 && (
+                              <div className="text-[10px] text-purple-300 font-medium">
+                                {ct.microServiceAreas.length} Micro Areas
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <span className="text-slate-500 text-[11px]">Normal</span>
+                          <span className="text-[11px] text-slate-500 italic">Default Template</span>
                         )}
                       </td>
                       <td className="p-4">
                         <button
                           onClick={() => handleToggleCity(ct._id)}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider cursor-pointer ${
                             ct.isActive ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : "bg-rose-500/10 text-rose-400 border border-rose-500/30"
                           }`}
                         >
@@ -826,6 +873,14 @@ export function AdminLocationTab() {
                         </button>
                       </td>
                       <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenCitySeo(ct)}
+                          title="Configure SEO, Social & FAQs"
+                          className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600/20 to-blue-600/20 text-cyan-300 border border-cyan-500/30 hover:from-cyan-600 hover:to-blue-600 hover:text-white transition inline-flex items-center gap-1.5 font-bold text-[11px] cursor-pointer"
+                        >
+                          <Globe className="h-3.5 w-3.5 text-cyan-400" />
+                          <span>Configure SEO</span>
+                        </button>
                         <button
                           onClick={() => {
                             setEditingCity(ct);
@@ -838,13 +893,15 @@ export function AdminLocationTab() {
                             });
                             setShowCityModal(true);
                           }}
-                          className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
+                          className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 cursor-pointer"
+                          title="Edit City"
                         >
                           <Edit2 className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteCity(ct._id, ct.name)}
-                          className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition"
+                          className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition cursor-pointer"
+                          title="Delete City"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -1243,6 +1300,14 @@ export function AdminLocationTab() {
           </div>
         </div>
       )}
+
+      {/* ADVANCED CITY SEO & SOCIAL SHARING MODAL */}
+      <AdminCitySeoModal
+        isOpen={showCitySeoModal}
+        onClose={() => setShowCitySeoModal(false)}
+        city={seoCity}
+        onSaved={fetchLocations}
+      />
     </div>
   );
 }

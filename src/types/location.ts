@@ -18,11 +18,30 @@ export interface IState {
   updatedAt?: string;
 }
 
+export interface ICityFAQ {
+  _id?: string;
+  question: string;
+  answer: string;
+}
+
+export interface ICitySEOData {
+  customSlug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  microServiceAreas?: string[];
+  faqs?: ICityFAQ[];
+}
+
 export interface ICity {
   _id: string;
   name: string;
   stateId: string | IState;
   slug: string;
+  customSlug?: string;
   tier: 'Tier 1' | 'Tier 2' | 'Tier 3';
   isPopular: boolean;
   isActive: boolean;
@@ -30,6 +49,12 @@ export interface ICity {
   sortOrder: number;
   metaTitle?: string;
   metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  microServiceAreas?: string[];
+  faqs?: ICityFAQ[];
   areas?: IArea[];
   createdAt?: string;
   updatedAt?: string;
@@ -75,6 +100,13 @@ export interface CreateCityInput {
   sortOrder?: number;
   metaTitle?: string;
   metaDescription?: string;
+  customSlug?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  microServiceAreas?: string[];
+  faqs?: ICityFAQ[];
   isActive?: boolean;
 }
 

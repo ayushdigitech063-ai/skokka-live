@@ -7,7 +7,13 @@ export interface IDBSEOOverride {
   metaDescription?: string;
   shortDescription?: string;
   canonicalUrl?: string;
+  customSlug?: string;
   ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  focusKeywords?: string[];
+  microServiceAreas?: string[];
+  faqs?: { question: string; answer: string }[];
 }
 
 export interface ISEOData {
@@ -15,6 +21,7 @@ export interface ISEOData {
   description: string;
   shortDescription: string;
   canonical: string;
+  keywords?: string[];
   ogTitle: string;
   ogDescription: string;
   ogUrl: string;
@@ -24,6 +31,8 @@ export interface ISEOData {
   twitterTitle: string;
   twitterDescription: string;
   twitterImage: string;
+  faqs?: { question: string; answer: string }[];
+  microServiceAreas?: string[];
 }
 
 export interface ICitySEOParams {

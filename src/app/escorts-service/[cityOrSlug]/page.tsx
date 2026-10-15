@@ -1,6 +1,11 @@
 import { use } from "react";
 import type { Metadata } from "next";
-import { buildCitySEO, buildProfileSEO } from "@/lib/seo/seoEngine";
+import {
+  buildProfileSEO,
+  getCityPageMetadata,
+  fetchCitySeoData,
+  CityJsonLd,
+} from "@/lib/seo/seoEngine";
 import EscortsClient from "../EscortsClient";
 import ProfileClientPage from "@/app/profile/[id]/ProfileClientPage";
 
@@ -12,7 +17,7 @@ const isProfileSlug = (slug: string) => /-(sk-\d+)$/i.test(slug) || /-([a-f0-9]{
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { cityOrSlug } = await params;
-  
+
   if (isProfileSlug(cityOrSlug)) {
     return buildProfileSEO({
       name: cityOrSlug.replace(/-(sk-\d+|[a-f0-9]{24})$/i, "").split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
@@ -25,20 +30,27 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     ? cityOrSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
     : "All Cities";
 
-  return buildCitySEO({ cityName });
+  return getCityPageMetadata(cityOrSlug, cityName);
 }
 
-export default function CityOrProfilePage({ params }: Params) {
-  const resolved = use(params);
-  const { cityOrSlug } = resolved;
+export default async function CityOrProfilePage({ params }: Params) {
+  const { cityOrSlug } = await params;
 
   if (isProfileSlug(cityOrSlug)) {
     return <ProfileClientPage params={Promise.resolve({ id: cityOrSlug })} />;
   }
 
-  const cityName = cityOrSlug
-    ? cityOrSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
-    : "All Cities";
+  const cityData = await fetchCitySeoData(cityOrSlug);
+  const cityName =
+    cityData?.name ||
+    (cityOrSlug
+      ? cityOrSlug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+      : "All Cities");
 
-  return <EscortsClient defaultCity={cityName} />;
+  return (
+    <>
+      <CityJsonLd city={cityData} cityName={cityName} />
+      <EscortsClient defaultCity={cityName} citySeo={cityData || undefined} />
+    </>
+  );
 }

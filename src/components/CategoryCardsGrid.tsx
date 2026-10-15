@@ -7,7 +7,7 @@ import { fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/
 import { HomePageCmsConfig } from "@/types/homepageCms";
 import { slugifyPath } from "@/lib/seo/seoEngine";
 import { Sparkles } from "lucide-react";
-
+// import {AutoSchema } from "@/components/AutoSchema"
 interface CategoryCardsGridProps {
   onSelectCategory?: (category: string) => void;
   onSelectCityCategory?: (city: string, category: string) => void;

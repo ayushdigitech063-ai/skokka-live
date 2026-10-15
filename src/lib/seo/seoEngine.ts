@@ -30,6 +30,7 @@ export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Meta
     metadataBase: new URL(`https://${SITE_CONFIG.domain}`),
     title: seoData.title,
     description: seoData.description,
+    keywords: seoData.keywords && seoData.keywords.length > 0 ? seoData.keywords : undefined,
     authors: [{ name: SITE_CONFIG.name }],
     publisher: SITE_CONFIG.name,
     robots: {
@@ -90,7 +91,7 @@ export const buildEscortsSEO = (override?: IDBSEOOverride): Metadata => {
   const data = resolveHomeSEO(override);
   data.title = `Verified Escorts Directory in India | ${SITE_CONFIG.name}`;
   data.description = `Browse 100% verified escort companions & female models available for incall & outcall meetings across India.`;
-  data.canonical = `https://${SITE_CONFIG.domain}/escorts`;
+  data.canonical = `https://${SITE_CONFIG.domain}/escorts-service`;
   data.ogUrl = data.canonical;
   return toNextMetadata(data);
 };
@@ -182,3 +183,4 @@ export * from "./seoTypes";
 export * from "./seoHelpers";
 export * from "./seoTemplates";
 export * from "./seoResolver";
+export * from "./citySeoService";

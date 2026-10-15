@@ -89,23 +89,29 @@ export const resolveCitySEO = (params: ICitySEOParams): ISEOData => {
   const title = appendSiteBranding(dbOverride?.metaTitle || fallback.title);
   const description = dbOverride?.metaDescription || fallback.description;
   const shortDescription = dbOverride?.shortDescription || fallback.shortDescription;
-  const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts/${slugifyPath(cityName)}`);
+  const slugPath = dbOverride?.customSlug || slugifyPath(cityName);
+  const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts-service/${slugPath}`);
   const ogImage = dbOverride?.ogImage || DEFAULT_OG_IMAGE;
+  const ogTitle = dbOverride?.ogTitle || title;
+  const ogDescription = dbOverride?.ogDescription || description;
 
   return {
     title,
     description,
     shortDescription,
     canonical,
-    ogTitle: title,
-    ogDescription: description,
+    keywords: dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0 ? dbOverride.focusKeywords : undefined,
+    ogTitle,
+    ogDescription,
     ogUrl: canonical,
     ogType: "website",
     ogImage,
     twitterCard: "summary_large_image",
-    twitterTitle: title,
-    twitterDescription: description,
+    twitterTitle: ogTitle,
+    twitterDescription: ogDescription,
     twitterImage: ogImage,
+    faqs: dbOverride?.faqs,
+    microServiceAreas: dbOverride?.microServiceAreas,
   };
 };
 

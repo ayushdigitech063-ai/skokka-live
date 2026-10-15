@@ -1,6 +1,10 @@
-import { use } from "react";
 import type { Metadata } from "next";
-import { buildAreaSEO, buildProfileSEO } from "@/lib/seo/seoEngine";
+import {
+  buildAreaSEO,
+  buildProfileSEO,
+  fetchCitySeoData,
+  CityJsonLd,
+} from "@/lib/seo/seoEngine";
 import EscortsClient from "../../EscortsClient";
 import ProfileClientPage from "@/app/profile/[id]/ProfileClientPage";
 
@@ -33,20 +37,22 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
   return buildAreaSEO({ areaName, cityName });
 }
 
-export default function AreaEscortsPage({ params }: AreaPageProps) {
-  const resolved = use(params);
-  const { cityOrSlug, area } = resolved;
+export default async function AreaEscortsPage({ params }: AreaPageProps) {
+  const { cityOrSlug, area } = await params;
 
   if (isProfileSlug(area)) {
     return <ProfileClientPage params={Promise.resolve({ id: area })} />;
   }
 
-  const cityName = cityOrSlug
-    ? cityOrSlug
-        .split("-")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ")
-    : "All Cities";
+  const cityData = await fetchCitySeoData(cityOrSlug);
+  const cityName =
+    cityData?.name ||
+    (cityOrSlug
+      ? cityOrSlug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+      : "All Cities");
   const areaName = area
     ? area
         .split("-")
@@ -54,5 +60,14 @@ export default function AreaEscortsPage({ params }: AreaPageProps) {
         .join(" ")
     : "All Escorts";
 
-  return <EscortsClient defaultCity={cityName} defaultTag={areaName} />;
+  return (
+    <>
+      <CityJsonLd
+        city={cityData}
+        cityName={cityName}
+        canonicalUrl={`https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`}
+      />
+      <EscortsClient defaultCity={cityName} defaultTag={areaName} citySeo={cityData || undefined} />
+    </>
+  );
 }
