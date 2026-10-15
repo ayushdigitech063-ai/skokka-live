@@ -736,11 +736,15 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   </button>
                 </div>
               )}
+            </div>
+          )}
 
-              {/* DYNAMIC CITY AREA CATEGORIES ACCORDION */}
-              <CityCategoryAccordion
-                currentCity={selectedCity}
-                selectedArea={searchLocation}
+          {/* ALWAYS RENDER ACCORDION, LOCALITIES & FAQS (EVEN WHEN ZERO PROFILES FOUND) */}
+          <div className="space-y-8 max-w-6xl mx-auto mt-8">
+            {/* DYNAMIC CITY AREA CATEGORIES ACCORDION */}
+            <CityCategoryAccordion
+              currentCity={selectedCity}
+              selectedArea={searchLocation}
                 onSelectArea={(area, tag) => {
                   setSearchLocation(area);
                   if (tag && tag !== "All Escorts") {
@@ -751,149 +755,239 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                 }}
               />
 
-              {/* MICRO SERVICE LOCALITIES & PINCODES (LOCAL SEO) FOR CITY OR REGIONAL HUBS FOR STATE */}
-              {citySeo?.microServiceAreas && citySeo.microServiceAreas.length > 0 ? (
-                <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                      <MapPin className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-extrabold text-white tracking-tight">
-                        Popular Localities &amp; Areas in {selectedCity}
-                      </h3>
-                      <p className="text-[11px] text-slate-400">
-                        Direct incall &amp; outcall companion services available in these prime colonies
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {citySeo.microServiceAreas.map((area, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setSearchLocation(area);
-                          setCurrentPage(1);
-                          window.scrollTo({ top: 350, behavior: "smooth" });
-                        }}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                          searchLocation.toLowerCase() === area.toLowerCase()
-                            ? "bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30"
-                            : "bg-slate-900/90 text-purple-300 border-purple-500/20 hover:border-purple-400/50 hover:bg-slate-800"
-                        }`}
-                      >
-                        <MapPin className="h-3 w-3" />
-                        <span>{area}</span>
-                      </button>
-                    ))}
-                  </div>
+            {/* RICH SEO EDITORIAL CONTENT SECTION */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 font-bold text-[11px] uppercase tracking-wider border border-rose-500/25 inline-flex items-center gap-1.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-rose-400" />
+                    Verified Companion Guide
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 font-bold text-[11px] uppercase tracking-wider border border-cyan-500/25">
+                    {selectedCity !== "All Cities" ? selectedCity : "Pan-India"}
+                  </span>
                 </div>
-              ) : stateSeo?.popularDistricts && stateSeo.popularDistricts.length > 0 ? (
-                <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
-                      <MapPin className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-extrabold text-white tracking-tight">
-                        Major Cities &amp; Regional Hubs across {stateSeo.name}
-                      </h3>
-                      <p className="text-[11px] text-slate-400">
-                        Direct incall &amp; outcall companion services across top districts in {stateSeo.name}
-                      </p>
-                    </div>
-                  </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  {citySeo?.metaDescription ||
+                    stateSeo?.metaDescription ||
+                    `Welcome to the premier verified adult classifieds directory for ${selectedCity}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with providers for hotel incall meetings and private doorstep outcalls across top colonies.`}
+                </p>
+              </div>
 
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {stateSeo.popularDistricts.map((district, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setSelectedCity(district);
-                          setCurrentPage(1);
-                          window.scrollTo({ top: 350, behavior: "smooth" });
-                        }}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
-                          selectedCity.toLowerCase() === district.toLowerCase()
-                            ? "bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-600/30"
-                            : "bg-slate-900/90 text-rose-300 border-rose-500/20 hover:border-rose-400/50 hover:bg-slate-800"
-                        }`}
-                      >
-                        <MapPin className="h-3 w-3" />
-                        <span>{district}</span>
-                      </button>
-                    ))}
+              {/* TRUST & SAFETY HIGHLIGHTS GRID */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                  <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                    <UserCheck className="h-4 w-4" />
                   </div>
+                  <h3 className="text-xs font-bold text-white">100% Selfie-Verified Profiles</h3>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Every companion profile is verified with live selfie identification so you meet real companions without photo fraud.
+                  </p>
                 </div>
-              ) : null}
 
-              {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) FOR CITY OR STATE */}
-              {(citySeo?.faqs && citySeo.faqs.length > 0) || (stateSeo?.faqs && stateSeo.faqs.length > 0) ? (
-                (() => {
-                  const activeFaqs = (citySeo?.faqs && citySeo.faqs.length > 0) ? citySeo.faqs : (stateSeo?.faqs || []);
-                  const locationLabel = citySeo ? selectedCity : (stateSeo?.name || selectedCity);
-                  return (
-                    <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-4">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                            <HelpCircle className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-extrabold text-white tracking-tight">
-                              Frequently Asked Questions - {locationLabel} Escorts
-                            </h3>
-                            <p className="text-[11px] text-slate-400">
-                              Everything you need to know about booking verified companions in {locationLabel}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                          <Sparkles className="h-2.5 w-2.5" /> Schema Verified
-                        </span>
-                      </div>
+                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                  <div className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-xs font-bold text-white">Incall &amp; Outcall Services</h3>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Enjoy safe, private incall rendezvous at luxury hotels or flexible outcall visits directly to your accommodation in {selectedCity}.
+                  </p>
+                </div>
 
-                      <div className="space-y-2.5">
-                        {activeFaqs.map((faq, idx) => {
-                          const isOpen = openFaqIndex === idx;
-                          return (
-                            <div
-                              key={idx}
-                              className="rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden transition"
-                            >
-                              <button
-                                type="button"
-                                onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                                className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs font-bold text-white hover:text-amber-300 transition cursor-pointer"
-                              >
-                                <span className="flex items-center gap-2">
-                                  <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
-                                  <span>{faq.question}</span>
-                                </span>
-                                {isOpen ? (
-                                  <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 transition-transform" />
-                                )}
-                              </button>
-                              {isOpen && (
-                                <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30">
-                                  {faq.answer}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : null}
+                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                  <div className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-xs font-bold text-white">Zero Advance Payment Policy</h3>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Connect directly via WhatsApp or phone call. Always pay directly upon meeting — never transfer advance booking fees to anyone.
+                  </p>
+                </div>
+              </div>
+
+              {/* BOOKING GUIDE IN CITY */}
+              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800/80 space-y-2">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                  How to Connect with Companions in {selectedCity}
+                </h4>
+                <ol className="text-xs text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed pl-1">
+                  <li>Browse verified listings above and filter by your preferred locality or package tier.</li>
+                  <li>Click on the WhatsApp or Call button to reach out directly to the independent companion.</li>
+                  <li>Confirm meeting location (5-star hotel incall or private apartment outcall) and timing.</li>
+                  <li>Maintain mutual respect and clear communications for a safe, discreet companionship experience.</li>
+                </ol>
+              </div>
             </div>
-          )}
+
+            {/* MICRO SERVICE LOCALITIES & PINCODES (LOCAL SEO) FOR CITY OR REGIONAL HUBS FOR STATE */}
+            {citySeo?.microServiceAreas && citySeo.microServiceAreas.length > 0 ? (
+              <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white tracking-tight">
+                      Popular Localities &amp; Areas in {selectedCity}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Direct incall &amp; outcall companion services available in these prime colonies
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {citySeo.microServiceAreas.map((area, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setSearchLocation(area);
+                        setCurrentPage(1);
+                        window.scrollTo({ top: 350, behavior: "smooth" });
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                        searchLocation.toLowerCase() === area.toLowerCase()
+                          ? "bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30"
+                          : "bg-slate-900/90 text-purple-300 border-purple-500/20 hover:border-purple-400/50 hover:bg-slate-800"
+                      }`}
+                    >
+                      <MapPin className="h-3 w-3" />
+                      <span>{area}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : stateSeo?.popularDistricts && stateSeo.popularDistricts.length > 0 ? (
+              <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white tracking-tight">
+                      Major Cities &amp; Regional Hubs across {stateSeo.name}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      Direct incall &amp; outcall companion services across top districts in {stateSeo.name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {stateSeo.popularDistricts.map((district, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setSelectedCity(district);
+                        setCurrentPage(1);
+                        window.scrollTo({ top: 350, behavior: "smooth" });
+                      }}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
+                        selectedCity.toLowerCase() === district.toLowerCase()
+                          ? "bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-600/30"
+                          : "bg-slate-900/90 text-rose-300 border-rose-500/20 hover:border-rose-400/50 hover:bg-slate-800"
+                      }`}
+                    >
+                      <MapPin className="h-3 w-3" />
+                      <span>{district}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) FOR CITY OR STATE */}
+            {(() => {
+              const activeFaqs =
+                citySeo?.faqs && citySeo.faqs.length > 0
+                  ? citySeo.faqs
+                  : stateSeo?.faqs && stateSeo.faqs.length > 0
+                  ? stateSeo.faqs
+                  : [
+                      {
+                        question: `How to book verified escorts in ${selectedCity}?`,
+                        answer: `You can browse 100% verified escort profiles on our directory in ${selectedCity} and connect directly via WhatsApp or phone call without any advance booking charges.`,
+                      },
+                      {
+                        question: `Are incall and outcall services available in ${selectedCity}?`,
+                        answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${selectedCity}.`,
+                      },
+                      {
+                        question: `What are the payment options for escort service in ${selectedCity}?`,
+                        answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
+                      },
+                      {
+                        question: `Is customer privacy protected in ${selectedCity}?`,
+                        answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
+                      },
+                    ];
+
+              const locationLabel = citySeo ? selectedCity : (stateSeo?.name || selectedCity);
+              return (
+                <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                        <HelpCircle className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white tracking-tight">
+                          Frequently Asked Questions - {locationLabel} Escorts
+                        </h3>
+                        <p className="text-[11px] text-slate-400">
+                          Everything you need to know about booking verified companions in {locationLabel}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      <Sparkles className="h-2.5 w-2.5" /> Schema Verified
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {activeFaqs.map((faq, idx) => {
+                      const isOpen = openFaqIndex === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className="rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden transition"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                            className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs font-bold text-white hover:text-amber-300 transition cursor-pointer"
+                          >
+                            <span className="flex items-center gap-2">
+                              <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
+                              <span>{faq.question}</span>
+                            </span>
+                            {isOpen ? (
+                              <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-slate-400 shrink-0 transition-transform" />
+                            )}
+                          </button>
+                          {isOpen && (
+                            <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30">
+                              {faq.answer}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
         </main>
       </div>
 

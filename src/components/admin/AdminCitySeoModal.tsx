@@ -20,6 +20,7 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
+  Upload,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { ICity, ICityFAQ } from "@/types/location";
@@ -51,6 +52,7 @@ export function AdminCitySeoModal({
   const [keywordInput, setKeywordInput] = useState("");
 
   const [ogImage, setOgImage] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [ogTitle, setOgTitle] = useState("");
   const [ogDescription, setOgDescription] = useState("");
 
@@ -186,6 +188,74 @@ export function AdminCitySeoModal({
 
   const handleRemoveArea = (index: number) => {
     setMicroServiceAreas(microServiceAreas.filter((_, i) => i !== index));
+  };
+
+  // Image Upload Helper
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      Swal.fire("Invalid Format", "Please select an image file (PNG, JPG, WebP)", "warning");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      Swal.fire("File Too Large", "Image size must be less than 10 MB", "warning");
+      return;
+    }
+
+    setUploadingImage(true);
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      if (!base64) {
+        setUploadingImage(false);
+        return;
+      }
+
+      setOgImage(base64);
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/locations/upload-banner`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(),
+          },
+          body: JSON.stringify({ image: base64 }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success && data.url) {
+          setOgImage(data.url);
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Banner photo uploaded & optimized (1200x630 WebP)!",
+            showConfirmButton: false,
+            timer: 2500,
+          });
+        } else {
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "info",
+            title: "Local image preview loaded",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        }
+      } catch (err) {
+        console.warn("Backend banner upload failed, using local data URL preview:", err);
+      } finally {
+        setUploadingImage(false);
+      }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleImportHierarchyAreas = () => {
@@ -591,30 +661,69 @@ export function AdminCitySeoModal({
               </div>
 
               {/* Social Preview Image (Banner Photo) */}
-              <div className="space-y-2">
-                <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">
-                  Social Preview Image (Banner Photo URL)
-                </label>
-                <div className="flex gap-2">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">
+                    Social Preview Image (Banner Photo)
+                  </label>
+                  <span className="text-[11px] text-cyan-400 font-medium">
+                    Upload from device or enter URL
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
-                    type="url"
+                    type="text"
                     value={ogImage}
                     onChange={(e) => setOgImage(e.target.value)}
-                    placeholder="https://mycityqueen.com/images/hero-sofa-model.png"
+                    placeholder="https://mycityqueen.com/images/hero-sofa-model.png or Upload file"
                     className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
                   />
+
+                  {/* UPLOAD FILE BUTTON */}
+                  <label className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-600/20 shrink-0">
+                    {uploadingImage ? (
+                      <>
+                        <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-3.5 w-3.5" />
+                        <span>Upload Image</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                  </label>
+
                   <button
                     type="button"
                     onClick={() => setOgImage("https://mycityqueen.com/images/hero-sofa-model.png")}
-                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition"
+                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition shrink-0"
                   >
                     Default
                   </button>
+                  {ogImage && (
+                    <button
+                      type="button"
+                      onClick={() => setOgImage("")}
+                      className="px-2.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500 text-rose-400 hover:text-white text-xs font-bold transition shrink-0"
+                      title="Clear image"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 {/* Image Preview Box */}
-                {ogImage && (
-                  <div className="relative mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 h-44 flex items-center justify-center">
+                {ogImage ? (
+                  <div className="relative mt-2 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 h-48 flex items-center justify-center group">
                     <img
                       src={ogImage}
                       alt="Social Preview"
@@ -623,10 +732,52 @@ export function AdminCitySeoModal({
                         (e.target as HTMLImageElement).src = "/images/hero-sofa-model.png";
                       }}
                     />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                      <label className="px-3.5 py-2 rounded-xl bg-white text-slate-900 text-xs font-bold cursor-pointer hover:bg-slate-100 flex items-center gap-1.5 shadow-xl transition">
+                        <Upload className="h-3.5 w-3.5 text-cyan-600" />
+                        <span>Change Image</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          disabled={uploadingImage}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setOgImage("")}
+                        className="px-3 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-500 transition shadow-xl flex items-center gap-1"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    </div>
                     <div className="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-black/70 backdrop-blur text-[10px] text-white font-mono">
                       Recommended: 1200 x 630 px (1.91:1)
                     </div>
                   </div>
+                ) : (
+                  <label className="mt-2 rounded-2xl border-2 border-dashed border-slate-800 hover:border-cyan-500/50 bg-slate-950/40 p-6 flex flex-col items-center justify-center gap-2 text-center cursor-pointer transition">
+                    <div className="h-10 w-10 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+                      <Upload className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">
+                        Click to upload Banner Photo or enter URL above
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        PNG, JPG, WebP up to 10MB (Auto-resized to 1200x630)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                    />
+                  </label>
                 )}
               </div>
 
