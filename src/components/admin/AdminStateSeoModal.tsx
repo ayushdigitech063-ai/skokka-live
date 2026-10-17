@@ -19,7 +19,7 @@ import {
   Code2,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { IState, IStateFAQ } from "@/types/location";
+import { IState, IStateFAQ, ICategorySeo } from "@/types/location";
 import { getAuthHeaders } from "@/lib/auth";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
@@ -30,6 +30,17 @@ interface AdminStateSeoModalProps {
   state: IState | null;
   onSaved: () => void;
 }
+
+const TARGET_PAGE_OPTIONS = [
+  { slug: "main", label: "🌐 Main State Page (/escorts-service/[state])" },
+  { slug: "call-girls", label: "💃 Call Girls (/escorts-service/[state]/call-girls)" },
+  { slug: "vip-escorts", label: "👑 VIP Escorts (/escorts-service/[state]/vip-escorts)" },
+  { slug: "independent-girls", label: "✨ Independent Girls (/escorts-service/[state]/independent-girls)" },
+  { slug: "college-escorts", label: "🎓 College Escorts (/escorts-service/[state]/college-escorts)" },
+  { slug: "russian-escorts", label: "🇷🇺 Russian Escorts (/escorts-service/[state]/russian-escorts)" },
+  { slug: "massages", label: "💆 Massages (/escorts-service/[state]/massages)" },
+  { slug: "adult-meetings", label: "🥂 Adult Meetings (/escorts-service/[state]/adult-meetings)" },
+];
 
 export function AdminStateSeoModal({
   isOpen,
@@ -172,6 +183,9 @@ export function AdminStateSeoModal({
       setPageContent(state.pageContent || "");
 
       setActiveTab("meta");
+      setSelectedTarget("main");
+      setCategorySeoList(state.categorySeo || []);
+      setMainStateData(null);
     }
   }, [state, isOpen]);
 
@@ -343,30 +357,187 @@ export function AdminStateSeoModal({
     });
   };
 
-  // Save Handler
+    // Switch Target Page (Main State vs Call Girls / Categories)
+  const handleSwitchTarget = (newTarget: string) => {
+    if (newTarget === selectedTarget) return;
+
+    // 1. Snapshot current form data
+    const currentFormData = {
+      metaTitle: metaTitle.trim(),
+      metaDescription: metaDescription.trim(),
+      focusKeywords,
+      canonicalUrl: canonicalUrl.trim(),
+      robots: robots.trim(),
+      redirectUrl: redirectUrl.trim(),
+      redirectType,
+      customSchema: customSchema.trim(),
+      pageContent: pageContent.trim(),
+      faqs: faqs.filter((f) => f.question.trim() || f.answer.trim()),
+    };
+
+    let updatedCatList = [...categorySeoList];
+
+    if (selectedTarget === "main") {
+      setMainStateData({
+        ...currentFormData,
+        customSlug,
+        ogImage,
+        ogTitle,
+        ogDescription,
+        popularDistricts,
+      });
+    } else {
+      const idx = updatedCatList.findIndex((c) => c.categorySlug === selectedTarget);
+      const catEntry: ICategorySeo = {
+        categorySlug: selectedTarget,
+        ...currentFormData,
+      };
+      if (idx >= 0) {
+        updatedCatList[idx] = catEntry;
+      } else {
+        updatedCatList.push(catEntry);
+      }
+      setCategorySeoList(updatedCatList);
+    }
+
+    // 2. Load data for newTarget
+    setSelectedTarget(newTarget);
+
+    if (newTarget === "main") {
+      const src = mainStateData || {
+        metaTitle: state?.metaTitle || "",
+        metaDescription: state?.metaDescription || "",
+        focusKeywords: state?.focusKeywords || [],
+        canonicalUrl: state?.canonicalUrl || "",
+        robots: state?.robots || "index, follow",
+        redirectUrl: state?.redirectUrl || "",
+        redirectType: state?.redirectType || "none",
+        customSchema: state?.customSchema || "",
+        pageContent: state?.pageContent || "",
+        faqs: state?.faqs || [],
+      };
+      setMetaTitle(src.metaTitle || "");
+      setMetaDescription(src.metaDescription || "");
+      setFocusKeywords(src.focusKeywords || []);
+      setCanonicalUrl(src.canonicalUrl || "");
+      setRobots(src.robots || "index, follow");
+      setRedirectUrl(src.redirectUrl || "");
+      setRedirectType(src.redirectType || "none");
+      setCustomSchema(src.customSchema || "");
+      setPageContent(src.pageContent || "");
+      setFaqs(src.faqs || []);
+    } else {
+      const existing = updatedCatList.find((c) => c.categorySlug === newTarget);
+      if (existing) {
+        setMetaTitle(existing.metaTitle || "");
+        setMetaDescription(existing.metaDescription || "");
+        setFocusKeywords(existing.focusKeywords || []);
+        setCanonicalUrl(existing.canonicalUrl || "");
+        setRobots(existing.robots || "index, follow");
+        setRedirectUrl(existing.redirectUrl || "");
+        setRedirectType(existing.redirectType || "none");
+        setCustomSchema(existing.customSchema || "");
+        setPageContent(existing.pageContent || "");
+        setFaqs(existing.faqs || []);
+      } else {
+        const targetOption = TARGET_PAGE_OPTIONS.find((t) => t.slug === newTarget);
+        const catName = targetOption ? targetOption.label.split(" ")[1] : newTarget;
+        setMetaTitle(
+          newTarget === "call-girls"
+            ? `Call Girls in ${stateName} | MyCityQueen India`
+            : `${catName} in ${stateName} | MyCityQueen India`
+        );
+        setMetaDescription(
+          newTarget === "call-girls"
+            ? `Browse verified call girls profiles across ${stateName} with authentic photos and contact details. Premium companions available 24/7.`
+            : `Browse verified ${catName} profiles across ${stateName} with authentic photos and contact details. Available 24/7.`
+        );
+        setFocusKeywords([
+          `${newTarget.replace(/-/g, " ")} in ${stateName.toLowerCase()}`,
+          `verified ${newTarget.replace(/-/g, " ")} ${stateName.toLowerCase()}`,
+          `${stateName.toLowerCase()} ${newTarget.replace(/-/g, " ")}`,
+        ]);
+        setCanonicalUrl(`https://mycityqueen.com/escorts-service/${effectiveSlug}/${newTarget}`);
+        setRobots("index, follow");
+        setRedirectUrl("");
+        setRedirectType("none");
+        setCustomSchema("");
+        setPageContent("");
+        setFaqs([
+          {
+            question: `How to book verified ${newTarget.replace(/-/g, " ")} in ${stateName}?`,
+            answer: `You can browse 100% verified ${newTarget.replace(/-/g, " ")} companion profiles across ${stateName} on our directory and connect directly via WhatsApp or phone call.`,
+          },
+        ]);
+      }
+    }
+  };
+
+// Save Handler
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
-      const cleanFaqs = faqs.filter((f) => f.question.trim() || f.answer.trim());
+      let finalCategorySeo = [...categorySeoList];
+      if (selectedTarget !== "main") {
+        const catEntry: ICategorySeo = {
+          categorySlug: selectedTarget,
+          metaTitle: metaTitle.trim(),
+          metaDescription: metaDescription.trim(),
+          focusKeywords,
+          canonicalUrl: canonicalUrl.trim(),
+          robots: robots.trim(),
+          redirectUrl: redirectUrl.trim(),
+          redirectType,
+          customSchema: customSchema.trim(),
+          pageContent: pageContent.trim(),
+          faqs: faqs.filter((f) => f.question.trim() || f.answer.trim()),
+        };
+        const idx = finalCategorySeo.findIndex((c) => c.categorySlug === selectedTarget);
+        if (idx >= 0) finalCategorySeo[idx] = catEntry;
+        else finalCategorySeo.push(catEntry);
+      }
+
+      const mainData = selectedTarget === "main"
+        ? {
+            customSlug: customSlug.trim(),
+            metaTitle: metaTitle.trim(),
+            metaDescription: metaDescription.trim(),
+            focusKeywords,
+            ogImage: ogImage.trim(),
+            ogTitle: ogTitle.trim(),
+            ogDescription: ogDescription.trim(),
+            popularDistricts,
+            pageContent: pageContent.trim(),
+            canonicalUrl: canonicalUrl.trim(),
+            robots: robots.trim(),
+            redirectUrl: redirectUrl.trim(),
+            redirectType,
+            customSchema: customSchema.trim(),
+            faqs: faqs.filter((f) => f.question.trim() || f.answer.trim()),
+          }
+        : (mainStateData || {
+            customSlug: state.customSlug || "",
+            metaTitle: state.metaTitle || "",
+            metaDescription: state.metaDescription || "",
+            focusKeywords: state.focusKeywords || [],
+            ogImage: state.ogImage || "",
+            ogTitle: state.ogTitle || "",
+            ogDescription: state.ogDescription || "",
+            popularDistricts: state.popularDistricts || [],
+            pageContent: state.pageContent || "",
+            canonicalUrl: state.canonicalUrl || "",
+            robots: state.robots || "index, follow",
+            redirectUrl: state.redirectUrl || "",
+            redirectType: state.redirectType || "none",
+            customSchema: state.customSchema || "",
+            faqs: state.faqs || [],
+          });
 
       const payload = {
-        customSlug: customSlug.trim(),
-        metaTitle: metaTitle.trim(),
-        metaDescription: metaDescription.trim(),
-        focusKeywords,
-        ogImage: ogImage.trim(),
-        ogTitle: ogTitle.trim(),
-        ogDescription: ogDescription.trim(),
-        popularDistricts,
-        pageContent: pageContent.trim(),
-        canonicalUrl: canonicalUrl.trim(),
-        robots: robots.trim(),
-        redirectUrl: redirectUrl.trim(),
-        redirectType,
-        customSchema: customSchema.trim(),
-        faqs: cleanFaqs,
+        ...mainData,
+        categorySeo: finalCategorySeo,
       };
 
       const res = await fetch(`${BACKEND_URL}/locations/states/${state._id}`, {
@@ -430,8 +601,36 @@ export function AdminStateSeoModal({
           </button>
         </div>
 
+        {/* TARGET SELECTOR BAR (MAIN STATE VS CATEGORY / CALL GIRLS) */}
+        <div className="bg-slate-900/90 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5" /> Target Page:
+            </span>
+            <select
+              value={selectedTarget}
+              onChange={(e) => handleSwitchTarget(e.target.value)}
+              className="bg-slate-950 border border-rose-500/60 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-rose-400 shadow-sm cursor-pointer"
+            >
+              {TARGET_PAGE_OPTIONS.map((opt) => (
+                <option key={opt.slug} value={opt.slug} className="bg-[#0b1022] text-white py-1">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-slate-400">Target URL:</span>
+            <span className="bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg text-emerald-400 font-mono text-[11px] font-medium flex items-center gap-1">
+              {selectedTarget === "main"
+                ? `https://mycityqueen.com/escorts-service/${effectiveSlug}`
+                : `https://mycityqueen.com/escorts-service/${effectiveSlug}/${selectedTarget}`}
+            </span>
+          </div>
+        </div>
+
         {/* TAB NAVIGATION BAR */}
-        <div className="flex items-center gap-1.5 p-3 bg-slate-950/80 border-b border-slate-800 overflow-x-auto scrollbar-none">
+        <div className="flex flex-wrap items-center gap-2 p-3 bg-slate-950/80 border-b border-slate-800">
           <button
             type="button"
             onClick={() => setActiveTab("meta")}

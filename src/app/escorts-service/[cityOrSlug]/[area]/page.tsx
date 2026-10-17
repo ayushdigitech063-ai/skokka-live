@@ -5,6 +5,7 @@ import {
   buildCategorySEO,
   buildCallGirlsCitySEO,
   fetchCitySeoData,
+  fetchLocationSeoData,
   fetchAreaSeoData,
   getAreaPageMetadata,
   AreaJsonLd,
@@ -45,9 +46,9 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
 
   const normalizedKey = area.toLowerCase().trim();
 
-  // 1. Check if City has category-specific SEO overrides configured by developer
-  const cityData = await fetchCitySeoData(cityOrSlug);
-  const catOverride = cityData?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
+  // 1. Check if City or State has category-specific SEO overrides configured by developer
+  const loc = await fetchLocationSeoData(cityOrSlug);
+  const catOverride = loc?.data?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
 
   if (catOverride && (catOverride.metaTitle || catOverride.metaDescription || catOverride.canonicalUrl)) {
     const canonical = catOverride.canonicalUrl
@@ -113,8 +114,9 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
   }
 
   const normalizedKey = area.toLowerCase().trim();
-  const cityData = await fetchCitySeoData(cityOrSlug);
-  const catOverride = cityData?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
+  const loc = await fetchLocationSeoData(cityOrSlug);
+  const locData = loc?.data;
+  const catOverride = locData?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
 
   // Check category-specific 301 / 302 redirect
   if (catOverride?.redirectUrl) {
@@ -136,7 +138,7 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
   }
 
   const cityName =
-    cityData?.name ||
+    locData?.name ||
     (cityOrSlug
       ? cityOrSlug
           .split("-")
@@ -181,7 +183,8 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
       <EscortsClient
         defaultCity={cityName}
         defaultTag={areaName}
-        citySeo={cityData || undefined}
+        citySeo={loc?.type === "city" ? (locData as any) : undefined}
+        stateSeo={loc?.type === "state" ? (locData as any) : undefined}
         areaSeo={areaData || undefined}
         customPageContent={catOverride?.pageContent || areaData?.pageContent}
         customFaqs={catOverride?.faqs?.length ? catOverride.faqs : areaData?.faqs}

@@ -25,6 +25,7 @@ export interface IStateSEOData {
   redirectType?: 'none' | '301' | '302';
   customSchema?: string;
   faqs?: IStateFAQ[];
+  categorySeo?: ICategorySeo[];
 }
 
 export interface IState {
@@ -50,6 +51,7 @@ export interface IState {
   redirectType?: 'none' | '301' | '302';
   customSchema?: string;
   faqs?: IStateFAQ[];
+  categorySeo?: ICategorySeo[];
   cities?: ICity[];
   createdAt?: string;
   updatedAt?: string;

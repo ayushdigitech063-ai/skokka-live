@@ -344,7 +344,7 @@ export function AdminAreaSeoModal({
         </div>
 
         {/* TAB NAVIGATION BAR */}
-        <div className="flex items-center gap-1.5 p-3 bg-slate-950/80 border-b border-slate-800 overflow-x-auto scrollbar-none">
+        <div className="flex flex-wrap items-center gap-2 p-3 bg-slate-950/80 border-b border-slate-800">
           <button
             type="button"
             onClick={() => setActiveTab("meta")}
