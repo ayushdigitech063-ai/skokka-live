@@ -51,6 +51,11 @@ export function AdminStateSeoModal({
   const [activeTab, setActiveTab] = useState<"meta" | "indexing" | "schema" | "social" | "local" | "content" | "faqs" | "preview">("meta");
   const [saving, setSaving] = useState(false);
 
+  // Target Page Selector: "main" (State) or Category slug (e.g. "call-girls")
+  const [selectedTarget, setSelectedTarget] = useState<string>("main");
+  const [categorySeoList, setCategorySeoList] = useState<ICategorySeo[]>([]);
+  const [mainStateData, setMainStateData] = useState<any>(null);
+
   // Form State
   const [customSlug, setCustomSlug] = useState("");
   const [metaTitle, setMetaTitle] = useState("");
