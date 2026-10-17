@@ -773,14 +773,39 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-                  {customPageContent ||
+                {(() => {
+                  const rawContent =
+                    customPageContent ||
                     citySeo?.pageContent ||
                     stateSeo?.pageContent ||
                     citySeo?.metaDescription ||
                     stateSeo?.metaDescription ||
-                    `Welcome to the premier verified adult classifieds directory for ${selectedCity}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with providers for hotel incall meetings and private doorstep outcalls across top colonies.`}
-                </p>
+                    `Welcome to the premier verified adult classifieds directory for {city}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with verified companions for hotel incall meetings and private doorstep outcalls across top colonies in {city}.`;
+
+                  const currentCityLabel = selectedCity !== "All Cities" ? selectedCity : (citySeo?.name || stateSeo?.name || "India");
+                  const renderedText = rawContent
+                    .replace(/\{city\}/gi, currentCityLabel)
+                    .replace(/\{location\}/gi, currentCityLabel)
+                    .replace(/\[city\]/gi, currentCityLabel)
+                    .replace(/\[location\]/gi, currentCityLabel);
+
+                  const hasHtml = /<[a-z][\s\S]*>/i.test(renderedText);
+
+                  if (hasHtml) {
+                    return (
+                      <div
+                        className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_li]:text-slate-300"
+                        dangerouslySetInnerHTML={{ __html: renderedText }}
+                      />
+                    );
+                  }
+
+                  return (
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+                      {renderedText}
+                    </p>
+                  );
+                })()}
               </div>
 
               {/* TRUST & SAFETY HIGHLIGHTS GRID */}

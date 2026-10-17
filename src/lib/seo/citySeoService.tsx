@@ -96,8 +96,97 @@ export function generateCityJsonLd(
 ) {
   const domain = SITE_CONFIG.domain;
   const brandName = SITE_CONFIG.name;
+  const pageTitle = city?.ogTitle || city?.metaTitle || `Verified Escorts in ${cityName} | ${brandName}`;
+  const pageDesc = city?.metaDescription || `Browse verified escort profiles in ${cityName} with authentic photos and contact details. High class VIP companions available 24/7.`;
 
-  // LocalBusiness Schema
+  // 1. WebPage Schema
+  const webPageSchema = {
+    "@type": "WebPage",
+    "@id": `${canonicalUrl}#webpage`,
+    "url": canonicalUrl,
+    "name": pageTitle,
+    "description": pageDesc,
+    "isPartOf": {
+      "@type": "WebSite",
+      "@id": `https://${domain}/#website`,
+      "name": brandName,
+      "url": `https://${domain}`
+    },
+    "breadcrumb": {
+      "@id": `${canonicalUrl}#breadcrumb`
+    },
+    "inLanguage": "en-IN"
+  };
+
+  // 2. BreadcrumbList Schema
+  const breadcrumbListSchema = {
+    "@type": "BreadcrumbList",
+    "@id": `${canonicalUrl}#breadcrumb`,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `https://${domain}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Escorts Service",
+        "item": `https://${domain}/escorts-service`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": cityName,
+        "item": canonicalUrl
+      }
+    ]
+  };
+
+  // 3. ItemList Schema
+  const itemListSchema = {
+    "@type": "ItemList",
+    "@id": `${canonicalUrl}#itemlist`,
+    "name": `Verified Escort Companion Listings in ${cityName}`,
+    "description": `Directory listing of verified independent escort models and call girls in ${cityName}.`,
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 10
+  };
+
+  // 4. Service Schema
+  const serviceSchema = {
+    "@type": "Service",
+    "@id": `${canonicalUrl}#service`,
+    "name": `Escort & Companionship Services in ${cityName}`,
+    "serviceType": "Adult Companionship & Escort Services",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": `${brandName} ${cityName}`
+    },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": cityName
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Companionship Service Options",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "name": "Hotel Incall Meetings",
+          "description": "Private incall appointment at 5-star luxury hotels"
+        },
+        {
+          "@type": "Offer",
+          "name": "Doorstep Outcall Visits",
+          "description": "Verified companion visits to private residence or hotel"
+        }
+      ]
+    }
+  };
+
+  // 5. LocalBusiness Schema
   const areasList = Array.from(
     new Set([
       cityName,
@@ -107,36 +196,34 @@ export function generateCityJsonLd(
   );
 
   const localBusinessSchema: Record<string, any> = {
-    "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: city?.ogTitle || city?.metaTitle || `${cityName} Escorts & Companions Directory - ${brandName}`,
-    description:
-      city?.metaDescription ||
-      `Verified independent call girls, female escorts, and VIP models directory in ${cityName}. 100% selfie-verified profiles available 24/7.`,
-    url: canonicalUrl,
-    image: city?.ogImage || `https://${domain}/images/logo.png`,
-    telephone: "+91-9999999999",
-    priceRange: "₹₹₹",
-    currenciesAccepted: "INR",
-    paymentAccepted: "Cash, UPI, Card",
-    address: {
+    "@id": `${canonicalUrl}#localbusiness`,
+    "name": pageTitle,
+    "description": pageDesc,
+    "url": canonicalUrl,
+    "image": city?.ogImage || `https://${domain}/images/logo.png`,
+    "telephone": "+91-9999999999",
+    "priceRange": "₹₹₹",
+    "currenciesAccepted": "INR",
+    "paymentAccepted": "Cash, UPI, Card",
+    "address": {
       "@type": "PostalAddress",
-      addressLocality: cityName,
-      addressRegion: typeof city?.stateId === "object" ? city?.stateId?.name : "India",
-      addressCountry: "IN",
+      "addressLocality": cityName,
+      "addressRegion": typeof city?.stateId === "object" ? city?.stateId?.name : "India",
+      "addressCountry": "IN",
     },
-    geo: {
+    "geo": {
       "@type": "GeoCoordinates",
-      latitude: "26.9124",
-      longitude: "75.7873",
+      "latitude": "26.9124",
+      "longitude": "75.7873",
     },
-    areaServed: areasList.map((area) => ({
+    "areaServed": areasList.map((area) => ({
       "@type": "AdministrativeArea",
-      name: area,
+      "name": area,
     })),
   };
 
-  // FAQPage Schema - custom if set, or default fallback matching page content
+  // 6. FAQPage Schema
   const fallbackFaqs = [
     {
       question: `How to book verified escorts in ${cityName}?`,
@@ -162,23 +249,28 @@ export function generateCityJsonLd(
 
   const faqPageSchema: Record<string, any> = {
     "@type": "FAQPage",
-    name: `${cityName} Escorts FAQs`,
-    mainEntity: candidateFaqs.map((faq) => ({
+    "@id": `${canonicalUrl}#faqs`,
+    "name": `${cityName} Escorts FAQs`,
+    "mainEntity": candidateFaqs.map((faq) => ({
       "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
+      "name": faq.question,
+      "acceptedAnswer": {
         "@type": "Answer",
-        text: faq.answer,
+        "text": faq.answer,
       },
     })),
   };
 
-  return { localBusinessSchema, faqPageSchema };
+  return {
+    webPageSchema,
+    breadcrumbListSchema,
+    itemListSchema,
+    serviceSchema,
+    localBusinessSchema,
+    faqPageSchema,
+  };
 }
 
-/**
- * Server-rendered React component that injects JSON-LD scripts into the page
- */
 export function CityJsonLd({
   city,
   cityName,
@@ -188,7 +280,6 @@ export function CityJsonLd({
   cityName: string;
   canonicalUrl?: string;
 }) {
-  // Developer Manual Custom Schema Override
   if (city?.customSchema && city.customSchema.trim()) {
     let clean = city.customSchema.trim();
     if (clean.startsWith("<script") && clean.endsWith("</script>")) {
@@ -208,16 +299,23 @@ export function CityJsonLd({
       city?.customSlug || city?.slug || cityName.toLowerCase().replace(/\s+/g, "-")
     }`;
 
-  const { localBusinessSchema, faqPageSchema } = generateCityJsonLd(
-    city,
-    cityName,
-    targetCanonical
-  );
+  const {
+    webPageSchema,
+    breadcrumbListSchema,
+    itemListSchema,
+    serviceSchema,
+    localBusinessSchema,
+    faqPageSchema,
+  } = generateCityJsonLd(city, cityName, targetCanonical);
 
-  // Google recommended @graph format for combining multiple schemas
+  // Unified Google-compliant @graph with all 6 required schemas: WebPage, BreadcrumbList, ItemList, Service, LocalBusiness, FAQs
   const graphSchema = {
     "@context": "https://schema.org",
     "@graph": [
+      webPageSchema,
+      breadcrumbListSchema,
+      itemListSchema,
+      serviceSchema,
       localBusinessSchema,
       faqPageSchema,
     ],
@@ -320,6 +418,75 @@ export function generateStateJsonLd(
 ) {
   const domain = SITE_CONFIG.domain;
   const brandName = SITE_CONFIG.name;
+  const pageTitle = state?.ogTitle || state?.metaTitle || `Verified Escorts across ${stateName} | ${brandName}`;
+  const pageDesc = state?.metaDescription || `Browse verified escort profiles in ${stateName} with photos and contact details. High class VIP companions available 24/7.`;
+
+  const webPageSchema = {
+    "@type": "WebPage",
+    "@id": `${canonicalUrl}#webpage`,
+    "url": canonicalUrl,
+    "name": pageTitle,
+    "description": pageDesc,
+    "isPartOf": {
+      "@type": "WebSite",
+      "@id": `https://${domain}/#website`,
+      "name": brandName,
+      "url": `https://${domain}`
+    },
+    "breadcrumb": {
+      "@id": `${canonicalUrl}#breadcrumb`
+    },
+    "inLanguage": "en-IN"
+  };
+
+  const breadcrumbListSchema = {
+    "@type": "BreadcrumbList",
+    "@id": `${canonicalUrl}#breadcrumb`,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `https://${domain}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Escorts Service",
+        "item": `https://${domain}/escorts-service`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": stateName,
+        "item": canonicalUrl
+      }
+    ]
+  };
+
+  const itemListSchema = {
+    "@type": "ItemList",
+    "@id": `${canonicalUrl}#itemlist`,
+    "name": `Verified Escort Companions in ${stateName}`,
+    "description": `Directory listing of verified independent escort models across ${stateName}.`,
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 10
+  };
+
+  const serviceSchema = {
+    "@type": "Service",
+    "@id": `${canonicalUrl}#service`,
+    "name": `Escort & Companionship Services across ${stateName}`,
+    "serviceType": "Adult Companionship & Escort Services",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": `${brandName} ${stateName}`
+    },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": stateName
+    }
+  };
 
   const citiesList = Array.from(
     new Set([
@@ -330,49 +497,35 @@ export function generateStateJsonLd(
   );
 
   const localBusinessSchema: Record<string, any> = {
-    "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name:
-      state?.ogTitle ||
-      state?.metaTitle ||
-      `${stateName} Escorts & Companions Directory - ${brandName}`,
-    description:
-      state?.metaDescription ||
-      `Verified independent call girls, female escorts, and VIP models directory across ${stateName}. 100% selfie-verified profiles available 24/7.`,
-    url: canonicalUrl,
-    image: state?.ogImage || `https://${domain}/images/logo.png`,
-    telephone: "+91-9999999999",
-    priceRange: "₹₹₹",
-    currenciesAccepted: "INR",
-    paymentAccepted: "Cash, UPI, Card",
-    address: {
+    "@id": `${canonicalUrl}#localbusiness`,
+    "name": pageTitle,
+    "description": pageDesc,
+    "url": canonicalUrl,
+    "image": state?.ogImage || `https://${domain}/images/logo.png`,
+    "telephone": "+91-9999999999",
+    "priceRange": "₹₹₹",
+    "currenciesAccepted": "INR",
+    "paymentAccepted": "Cash, UPI, Card",
+    "address": {
       "@type": "PostalAddress",
-      addressRegion: stateName,
-      addressCountry: "IN",
+      "addressRegion": stateName,
+      "addressCountry": "IN",
     },
-    areaServed: citiesList.map((area) => ({
+    "areaServed": citiesList.map((area) => ({
       "@type": "AdministrativeArea",
-      name: area,
+      "name": area,
     })),
   };
 
-  // FAQPage Schema - custom if set, or default fallback matching page content
   const fallbackFaqs = [
     {
       question: `How to book verified escorts in ${stateName}?`,
-      answer: `You can browse 100% verified escort profiles on our directory across ${stateName} and connect directly via WhatsApp or phone call without any advance booking charges.`,
+      answer: `You can browse 100% verified escort profiles across ${stateName} and connect directly via WhatsApp or phone call without any advance booking charges.`,
     },
     {
       question: `Are incall and outcall services available in ${stateName}?`,
-      answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${stateName}.`,
-    },
-    {
-      question: `What are the payment options for escort service in ${stateName}?`,
-      answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
-    },
-    {
-      question: `Is customer privacy protected in ${stateName}?`,
-      answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
+      answer: `Yes, independent companions provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${stateName}.`,
     },
   ];
 
@@ -382,18 +535,26 @@ export function generateStateJsonLd(
 
   const faqPageSchema: Record<string, any> = {
     "@type": "FAQPage",
-    name: `${stateName} Escorts FAQs`,
-    mainEntity: candidateFaqs.map((faq) => ({
+    "@id": `${canonicalUrl}#faqs`,
+    "name": `${stateName} Escorts FAQs`,
+    "mainEntity": candidateFaqs.map((faq) => ({
       "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
+      "name": faq.question,
+      "acceptedAnswer": {
         "@type": "Answer",
-        text: faq.answer,
+        "text": faq.answer,
       },
     })),
   };
 
-  return { localBusinessSchema, faqPageSchema };
+  return {
+    webPageSchema,
+    breadcrumbListSchema,
+    itemListSchema,
+    serviceSchema,
+    localBusinessSchema,
+    faqPageSchema,
+  };
 }
 
 export function StateJsonLd({
@@ -405,7 +566,6 @@ export function StateJsonLd({
   stateName: string;
   canonicalUrl?: string;
 }) {
-  // Developer Manual Custom Schema Override
   if (state?.customSchema && state.customSchema.trim()) {
     let clean = state.customSchema.trim();
     if (clean.startsWith("<script") && clean.endsWith("</script>")) {
@@ -425,16 +585,22 @@ export function StateJsonLd({
       state?.customSlug || state?.slug || stateName.toLowerCase().replace(/\s+/g, "-")
     }`;
 
-  const { localBusinessSchema, faqPageSchema } = generateStateJsonLd(
-    state,
-    stateName,
-    targetCanonical
-  );
+  const {
+    webPageSchema,
+    breadcrumbListSchema,
+    itemListSchema,
+    serviceSchema,
+    localBusinessSchema,
+    faqPageSchema,
+  } = generateStateJsonLd(state, stateName, targetCanonical);
 
-  // Google recommended @graph format for combining multiple schemas
   const graphSchema = {
     "@context": "https://schema.org",
     "@graph": [
+      webPageSchema,
+      breadcrumbListSchema,
+      itemListSchema,
+      serviceSchema,
       localBusinessSchema,
       faqPageSchema,
     ],

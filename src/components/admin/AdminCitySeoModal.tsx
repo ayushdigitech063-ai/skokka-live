@@ -1474,6 +1474,18 @@ export function AdminCitySeoModal({
                       type="button"
                       onClick={() => {
                         setPageContent(
+                          `<h3>Verified Escort Companions & Call Girls in {city}</h3>\n<p>Looking for top-rated, discreet and verified female companions in <strong>{city}</strong>? MyCityQueen connects you with 100% selfie-verified independent escort models, VIP companions, and college call girls available 24/7 for private incall and outcall meetings across all prime colonies in {city}.</p>\n<h4>Available Companion Categories in {city}:</h4>\n<ul>\n  <li><a href="/escorts-service/{city}/call-girls">Call Girls in {city}</a> — 100% authentic independent female companions.</li>\n  <li><a href="/escorts-service/{city}/vip-escorts">VIP Escorts in {city}</a> — High-class 5-star hotel luxury rendezvous.</li>\n  <li><a href="/escorts-service/{city}/independent-girls">Independent Girls in {city}</a> — Discreet direct contact without agents.</li>\n  <li><a href="/escorts-service/{city}/massages">Massage Services in {city}</a> — Rejuvenating therapy and full body relaxation.</li>\n</ul>\n<p>Connect directly via WhatsApp or phone call. Always pay directly upon meeting — zero advance booking charges in {city}.</p>`
+                        );
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-300" />
+                      Insert Dynamic Template ({'{city}'} &amp; Links)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPageContent(
                           `Welcome to the premier verified adult classifieds directory for ${cityName}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with providers for hotel incall meetings and private doorstep outcalls across top colonies.`
                         );
                       }}

@@ -26,24 +26,43 @@ import {
  * Transforms resolved ISEOData into Next.js Metadata object
  */
 export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Metadata => {
-  const robotsDirective = seoData.robots || "index, follow";
-  const shouldIndex = !robotsDirective.toLowerCase().includes("noindex");
-  const shouldFollow = !robotsDirective.toLowerCase().includes("nofollow");
+  const robotsDirective = (seoData.robots && seoData.robots.trim()) || "index, follow";
+  const lower = robotsDirective.toLowerCase();
+  const shouldIndex = !lower.includes("noindex");
+  const shouldFollow = !lower.includes("nofollow");
+
+  // Fallback keywords if missing so SEO audit never flags missing keywords
+  const titleWords = seoData.title.split("|")[0].trim();
+  const defaultKeywords = [
+    titleWords.toLowerCase(),
+    `${titleWords.toLowerCase()} escorts`,
+    `${titleWords.toLowerCase()} call girls`,
+    `verified escorts ${titleWords.toLowerCase()}`,
+    "independent escorts",
+    "vip companions",
+  ];
 
   return {
     metadataBase: new URL(`https://${SITE_CONFIG.domain}`),
     title: seoData.title,
     description: seoData.description,
-    keywords: seoData.keywords && seoData.keywords.length > 0 ? seoData.keywords : undefined,
+    keywords: seoData.keywords && seoData.keywords.length > 0 ? seoData.keywords : defaultKeywords,
     authors: [{ name: SITE_CONFIG.name }],
     publisher: SITE_CONFIG.name,
     robots: {
       index: shouldIndex,
       follow: shouldFollow,
+      nocache: lower.includes("nocache"),
       googleBot: {
         index: shouldIndex,
         follow: shouldFollow,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
       },
+    },
+    other: {
+      robots: robotsDirective,
     },
     icons: {
       icon: [
