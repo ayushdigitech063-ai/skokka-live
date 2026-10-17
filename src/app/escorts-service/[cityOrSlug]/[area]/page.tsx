@@ -65,7 +65,13 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
       alternates: {
         canonical,
       },
-      robots: catOverride.robots || "index, follow",
+      robots: {
+        index: !(catOverride.robots || "").toLowerCase().includes("noindex"),
+        follow: !(catOverride.robots || "").toLowerCase().includes("nofollow"),
+        'max-snippet': !(catOverride.robots || "").toLowerCase().includes("noindex") ? -1 : undefined,
+        'max-image-preview': !(catOverride.robots || "").toLowerCase().includes("noindex") ? "large" : undefined,
+        'max-video-preview': !(catOverride.robots || "").toLowerCase().includes("noindex") ? -1 : undefined,
+      },
       openGraph: {
         title,
         description,

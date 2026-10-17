@@ -52,17 +52,10 @@ export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Meta
     robots: {
       index: shouldIndex,
       follow: shouldFollow,
-      nocache: lower.includes("nocache"),
-      googleBot: {
-        index: shouldIndex,
-        follow: shouldFollow,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
-    other: {
-      robots: robotsDirective,
+      nocache: lower.includes("nocache") || undefined,
+      'max-snippet': shouldIndex ? -1 : undefined,
+      'max-image-preview': shouldIndex ? "large" : undefined,
+      'max-video-preview': shouldIndex ? -1 : undefined,
     },
     icons: {
       icon: [
