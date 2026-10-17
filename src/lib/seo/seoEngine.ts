@@ -26,6 +26,10 @@ import {
  * Transforms resolved ISEOData into Next.js Metadata object
  */
 export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Metadata => {
+  const robotsDirective = seoData.robots || "index, follow";
+  const shouldIndex = !robotsDirective.toLowerCase().includes("noindex");
+  const shouldFollow = !robotsDirective.toLowerCase().includes("nofollow");
+
   return {
     metadataBase: new URL(`https://${SITE_CONFIG.domain}`),
     title: seoData.title,
@@ -34,11 +38,11 @@ export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Meta
     authors: [{ name: SITE_CONFIG.name }],
     publisher: SITE_CONFIG.name,
     robots: {
-      index: true,
-      follow: true,
+      index: shouldIndex,
+      follow: shouldFollow,
       googleBot: {
-        index: true,
-        follow: true,
+        index: shouldIndex,
+        follow: shouldFollow,
       },
     },
     icons: {

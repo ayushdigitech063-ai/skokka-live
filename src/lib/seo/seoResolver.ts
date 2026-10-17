@@ -49,6 +49,13 @@ export const resolveHomeSEO = (override?: IDBSEOOverride): ISEOData => {
     twitterTitle: title,
     twitterDescription: description,
     twitterImage: ogImage,
+    keywords: override?.focusKeywords && override.focusKeywords.length > 0 ? override.focusKeywords : undefined,
+    faqs: override?.faqs,
+    robots: override?.robots,
+    redirectUrl: override?.redirectUrl,
+    redirectType: override?.redirectType,
+    customSchema: override?.customSchema,
+    pageContent: override?.pageContent,
   };
 };
 
@@ -83,6 +90,11 @@ export const resolveStateSEO = (stateName: string, override?: IDBSEOOverride): I
     twitterImage: ogImage,
     faqs: override?.faqs,
     microServiceAreas: override?.microServiceAreas,
+    robots: override?.robots,
+    redirectUrl: override?.redirectUrl,
+    redirectType: override?.redirectType,
+    customSchema: override?.customSchema,
+    pageContent: override?.pageContent,
   };
 };
 
@@ -118,6 +130,11 @@ export const resolveCitySEO = (params: ICitySEOParams): ISEOData => {
     twitterImage: ogImage,
     faqs: dbOverride?.faqs,
     microServiceAreas: dbOverride?.microServiceAreas,
+    robots: dbOverride?.robots,
+    redirectUrl: dbOverride?.redirectUrl,
+    redirectType: dbOverride?.redirectType,
+    customSchema: dbOverride?.customSchema,
+    pageContent: dbOverride?.pageContent,
   };
 };
 
@@ -130,7 +147,8 @@ export const resolveAreaSEO = (params: IAreaSEOParams): ISEOData => {
   const title = appendSiteBranding(dbOverride?.metaTitle || fallback.title);
   const description = dbOverride?.metaDescription || fallback.description;
   const shortDescription = dbOverride?.shortDescription || fallback.shortDescription;
-  const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts/${slugifyPath(cityName)}/${slugifyPath(areaName)}`);
+  const slugPath = dbOverride?.customSlug || slugifyPath(areaName);
+  const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts-service/${slugifyPath(cityName)}/${slugPath}`);
   const ogImage = dbOverride?.ogImage || DEFAULT_OG_IMAGE;
 
   return {
@@ -147,6 +165,13 @@ export const resolveAreaSEO = (params: IAreaSEOParams): ISEOData => {
     twitterTitle: title,
     twitterDescription: description,
     twitterImage: ogImage,
+    keywords: dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0 ? dbOverride.focusKeywords : undefined,
+    faqs: dbOverride?.faqs,
+    robots: dbOverride?.robots,
+    redirectUrl: dbOverride?.redirectUrl,
+    redirectType: dbOverride?.redirectType,
+    customSchema: dbOverride?.customSchema,
+    pageContent: dbOverride?.pageContent,
   };
 };
 

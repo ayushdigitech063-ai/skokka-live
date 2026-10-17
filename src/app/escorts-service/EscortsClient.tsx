@@ -33,7 +33,7 @@ import { getHomePageCmsConfig, CMS_UPDATE_EVENT } from "@/utils/homepageCmsStore
 import { fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
 import { HomePageCmsConfig } from "@/types/homepageCms";
 import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
-import { ICity, IState } from "@/types/location";
+import { ICity, IState, IArea } from "@/types/location";
 
 interface EscortsPageProps {
   defaultCity?: string;
@@ -41,11 +41,12 @@ interface EscortsPageProps {
   baseRoute?: string;
   citySeo?: ICity;
   stateSeo?: IState;
+  areaSeo?: IArea;
 }
 
 const ITEMS_PER_PAGE = 8;
 
-export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo }: EscortsPageProps = {}) {
+export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo, areaSeo }: EscortsPageProps = {}) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
@@ -932,7 +933,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                       },
                     ];
 
-              const locationLabel = citySeo ? selectedCity : (stateSeo?.name || selectedCity);
+              const locationLabel = areaSeo ? `${areaSeo.name}, ${selectedCity}` : citySeo ? selectedCity : (stateSeo?.name || selectedCity);
               return (
                 <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">

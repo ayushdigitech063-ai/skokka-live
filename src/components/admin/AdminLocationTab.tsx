@@ -23,6 +23,7 @@ import { IState, ICity, IArea, ILocationTreeState } from "@/types/location";
 import { getAuthHeaders as getCentralAuthHeaders, getAuthToken } from "@/lib/auth";
 import { AdminCitySeoModal } from "./AdminCitySeoModal";
 import { AdminStateSeoModal } from "./AdminStateSeoModal";
+import { AdminAreaSeoModal } from "./AdminAreaSeoModal";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -64,6 +65,15 @@ export function AdminLocationTab() {
     setShowStateSeoModal(true);
   };
 
+  // Advanced Area SEO Modal State
+  const [showAreaSeoModal, setShowAreaSeoModal] = useState(false);
+  const [seoArea, setSeoArea] = useState<IArea | null>(null);
+
+  const handleOpenAreaSeo = (area: IArea) => {
+    setSeoArea(area);
+    setShowAreaSeoModal(true);
+  };
+
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [editingArea, setEditingArea] = useState<IArea | null>(null);
   const [areaForm, setAreaForm] = useState({ name: "", cityId: "", pincode: "", isPopular: false, sortOrder: 0 });
@@ -86,7 +96,8 @@ export function AdminLocationTab() {
     showAreaModal ||
     showUnifiedModal ||
     showCitySeoModal ||
-    showStateSeoModal;
+    showStateSeoModal ||
+    showAreaSeoModal;
 
   useEffect(() => {
     if (isAnyModalOpen) {
@@ -746,10 +757,18 @@ export function AdminLocationTab() {
                             (ct.areas || []).map((ar: any) => (
                               <span
                                 key={ar._id}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
                               >
                                 <MapPin className="h-2.5 w-2.5" />
-                                {ar.name}
+                                <span>{ar.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenAreaSeo(ar)}
+                                  title={`Configure SEO for ${ar.name}`}
+                                  className="ml-0.5 text-purple-400 hover:text-white transition cursor-pointer"
+                                >
+                                  <Globe className="h-2.5 w-2.5" />
+                                </button>
                               </span>
                             ))
                           )}
@@ -1039,6 +1058,17 @@ export function AdminLocationTab() {
                         </button>
                       </td>
                       <td className="p-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenAreaSeo(ar)}
+                          title="Configure Sub-Page / Area SEO (Canonical, Robots, Schema, Redirect)"
+                          className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600/20 to-indigo-600/20 text-purple-300 border border-purple-500/30 hover:from-purple-600 hover:to-indigo-600 hover:text-white transition inline-flex items-center gap-1.5 font-bold text-[11px] cursor-pointer"
+                        >
+                          <Globe className="h-3.5 w-3.5 text-purple-400" />
+                          <span>Configure SEO</span>
+                          {(ar.metaTitle || ar.customSlug || ar.canonicalUrl || (ar.faqs && ar.faqs.length > 0)) && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          )}
+                        </button>
                         <button
                           onClick={() => {
                             setEditingArea(ar);
@@ -1393,6 +1423,14 @@ export function AdminLocationTab() {
         isOpen={showStateSeoModal}
         onClose={() => setShowStateSeoModal(false)}
         state={seoState}
+        onSaved={fetchLocations}
+      />
+
+      {/* ADVANCED AREA SEO MODAL */}
+      <AdminAreaSeoModal
+        isOpen={showAreaSeoModal}
+        onClose={() => setShowAreaSeoModal(false)}
+        area={seoArea}
         onSaved={fetchLocations}
       />
     </div>

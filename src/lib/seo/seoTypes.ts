@@ -7,6 +7,11 @@ export interface IDBSEOOverride {
   metaDescription?: string;
   shortDescription?: string;
   canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
+  pageContent?: string;
   customSlug?: string;
   ogImage?: string;
   ogTitle?: string;
@@ -21,6 +26,11 @@ export interface ISEOData {
   description: string;
   shortDescription: string;
   canonical: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
+  pageContent?: string;
   keywords?: string[];
   ogTitle: string;
   ogDescription: string;

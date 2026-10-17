@@ -1,7 +1,8 @@
 import React from "react";
 import type { Metadata } from "next";
 import { SITE_CONFIG } from "@/config/site";
-import { ICity, IState } from "@/types/location";
+import { ICity, IState, IArea } from "@/types/location";
+import { buildAreaSEO } from "./seoEngine";
 import { buildCitySEO, buildStateSEO } from "./seoEngine";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
@@ -72,6 +73,12 @@ export async function getCityPageMetadata(
           focusKeywords: city.focusKeywords && city.focusKeywords.length > 0 ? city.focusKeywords : undefined,
           microServiceAreas: city.microServiceAreas && city.microServiceAreas.length > 0 ? city.microServiceAreas : undefined,
           faqs: city.faqs && city.faqs.length > 0 ? city.faqs : undefined,
+          canonicalUrl: city.canonicalUrl || undefined,
+          robots: city.robots || undefined,
+          redirectUrl: city.redirectUrl || undefined,
+          redirectType: city.redirectType || undefined,
+          customSchema: city.customSchema || undefined,
+          pageContent: city.pageContent || undefined,
         }
       : undefined,
   });
@@ -181,6 +188,19 @@ export function CityJsonLd({
   cityName: string;
   canonicalUrl?: string;
 }) {
+  // Developer Manual Custom Schema Override
+  if (city?.customSchema && city.customSchema.trim()) {
+    let clean = city.customSchema.trim();
+    if (clean.startsWith("<script") && clean.endsWith("</script>")) {
+      clean = clean.replace(/<script[^>]*>/, "").replace(/<\/script>/, "").trim();
+    }
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: clean }}
+      />
+    );
+  }
   const domain = SITE_CONFIG.domain;
   const targetCanonical =
     canonicalUrl ||
@@ -279,6 +299,12 @@ export async function getStatePageMetadata(
               ? state.popularDistricts
               : undefined,
           faqs: state.faqs && state.faqs.length > 0 ? state.faqs : undefined,
+          canonicalUrl: state.canonicalUrl || undefined,
+          robots: state.robots || undefined,
+          redirectUrl: state.redirectUrl || undefined,
+          redirectType: state.redirectType || undefined,
+          customSchema: state.customSchema || undefined,
+          pageContent: state.pageContent || undefined,
         }
       : undefined
   );
@@ -379,6 +405,19 @@ export function StateJsonLd({
   stateName: string;
   canonicalUrl?: string;
 }) {
+  // Developer Manual Custom Schema Override
+  if (state?.customSchema && state.customSchema.trim()) {
+    let clean = state.customSchema.trim();
+    if (clean.startsWith("<script") && clean.endsWith("</script>")) {
+      clean = clean.replace(/<script[^>]*>/, "").replace(/<\/script>/, "").trim();
+    }
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: clean }}
+      />
+    );
+  }
   const domain = SITE_CONFIG.domain;
   const targetCanonical =
     canonicalUrl ||
@@ -420,4 +459,170 @@ export async function fetchLocationSeoData(
   const state = await fetchStateSeoData(slug);
   if (state) return { type: "state", data: state };
   return null;
+}
+
+/**
+ * Fetch Area / Sub-page SEO data dynamically from backend API by ID, slug, customSlug, or name
+ */
+export async function fetchAreaSeoData(areaOrSlug: string): Promise<IArea | null> {
+  if (!areaOrSlug) return null;
+
+  const candidateUrls = [
+    `${BACKEND_URL}/locations/areas/${encodeURIComponent(areaOrSlug)}`,
+    `http://localhost:4000/api/locations/areas/${encodeURIComponent(areaOrSlug)}`,
+  ];
+
+  for (const url of candidateUrls) {
+    try {
+      const res = await fetch(url, {
+        next: { revalidate: 60 },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success && data.area) {
+          return data.area as IArea;
+        }
+      }
+    } catch {
+      // Continue
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Build dynamic Next.js Metadata for Area / Sub-page URLs
+ */
+export async function getAreaPageMetadata(
+  cityName: string,
+  areaOrSlug: string,
+  fallbackAreaName?: string
+): Promise<Metadata> {
+  const area = await fetchAreaSeoData(areaOrSlug);
+
+  const areaName =
+    area?.name ||
+    fallbackAreaName ||
+    (areaOrSlug
+      ? areaOrSlug
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+      : "All Areas");
+
+  return buildAreaSEO({
+    areaName,
+    cityName,
+    dbOverride: area
+      ? {
+          metaTitle: area.metaTitle || undefined,
+          metaDescription: area.metaDescription || undefined,
+          customSlug: area.customSlug || area.slug || undefined,
+          ogImage: area.ogImage || undefined,
+          ogTitle: area.ogTitle || undefined,
+          ogDescription: area.ogDescription || undefined,
+          focusKeywords: area.focusKeywords && area.focusKeywords.length > 0 ? area.focusKeywords : undefined,
+          faqs: area.faqs && area.faqs.length > 0 ? area.faqs : undefined,
+          canonicalUrl: area.canonicalUrl || undefined,
+          robots: area.robots || undefined,
+          redirectUrl: area.redirectUrl || undefined,
+          redirectType: area.redirectType || undefined,
+          customSchema: area.customSchema || undefined,
+          pageContent: area.pageContent || undefined,
+        }
+      : undefined,
+  });
+}
+
+/**
+ * Server-rendered React component that injects JSON-LD script for Area
+ */
+export function AreaJsonLd({
+  area,
+  cityName,
+  areaName,
+  canonicalUrl,
+}: {
+  area: IArea | null;
+  cityName: string;
+  areaName: string;
+  canonicalUrl?: string;
+}) {
+  // Developer Manual Custom Schema Override
+  if (area?.customSchema && area.customSchema.trim()) {
+    let clean = area.customSchema.trim();
+    if (clean.startsWith("<script") && clean.endsWith("</script>")) {
+      clean = clean.replace(/<script[^>]*>/, "").replace(/<\/script>/, "").trim();
+    }
+    return (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: clean }}
+      />
+    );
+  }
+
+  const domain = SITE_CONFIG.domain;
+  const targetCanonical =
+    canonicalUrl ||
+    `https://${domain}/escorts-service/${cityName.toLowerCase().replace(/\s+/g, "-")}/${
+      area?.customSlug || area?.slug || areaName.toLowerCase().replace(/\s+/g, "-")
+    }`;
+
+  const fallbackFaqs = [
+    {
+      question: `How to book verified escorts in ${areaName}, ${cityName}?`,
+      answer: `Browse verified profiles on MyCityQueen in ${areaName} and contact directly via WhatsApp or phone call without advance fee.`,
+    },
+    {
+      question: `Are incall and outcall services available in ${areaName}?`,
+      answer: `Yes, verified companions provide incall at premium hotels/residences and outcall doorstep service across ${areaName}.`,
+    },
+  ];
+
+  const candidateFaqs =
+    area?.faqs && area.faqs.length > 0
+      ? area.faqs.filter((f) => f.question && f.answer)
+      : fallbackFaqs;
+
+  const graphSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: area?.ogTitle || area?.metaTitle || `${areaName} Escorts & Call Girls in ${cityName}`,
+        description: area?.metaDescription || `Verified escorts & independent companions in ${areaName}, ${cityName}.`,
+        url: targetCanonical,
+        areaServed: {
+          "@type": "AdministrativeArea",
+          name: areaName,
+        },
+        provider: {
+          "@type": "Organization",
+          name: SITE_CONFIG.name,
+          url: `https://${domain}`,
+        },
+      },
+      {
+        "@type": "FAQPage",
+        name: `${areaName} Escorts FAQs`,
+        mainEntity: candidateFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphSchema) }}
+    />
+  );
 }

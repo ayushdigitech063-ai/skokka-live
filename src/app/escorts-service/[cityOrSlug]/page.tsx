@@ -1,5 +1,6 @@
 import { use } from "react";
 import type { Metadata } from "next";
+import { redirect, permanentRedirect } from "next/navigation";
 import {
   buildProfileSEO,
   getCityPageMetadata,
@@ -54,6 +55,13 @@ export default async function CityOrProfilePage({ params }: Params) {
 
   if (loc && loc.type === "state") {
     const stateData = loc.data as IState;
+    if (stateData.redirectUrl) {
+      if (stateData.redirectType === "301") {
+        permanentRedirect(stateData.redirectUrl);
+      } else if (stateData.redirectType === "302") {
+        redirect(stateData.redirectUrl);
+      }
+    }
     const stateName = stateData.name;
     return (
       <>
@@ -64,6 +72,14 @@ export default async function CityOrProfilePage({ params }: Params) {
   }
 
   const cityData = (loc?.type === "city" ? loc.data : await fetchCitySeoData(cityOrSlug)) as ICity | null;
+  if (cityData?.redirectUrl) {
+    if (cityData.redirectType === "301") {
+      permanentRedirect(cityData.redirectUrl);
+    } else if (cityData.redirectType === "302") {
+      redirect(cityData.redirectUrl);
+    }
+  }
+
   const cityName =
     cityData?.name ||
     (cityOrSlug

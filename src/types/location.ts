@@ -19,6 +19,11 @@ export interface IStateSEOData {
   ogDescription?: string;
   popularDistricts?: string[];
   pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: IStateFAQ[];
 }
 
@@ -39,6 +44,11 @@ export interface IState {
   ogDescription?: string;
   popularDistricts?: string[];
   pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: IStateFAQ[];
   cities?: ICity[];
   createdAt?: string;
@@ -61,6 +71,11 @@ export interface ICitySEOData {
   ogDescription?: string;
   microServiceAreas?: string[];
   pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: ICityFAQ[];
 }
 
@@ -83,10 +98,38 @@ export interface ICity {
   ogDescription?: string;
   microServiceAreas?: string[];
   pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: ICityFAQ[];
   areas?: IArea[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface IAreaFAQ {
+  _id?: string;
+  question: string;
+  answer: string;
+}
+
+export interface IAreaSEOData {
+  customSlug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  pageContent?: string;
+  customSchema?: string;
+  faqs?: IAreaFAQ[];
 }
 
 export interface IArea {
@@ -96,10 +139,24 @@ export interface IArea {
   stateId: string | IState;
   pincode?: string;
   slug: string;
+  customSlug?: string;
   isPopular: boolean;
   isActive: boolean;
   isDeleted: boolean;
   sortOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  pageContent?: string;
+  customSchema?: string;
+  faqs?: IAreaFAQ[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -122,6 +179,12 @@ export interface CreateStateInput {
   ogTitle?: string;
   ogDescription?: string;
   popularDistricts?: string[];
+  pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: IStateFAQ[];
   isActive?: boolean;
 }
@@ -142,6 +205,12 @@ export interface CreateCityInput {
   ogTitle?: string;
   ogDescription?: string;
   microServiceAreas?: string[];
+  pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
   faqs?: ICityFAQ[];
   isActive?: boolean;
 }
@@ -154,6 +223,20 @@ export interface CreateAreaInput {
   pincode?: string;
   isPopular?: boolean;
   sortOrder?: number;
+  customSlug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  pageContent?: string;
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  customSchema?: string;
+  faqs?: IAreaFAQ[];
   isActive?: boolean;
 }
 

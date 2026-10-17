@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { redirect, permanentRedirect } from "next/navigation";
 import {
   buildAreaSEO,
   buildProfileSEO,
+  buildCategorySEO,
+  buildCallGirlsCitySEO,
   fetchCitySeoData,
+  fetchAreaSeoData,
+  getAreaPageMetadata,
   CityJsonLd,
+  AreaJsonLd,
 } from "@/lib/seo/seoEngine";
 import EscortsClient from "../../EscortsClient";
 import ProfileClientPage from "@/app/profile/[id]/ProfileClientPage";
@@ -13,6 +19,16 @@ interface AreaPageProps {
 }
 
 const isProfileSlug = (slug: string) => /-(sk-\d+)$/i.test(slug) || /-([a-f0-9]{24})$/i.test(slug);
+
+const KNOWN_CATEGORIES: Record<string, string> = {
+  "call-girls": "Call Girls",
+  "vip-escorts": "VIP Escorts",
+  "independent-girls": "Independent Girls",
+  "college-escorts": "College Escorts",
+  "russian-escorts": "Russian Escorts",
+  "massages": "Massages",
+  "adult-meetings": "Adult Meetings",
+};
 
 export async function generateMetadata({ params }: AreaPageProps): Promise<Metadata> {
   const { cityOrSlug, area } = await params;
@@ -29,12 +45,30 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
     });
   }
 
-  const areaName = area
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  // Check if this area/sub-slug exists in DB with custom developer SEO overrides
+  const areaData = await fetchAreaSeoData(area);
+  if (areaData) {
+    return getAreaPageMetadata(cityName, area);
+  }
 
-  return buildAreaSEO({ areaName, cityName });
+  const normalizedKey = area.toLowerCase().trim();
+  if (normalizedKey === "call-girls") {
+    return buildCallGirlsCitySEO(cityName, {
+      canonicalUrl: `/escorts-service/${cityOrSlug}/${area}`,
+    });
+  }
+
+  if (KNOWN_CATEGORIES[normalizedKey]) {
+    return buildCategorySEO({
+      categoryName: KNOWN_CATEGORIES[normalizedKey],
+      cityName,
+      dbOverride: {
+        canonicalUrl: `/escorts-service/${cityOrSlug}/${area}`,
+      },
+    });
+  }
+
+  return getAreaPageMetadata(cityName, area);
 }
 
 export default async function AreaEscortsPage({ params }: AreaPageProps) {
@@ -42,6 +76,16 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
 
   if (isProfileSlug(area)) {
     return <ProfileClientPage params={Promise.resolve({ id: area })} />;
+  }
+
+  // Check if developer configured 301 / 302 redirect for this area
+  const areaData = await fetchAreaSeoData(area);
+  if (areaData?.redirectUrl) {
+    if (areaData.redirectType === "301") {
+      permanentRedirect(areaData.redirectUrl);
+    } else if (areaData.redirectType === "302") {
+      redirect(areaData.redirectUrl);
+    }
   }
 
   const cityData = await fetchCitySeoData(cityOrSlug);
@@ -53,21 +97,29 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ")
       : "All Cities");
-  const areaName = area
-    ? area
-        .split("-")
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(" ")
-    : "All Escorts";
+  const areaName =
+    areaData?.name ||
+    (area
+      ? area
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
+      : "All Escorts");
 
   return (
     <>
-      <CityJsonLd
-        city={cityData}
+      <AreaJsonLd
+        area={areaData}
         cityName={cityName}
-        canonicalUrl={`https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`}
+        areaName={areaName}
+        canonicalUrl={areaData?.canonicalUrl || `https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`}
       />
-      <EscortsClient defaultCity={cityName} defaultTag={areaName} citySeo={cityData || undefined} />
+      <EscortsClient
+        defaultCity={cityName}
+        defaultTag={areaName}
+        citySeo={cityData || undefined}
+        areaSeo={areaData || undefined}
+      />
     </>
   );
 }

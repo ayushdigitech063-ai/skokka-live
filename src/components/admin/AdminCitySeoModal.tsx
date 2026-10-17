@@ -21,6 +21,8 @@ import {
   ChevronDown,
   ChevronUp,
   Upload,
+  ArrowRightLeft,
+  Code2,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { ICity, ICityFAQ } from "@/types/location";
@@ -41,7 +43,7 @@ export function AdminCitySeoModal({
   city,
   onSaved,
 }: AdminCitySeoModalProps) {
-  const [activeTab, setActiveTab] = useState<"meta" | "social" | "local" | "content" | "faqs" | "preview">("meta");
+  const [activeTab, setActiveTab] = useState<"meta" | "indexing" | "schema" | "social" | "local" | "content" | "faqs" | "preview">("meta");
   const [saving, setSaving] = useState(false);
 
   // Form State
@@ -59,6 +61,16 @@ export function AdminCitySeoModal({
   const [microServiceAreas, setMicroServiceAreas] = useState<string[]>([]);
   const [areaInput, setAreaInput] = useState("");
 
+  // Technical SEO Controls (Developer Manual Override)
+  const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [robots, setRobots] = useState("index, follow");
+  const [redirectUrl, setRedirectUrl] = useState("");
+  const [redirectType, setRedirectType] = useState<"none" | "301" | "302">("none");
+
+  // Custom Raw Schema (JSON-LD)
+  const [customSchema, setCustomSchema] = useState("");
+  const [schemaValid, setSchemaValid] = useState<boolean | null>(null);
+
   const [pageContent, setPageContent] = useState("");
   const [faqs, setFaqs] = useState<ICityFAQ[]>([]);
 
@@ -75,6 +87,24 @@ export function AdminCitySeoModal({
       };
     }
   }, [isOpen]);
+
+  // Validate custom schema whenever it changes
+  useEffect(() => {
+    if (!customSchema.trim()) {
+      setSchemaValid(null);
+      return;
+    }
+    try {
+      let clean = customSchema.trim();
+      if (clean.startsWith("<script") && clean.endsWith("</script>")) {
+        clean = clean.replace(/<script[^>]*>/, "").replace(/<\/script>/, "").trim();
+      }
+      JSON.parse(clean);
+      setSchemaValid(true);
+    } catch {
+      setSchemaValid(false);
+    }
+  }, [customSchema]);
 
   // Initialize form when city changes
   useEffect(() => {
@@ -151,6 +181,13 @@ export function AdminCitySeoModal({
 
       // Page Content / Editorial
       setPageContent(city.pageContent || "");
+
+      // Technical SEO
+      setCanonicalUrl(city.canonicalUrl || "");
+      setRobots(city.robots || "index, follow");
+      setRedirectUrl(city.redirectUrl || "");
+      setRedirectType(city.redirectType || "none");
+      setCustomSchema(city.customSchema || "");
 
       setActiveTab("meta");
     }
@@ -343,6 +380,11 @@ export function AdminCitySeoModal({
         ogDescription: ogDescription.trim(),
         microServiceAreas,
         pageContent: pageContent.trim(),
+        canonicalUrl: canonicalUrl.trim(),
+        robots: robots.trim(),
+        redirectUrl: redirectUrl.trim(),
+        redirectType,
+        customSchema: customSchema.trim(),
         faqs: cleanFaqs,
       };
 
@@ -420,6 +462,38 @@ export function AdminCitySeoModal({
           >
             <Globe className="h-4 w-4" />
             <span>Search Engine Meta</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("indexing")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === "indexing"
+                ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-600/30"
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+            }`}
+          >
+            <ArrowRightLeft className="h-4 w-4" />
+            <span>Canonical &amp; Redirects</span>
+            {(canonicalUrl || redirectType !== "none" || robots !== "index, follow") && (
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("schema")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              activeTab === "schema"
+                ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-600/30"
+                : "text-slate-400 hover:text-white hover:bg-slate-900"
+            }`}
+          >
+            <Code2 className="h-4 w-4" />
+            <span>Custom Schema (JSON-LD)</span>
+            {customSchema && (
+              <span className={`h-1.5 w-1.5 rounded-full ${schemaValid ? "bg-emerald-400" : "bg-rose-400"}`} />
+            )}
           </button>
 
           <button
@@ -1145,6 +1219,35 @@ export function AdminCitySeoModal({
                       ))}
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Technical Directives Status Card */}
+              <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 space-y-3">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 block">
+                  Active Directives Summary:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-500">Canonical Tag</span>
+                    <p className="font-mono text-cyan-300 truncate">{canonicalUrl || fullPreviewUrl}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-500">Robots Directive</span>
+                    <p className="font-mono text-emerald-400">{robots}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-500">Redirect Status</span>
+                    <p className="font-mono text-amber-300">
+                      {redirectType === "none" ? "None (Serving Page Normally)" : `${redirectType} -> ${redirectUrl}`}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-500">Custom Schema</span>
+                    <p className="font-mono text-purple-300">
+                      {customSchema.trim() ? (schemaValid ? "Valid JSON-LD Schema Set ✓" : "Invalid JSON Syntax ✕") : "Default Auto Schema"}
+                    </p>
+                  </div>
                 </div>
               </div>
 
