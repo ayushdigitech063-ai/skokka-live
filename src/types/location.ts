@@ -55,6 +55,20 @@ export interface IState {
   updatedAt?: string;
 }
 
+export interface ICategorySeo {
+  categorySlug: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  focusKeywords?: string[];
+  canonicalUrl?: string;
+  robots?: string;
+  redirectUrl?: string;
+  redirectType?: 'none' | '301' | '302';
+  pageContent?: string;
+  customSchema?: string;
+  faqs?: Array<{ question: string; answer: string; _id?: string }>;
+}
+
 export interface ICityFAQ {
   _id?: string;
   question: string;
@@ -77,6 +91,7 @@ export interface ICitySEOData {
   redirectType?: 'none' | '301' | '302';
   customSchema?: string;
   faqs?: ICityFAQ[];
+  categorySeo?: ICategorySeo[];
 }
 
 export interface ICity {
@@ -104,6 +119,7 @@ export interface ICity {
   redirectType?: 'none' | '301' | '302';
   customSchema?: string;
   faqs?: ICityFAQ[];
+  categorySeo?: ICategorySeo[];
   areas?: IArea[];
   createdAt?: string;
   updatedAt?: string;

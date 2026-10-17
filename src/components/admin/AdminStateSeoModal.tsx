@@ -706,6 +706,185 @@ export function AdminStateSeoModal({
             </div>
           )}
 
+          {/* TAB: INDEXING & REDIRECTS (DEVELOPER MANUAL CONTROLS) */}
+          {activeTab === "indexing" && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-3">
+                <Info className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-slate-300 leading-relaxed">
+                  <span className="font-bold text-rose-300">Manual Developer Controls: </span>
+                  Nothing here is forced or automatic. You have full manual override over Canonical URLs, Meta Robots indexing directives, and 301/302 HTTP redirects.
+                </div>
+              </div>
+
+              {/* Canonical URL */}
+              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                  Custom Canonical URL (Rel="canonical")
+                </label>
+                <input
+                  type="url"
+                  value={canonicalUrl}
+                  onChange={(e) => setCanonicalUrl(e.target.value)}
+                  placeholder={`https://mycityqueen.com/escorts-service/${effectiveSlug}`}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Leave blank to default to page URL, or specify a custom URL if consolidating signals elsewhere.
+                </p>
+              </div>
+
+              {/* Meta Robots */}
+              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                  Meta Robots Tag Directive
+                </label>
+                <select
+                  value={robots}
+                  onChange={(e) => setRobots(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
+                >
+                  <option value="index, follow">index, follow (Default - Allow indexing &amp; follow links)</option>
+                  <option value="noindex, follow">noindex, follow (Do not index in Google, follow links)</option>
+                  <option value="noindex, nofollow">noindex, nofollow (Complete block from search engine)</option>
+                  <option value="index, nofollow">index, nofollow (Index in Google, do not follow links)</option>
+                </select>
+              </div>
+
+              {/* 301 / 302 Redirect */}
+              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                    URL Redirect (301 Permanent / 302 Temporary)
+                  </label>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${redirectType !== "none" ? "bg-amber-500/20 text-amber-300 border border-amber-500/40" : "bg-slate-800 text-slate-400"}`}>
+                    {redirectType === "none" ? "No Redirect" : `${redirectType} Active`}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Redirect Type</label>
+                    <select
+                      value={redirectType}
+                      onChange={(e) => setRedirectType(e.target.value as any)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-bold"
+                    >
+                      <option value="none">None (Standard Page)</option>
+                      <option value="301">301 - Moved Permanently</option>
+                      <option value="302">302 - Found / Temporary</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[11px] text-slate-400 block mb-1">Target Redirect URL</label>
+                    <input
+                      type="text"
+                      value={redirectUrl}
+                      onChange={(e) => setRedirectUrl(e.target.value)}
+                      placeholder="e.g. /escorts-service/karnataka or https://mycityqueen.com/..."
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
+                    />
+                  </div>
+                </div>
+                {redirectType !== "none" && (
+                  <p className="text-[11px] text-amber-400/90 font-medium">
+                    ⚠️ When enabled, users and search engine bots visiting this state page will be redirected immediately to <span className="font-mono text-white">{redirectUrl || "(enter target URL)"}</span> with HTTP status {redirectType}.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: CUSTOM SCHEMA (JSON-LD) */}
+          {activeTab === "schema" && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <Code2 className="h-5 w-5 text-purple-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    <span className="font-bold text-purple-300">Raw JSON-LD Schema: </span>
+                    Paste your own custom schema directly. When provided, the system injects this exact script tag into the page header, overriding any auto-generated schema.
+                  </div>
+                </div>
+
+                {customSchema.trim() && (
+                  <span
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shrink-0 border ${
+                      schemaValid
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                        : "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                    }`}
+                  >
+                    {schemaValid ? "Valid JSON ✓" : "Invalid JSON ✕"}
+                  </span>
+                )}
+              </div>
+
+              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                    Paste JSON-LD Schema Script or Object
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const template = {
+                          "@context": "https://schema.org",
+                          "@type": "Service",
+                          name: `${stateName} Escorts Service`,
+                          areaServed: {
+                            "@type": "State",
+                            name: stateName,
+                          },
+                          provider: {
+                            "@type": "Organization",
+                            name: "MyCityQueen",
+                            url: "https://mycityqueen.com",
+                          },
+                          description: metaDescription,
+                        };
+                        setCustomSchema(JSON.stringify(template, null, 2));
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 text-rose-300 hover:text-white text-[11px] font-bold transition cursor-pointer"
+                    >
+                      Insert State Service Schema
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const faqTemplate = {
+                          "@context": "https://schema.org",
+                          "@type": "FAQPage",
+                          mainEntity: faqs.map((f) => ({
+                            "@type": "Question",
+                            name: f.question,
+                            acceptedAnswer: {
+                              "@type": "Answer",
+                              text: f.answer,
+                            },
+                          })),
+                        };
+                        setCustomSchema(JSON.stringify(faqTemplate, null, 2));
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-300 hover:text-white text-[11px] font-bold transition cursor-pointer"
+                    >
+                      Sync Current FAQs Schema
+                    </button>
+                  </div>
+                </div>
+
+                <textarea
+                  rows={12}
+                  value={customSchema}
+                  onChange={(e) => setCustomSchema(e.target.value)}
+                  placeholder={`{\n  "@context": "https://schema.org",\n  "@type": "FAQPage",\n  "mainEntity": [...]\n}`}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-purple-200 focus:outline-none focus:border-rose-500 font-mono leading-relaxed"
+                />
+              </div>
+            </div>
+          )}
+
           {/* TAB 2: SOCIAL SHARING */}
           {activeTab === "social" && (
             <div className="space-y-5 animate-in fade-in duration-200">

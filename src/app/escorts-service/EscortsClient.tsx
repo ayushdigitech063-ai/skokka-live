@@ -42,11 +42,13 @@ interface EscortsPageProps {
   citySeo?: ICity;
   stateSeo?: IState;
   areaSeo?: IArea;
+  customPageContent?: string;
+  customFaqs?: Array<{ question: string; answer: string }>;
 }
 
 const ITEMS_PER_PAGE = 8;
 
-export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo, areaSeo }: EscortsPageProps = {}) {
+export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo, areaSeo, customPageContent, customFaqs }: EscortsPageProps = {}) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [searchLocation, setSearchLocation] = useState("");
@@ -772,7 +774,8 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-                  {citySeo?.pageContent ||
+                  {customPageContent ||
+                    citySeo?.pageContent ||
                     stateSeo?.pageContent ||
                     citySeo?.metaDescription ||
                     stateSeo?.metaDescription ||
@@ -910,7 +913,9 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
             {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) FOR CITY OR STATE */}
             {(() => {
               const activeFaqs =
-                citySeo?.faqs && citySeo.faqs.length > 0
+                customFaqs && customFaqs.length > 0
+                  ? customFaqs
+                  : citySeo?.faqs && citySeo.faqs.length > 0
                   ? citySeo.faqs
                   : stateSeo?.faqs && stateSeo.faqs.length > 0
                   ? stateSeo.faqs

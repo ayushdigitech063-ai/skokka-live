@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { redirect, permanentRedirect } from "next/navigation";
 import {
-  buildAreaSEO,
   buildProfileSEO,
   buildCategorySEO,
   buildCallGirlsCitySEO,
   fetchCitySeoData,
   fetchAreaSeoData,
   getAreaPageMetadata,
-  CityJsonLd,
   AreaJsonLd,
 } from "@/lib/seo/seoEngine";
 import EscortsClient from "../../EscortsClient";
@@ -45,13 +43,49 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
     });
   }
 
-  // Check if this area/sub-slug exists in DB with custom developer SEO overrides
+  const normalizedKey = area.toLowerCase().trim();
+
+  // 1. Check if City has category-specific SEO overrides configured by developer
+  const cityData = await fetchCitySeoData(cityOrSlug);
+  const catOverride = cityData?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
+
+  if (catOverride && (catOverride.metaTitle || catOverride.metaDescription || catOverride.canonicalUrl)) {
+    const canonical = catOverride.canonicalUrl
+      ? (catOverride.canonicalUrl.startsWith("http") ? catOverride.canonicalUrl : `https://mycityqueen.com${catOverride.canonicalUrl}`)
+      : `https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`;
+
+    const title = catOverride.metaTitle || (normalizedKey === "call-girls" ? `Call Girls in ${cityName} | MyCityQueen India` : `${KNOWN_CATEGORIES[normalizedKey] || normalizedKey} in ${cityName} | MyCityQueen`);
+    const description = catOverride.metaDescription || `Browse verified companion profiles in ${cityName} with authentic photos and contact details.`;
+
+    return {
+      title,
+      description,
+      keywords: catOverride.focusKeywords?.length ? catOverride.focusKeywords : undefined,
+      alternates: {
+        canonical,
+      },
+      robots: catOverride.robots || "index, follow",
+      openGraph: {
+        title,
+        description,
+        url: canonical,
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+    };
+  }
+
+  // 2. Check if this area/sub-slug exists in DB as physical area with custom overrides
   const areaData = await fetchAreaSeoData(area);
   if (areaData) {
     return getAreaPageMetadata(cityName, area);
   }
 
-  const normalizedKey = area.toLowerCase().trim();
+  // 3. Fallback default category templates
   if (normalizedKey === "call-girls") {
     return buildCallGirlsCitySEO(cityName, {
       canonicalUrl: `/escorts-service/${cityOrSlug}/${area}`,
@@ -78,7 +112,20 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
     return <ProfileClientPage params={Promise.resolve({ id: area })} />;
   }
 
-  // Check if developer configured 301 / 302 redirect for this area
+  const normalizedKey = area.toLowerCase().trim();
+  const cityData = await fetchCitySeoData(cityOrSlug);
+  const catOverride = cityData?.categorySeo?.find((c) => c.categorySlug === normalizedKey);
+
+  // Check category-specific 301 / 302 redirect
+  if (catOverride?.redirectUrl) {
+    if (catOverride.redirectType === "301") {
+      permanentRedirect(catOverride.redirectUrl);
+    } else if (catOverride.redirectType === "302") {
+      redirect(catOverride.redirectUrl);
+    }
+  }
+
+  // Check physical area 301 / 302 redirect
   const areaData = await fetchAreaSeoData(area);
   if (areaData?.redirectUrl) {
     if (areaData.redirectType === "301") {
@@ -88,7 +135,6 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
     }
   }
 
-  const cityData = await fetchCitySeoData(cityOrSlug);
   const cityName =
     cityData?.name ||
     (cityOrSlug
@@ -99,6 +145,7 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
       : "All Cities");
   const areaName =
     areaData?.name ||
+    KNOWN_CATEGORIES[normalizedKey] ||
     (area
       ? area
           .split("-")
@@ -106,19 +153,38 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
           .join(" ")
       : "All Escorts");
 
+  const canonicalUrl =
+    catOverride?.canonicalUrl ||
+    areaData?.canonicalUrl ||
+    `https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`;
+
+  const cleanCustomSchema = (catOverride?.customSchema || areaData?.customSchema || "")
+    .replace(/<script[^>]*>/gi, "")
+    .replace(/<\/script>/gi, "")
+    .trim();
+
   return (
     <>
-      <AreaJsonLd
-        area={areaData}
-        cityName={cityName}
-        areaName={areaName}
-        canonicalUrl={areaData?.canonicalUrl || `https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`}
-      />
+      {cleanCustomSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: cleanCustomSchema }}
+        />
+      ) : (
+        <AreaJsonLd
+          area={areaData}
+          cityName={cityName}
+          areaName={areaName}
+          canonicalUrl={canonicalUrl}
+        />
+      )}
       <EscortsClient
         defaultCity={cityName}
         defaultTag={areaName}
         citySeo={cityData || undefined}
         areaSeo={areaData || undefined}
+        customPageContent={catOverride?.pageContent || areaData?.pageContent}
+        customFaqs={catOverride?.faqs?.length ? catOverride.faqs : areaData?.faqs}
       />
     </>
   );
