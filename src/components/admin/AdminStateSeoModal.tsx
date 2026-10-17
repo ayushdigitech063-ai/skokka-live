@@ -606,28 +606,65 @@ export function AdminStateSeoModal({
           </button>
         </div>
 
-        {/* TARGET SELECTOR BAR (MAIN STATE VS CATEGORY / CALL GIRLS) */}
-        <div className="bg-slate-900/90 border-b border-slate-800 px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+        {/* TARGET SELECTOR BAR (CUSTOM TEXT INPUT + QUICK CHIPS) */}
+        <div className="bg-slate-900/90 border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5" /> Target Page:
+              <Sparkles className="h-3.5 w-3.5" /> Target Page / Sub-Slug:
             </span>
-            <select
-              value={selectedTarget}
-              onChange={(e) => handleSwitchTarget(e.target.value)}
-              className="bg-slate-950 border border-rose-500/60 rounded-xl px-3 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-rose-400 shadow-sm cursor-pointer"
-            >
-              {TARGET_PAGE_OPTIONS.map((opt) => (
-                <option key={opt.slug} value={opt.slug} className="bg-[#0b1022] text-white py-1">
-                  {opt.label}
-                </option>
+            <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-700/80 rounded-xl px-3 py-1.5 focus-within:border-amber-400 transition">
+              <span className="text-xs text-slate-500 font-mono select-none">/escorts-service/{effectiveSlug}/</span>
+              <input
+                type="text"
+                value={selectedTarget === "main" ? "" : selectedTarget}
+                onChange={(e) => {
+                  const val = e.target.value.toLowerCase().trim().replace(/[^a-z0-9-_]/g, "");
+                  handleSwitchTarget(val || "main");
+                }}
+                placeholder="(main page or write custom e.g. call-girls)"
+                className="bg-transparent text-xs font-bold text-amber-300 placeholder:text-slate-600 focus:outline-none font-mono w-44 sm:w-56"
+              />
+              {selectedTarget !== "main" && (
+                <button
+                  type="button"
+                  onClick={() => handleSwitchTarget("main")}
+                  className="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded cursor-pointer"
+                  title="Reset to Main Page"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {/* Quick Presets */}
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-[10px] text-slate-500 font-bold uppercase">Quick:</span>
+              {[
+                { slug: "main", label: "Main" },
+                { slug: "call-girls", label: "call-girls" },
+                { slug: "vip-escorts", label: "vip-escorts" },
+                { slug: "independent-girls", label: "independent-girls" },
+                { slug: "massages", label: "massages" },
+              ].map((chip) => (
+                <button
+                  key={chip.slug}
+                  type="button"
+                  onClick={() => handleSwitchTarget(chip.slug)}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition cursor-pointer ${
+                    selectedTarget === chip.slug
+                      ? "bg-amber-500 text-black shadow-sm"
+                      : "bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700"
+                  }`}
+                >
+                  {chip.label}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
+
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Target URL:</span>
-            <span className="bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg text-emerald-400 font-mono text-[11px] font-medium flex items-center gap-1">
-              {selectedTarget === "main"
+            <span className="text-slate-400 text-[11px]">Active Target:</span>
+            <span className="bg-slate-950 border border-slate-800 px-2.5 py-1 rounded-lg text-emerald-400 font-mono text-[11px] font-semibold flex items-center gap-1">
+              {selectedTarget === "main" || !selectedTarget
                 ? `https://mycityqueen.com/escorts-service/${effectiveSlug}`
                 : `https://mycityqueen.com/escorts-service/${effectiveSlug}/${selectedTarget}`}
             </span>
@@ -938,21 +975,39 @@ export function AdminStateSeoModal({
                 </p>
               </div>
 
-              {/* Meta Robots */}
-              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
-                <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
-                  Meta Robots Tag Directive
-                </label>
-                <select
+              {/* Meta Robots (Custom Editable Input) */}
+              <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+                    Meta Robots Tag Directive (Custom Editable)
+                  </label>
+                  <span className="text-[10px] text-slate-500 font-mono">HTML &lt;meta name="robots" ...&gt;</span>
+                </div>
+                <input
+                  type="text"
                   value={robots}
                   onChange={(e) => setRobots(e.target.value)}
+                  placeholder="e.g. index, follow"
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
-                >
-                  <option value="index, follow">index, follow (Default - Allow indexing &amp; follow links)</option>
-                  <option value="noindex, follow">noindex, follow (Do not index in Google, follow links)</option>
-                  <option value="noindex, nofollow">noindex, nofollow (Complete block from search engine)</option>
-                  <option value="index, nofollow">index, nofollow (Index in Google, do not follow links)</option>
-                </select>
+                />
+                {/* Quick Presets */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Quick Presets:</span>
+                  {["index, follow", "noindex, follow", "noindex, nofollow", "index, nofollow"].map((val) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setRobots(val)}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold transition cursor-pointer ${
+                        robots === val
+                          ? "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                          : "bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800"
+                      }`}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* 301 / 302 Redirect */}
