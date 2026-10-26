@@ -184,6 +184,7 @@ export function CreateAdModal({ isOpen, onClose }: CreateAdModalProps) {
       gallery: formData.galleryPhotos.length > 0 ? formData.galleryPhotos : [formData.photoUrl],
       status: "APPROVED",
       submittedAt: new Date().toISOString(),
+      submittedBy: (typeof window !== "undefined" ? localStorage.getItem("skokka_user_email") : null) || "",
     };
 
     try {

@@ -127,6 +127,65 @@ export async function fetchAllEscortsAdmin(): Promise<EscortProfileItem[] | null
   }
 }
 
+/** Fetch only user's submitted ads (fast, direct query by email) */
+export async function fetchUserEscorts(email: string, phone?: string): Promise<EscortProfileItem[]> {
+  const cleanEmail = (email || "").trim().toLowerCase();
+  if (!cleanEmail || cleanEmail === "user@skokka.com" || cleanEmail === "admin@skokka.com") {
+    return [];
+  }
+
+  // 1. Check local cache first for instant UI response (0ms)
+  let cached: EscortProfileItem[] = [];
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(`skokka_my_ads_${cleanEmail}`);
+      if (stored) {
+        cached = JSON.parse(stored);
+      }
+    } catch {}
+  }
+
+  // 2. Fetch from fast backend /escorts/user-ads endpoint
+  try {
+    const params = new URLSearchParams({ email: cleanEmail });
+    if (phone) params.set("phone", phone);
+
+    const res = await fetch(`${BACKEND_URL}/escorts/user-ads?${params.toString()}`, { cache: "no-store" });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        const fresh = json.data.map(sanitizeProfile);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem(`skokka_my_ads_${cleanEmail}`, JSON.stringify(fresh));
+          } catch {}
+        }
+        return fresh;
+      }
+    }
+  } catch (err) {
+    console.warn("fetchUserEscorts endpoint failed, attempting fallback:", err);
+  }
+
+  // 3. Fallback: Query all profiles if user-ads endpoint is not yet reachable
+  try {
+    const all = await fetchAllEscortsAdmin();
+    if (all && all.length > 0) {
+      const matched = all.filter(
+        (p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === cleanEmail
+      );
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(`skokka_my_ads_${cleanEmail}`, JSON.stringify(matched));
+        } catch {}
+      }
+      return matched;
+    }
+  } catch {}
+
+  return cached;
+}
+
 /** Fetch single profile by id */
 export async function fetchEscortById(id: string): Promise<EscortProfileItem | null> {
   try {

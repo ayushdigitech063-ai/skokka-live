@@ -33,7 +33,7 @@ import { Footer } from "@/components/Footer";
 import { PostAdWizardModal } from "@/components/PostAdWizardModal";
 import { getAdCmsConfig, AD_CMS_UPDATE_EVENT } from "@/utils/adCmsStore";
 import { CreditPackageConfig, CouponConfig, AdCmsConfig } from "@/types/adCms";
-import { fetchAllEscortsAdmin, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
+import { fetchUserEscorts, fetchAllEscortsAdmin, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/utils/escortsStore";
 import { getProfileUrl } from "@/lib/seo/seoEngine";
 
 interface UserDashboardProps {
@@ -54,7 +54,20 @@ export function UserDashboard({
   const [postAdInitialStep, setPostAdInitialStep] = useState<number>(1);
   const [selectedAdToBoost, setSelectedAdToBoost] = useState<EscortProfileItem | null>(null);
   const [adsFilterTab, setAdsFilterTab] = useState<"ALL" | "ACTIVE" | "PENDING" | "REJECTED">("ALL");
-  const [userAds, setUserAds] = useState<EscortProfileItem[]>([]);
+  const [userAds, setUserAds] = useState<EscortProfileItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("skokka_user_email") || initialEmail || "";
+        const clean = stored.trim().toLowerCase();
+        if (clean && clean !== "user@skokka.com") {
+          const cached = localStorage.getItem(`skokka_my_ads_${clean}`);
+          if (cached) return JSON.parse(cached);
+        }
+      } catch {}
+    }
+    return [];
+  });
+  const [loadingAds, setLoadingAds] = useState<boolean>(true);
 
   const handleOpenBoostAdModal = (ad: EscortProfileItem) => {
     setSelectedAdToBoost(ad);
@@ -116,17 +129,25 @@ export function UserDashboard({
 
       const activeUserEmail = (paramEmail || localStorage.getItem("skokka_user_email") || userEmail || "").toLowerCase().trim();
 
-      // Fetch user's posted ads from backend (strictly filtered to active user's email, ignoring dummy/seed email)
-      const loadUserAds = () => {
-        fetchAllEscortsAdmin().then((allProfiles) => {
-          const currentEmail = (localStorage.getItem("skokka_user_email") || activeUserEmail).toLowerCase().trim();
-          const isDummyEmail = !currentEmail || currentEmail === "user@skokka.com" || currentEmail === "admin@skokka.com";
+      // Fetch user's posted ads from backend (fast direct query + cache)
+      const loadUserAds = async () => {
+        const currentEmail = (localStorage.getItem("skokka_user_email") || activeUserEmail).toLowerCase().trim();
+        const isDummyEmail = !currentEmail || currentEmail === "user@skokka.com" || currentEmail === "admin@skokka.com";
 
-          const myAds = (!isDummyEmail)
-            ? (allProfiles || []).filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === currentEmail)
-            : [];
+        if (isDummyEmail) {
+          setUserAds([]);
+          setLoadingAds(false);
+          return;
+        }
+
+        try {
+          const myAds = await fetchUserEscorts(currentEmail);
           setUserAds(myAds);
-        });
+        } catch (err) {
+          console.error("loadUserAds failed:", err);
+        } finally {
+          setLoadingAds(false);
+        }
       };
 
       loadUserAds();
@@ -374,7 +395,13 @@ export function UserDashboard({
                 <div className="space-y-1.5 text-xs font-semibold text-slate-600 pt-1">
                   <div className="flex justify-between items-center">
                     <span className="bg-rose-100/80 text-rose-600 px-2 py-0.5 rounded-md font-extrabold text-[11px]">Active</span>
-                    <strong className="text-slate-900 text-sm font-black">{activeAdsCount}</strong>
+                    <strong className="text-slate-900 text-sm font-black">
+                      {loadingAds && userAds.length === 0 ? (
+                        <span className="inline-block h-3.5 w-3.5 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        activeAdsCount
+                      )}
+                    </strong>
                   </div>
                 </div>
 
@@ -1233,17 +1260,26 @@ export function UserDashboard({
           setPostAdInitialStep(1);
           setSelectedAdToBoost(null);
         }}
-        onAdSubmitted={() => {
+        onAdSubmitted={(newAd?: any) => {
           setShowPostAdModal(false);
           setPostAdInitialStep(1);
           setSelectedAdToBoost(null);
-          fetchAllEscortsAdmin().then((allProfiles) => {
-            const uEmail = (localStorage.getItem("skokka_user_email") || "").toLowerCase().trim();
-            const myAds = uEmail
-              ? (allProfiles || []).filter((p) => p.submittedBy && p.submittedBy.toLowerCase().trim() === uEmail)
-              : [];
-            setUserAds(myAds);
-          });
+          const uEmail = (localStorage.getItem("skokka_user_email") || userEmail || "").toLowerCase().trim();
+          if (newAd && newAd.id) {
+            setUserAds((prev) => {
+              const exists = prev.some((p) => p.id === newAd.id);
+              const updated = exists
+                ? prev.map((p) => (p.id === newAd.id ? { ...p, ...newAd } : p))
+                : [{ ...newAd, submittedBy: uEmail, status: "APPROVED" }, ...prev];
+              if (uEmail) {
+                try { localStorage.setItem(`skokka_my_ads_${uEmail}`, JSON.stringify(updated)); } catch {}
+              }
+              return updated;
+            });
+          }
+          if (uEmail) {
+            fetchUserEscorts(uEmail).then((ads) => setUserAds(ads));
+          }
         }}
       />
     </div>
