@@ -49,6 +49,9 @@ export const toNextMetadata = (seoData: ReturnType<typeof resolveHomeSEO>): Meta
     keywords: seoData.keywords && seoData.keywords.length > 0 ? seoData.keywords : defaultKeywords,
     authors: [{ name: SITE_CONFIG.name }],
     publisher: SITE_CONFIG.name,
+    verification: {
+      google: "C1tlMxhr7B8UdzzG26U-93WRsoUdNRbmJNqKWryRe7s",
+    },
     robots: {
       index: shouldIndex,
       follow: shouldFollow,

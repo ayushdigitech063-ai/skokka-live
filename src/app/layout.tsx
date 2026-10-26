@@ -41,6 +41,7 @@ export default function RootLayout({
       className="h-full antialiased font-sans"
     >
       <head>
+        <meta name="google-site-verification" content="C1tlMxhr7B8UdzzG26U-93WRsoUdNRbmJNqKWryRe7s" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
