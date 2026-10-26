@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect, permanentRedirect } from "next/navigation";
 import {
   buildProfileSEO,
+  buildCategorySEO,
   getCityPageMetadata,
   fetchCitySeoData,
   CityJsonLd,
@@ -20,6 +21,32 @@ interface Params {
 
 const isProfileSlug = (slug: string) => /-(sk-\d+)$/i.test(slug) || /-([a-f0-9]{24})$/i.test(slug);
 
+const KNOWN_CATEGORIES: Record<string, string> = {
+  "call-girls": "Call Girls",
+  "call_girls": "Call Girls",
+  "vip-escorts": "VIP Escorts",
+  "vip_escorts": "VIP Escorts",
+  "independent-girls": "Independent Girls",
+  "independent_girls": "Independent Girls",
+  "independent-escorts": "Independent Escorts",
+  "independent_escorts": "Independent Escorts",
+  "college-escorts": "College Escorts",
+  "college_escorts": "College Escorts",
+  "college-girls-escorts": "College Girls Escorts",
+  "russian-escorts": "Russian Escorts",
+  "russian_escorts": "Russian Escorts",
+  "massages": "Massages",
+  "massage": "Massages",
+  "adult-meetings": "Adult Meetings",
+  "adult_meetings": "Adult Meetings",
+  "male-escorts": "Male Escorts",
+  "male_escorts": "Male Escorts",
+  "transsexual": "Transsexual",
+  "trans": "Transsexual",
+  "housewife-escorts": "Housewife Escorts",
+  "celebrity-escorts": "Celebrity Escorts",
+};
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { cityOrSlug } = await params;
 
@@ -28,6 +55,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       name: cityOrSlug.replace(/-(sk-\d+|[a-f0-9]{24})$/i, "").split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
       cityName: "India",
       dbOverride: { canonicalUrl: `/escorts-service/${cityOrSlug}` }
+    });
+  }
+
+  const normalizedKey = (cityOrSlug || "").toLowerCase().replace(/_/g, "-").trim();
+  const rawKey = (cityOrSlug || "").toLowerCase().trim();
+  const matchedCategory = KNOWN_CATEGORIES[normalizedKey] || KNOWN_CATEGORIES[rawKey];
+
+  if (matchedCategory) {
+    return buildCategorySEO({
+      categoryName: matchedCategory,
+      cityName: "India",
+      dbOverride: { canonicalUrl: `/escorts-service/${cityOrSlug}` },
     });
   }
 
@@ -49,6 +88,20 @@ export default async function CityOrProfilePage({ params }: Params) {
 
   if (isProfileSlug(cityOrSlug)) {
     return <ProfileClientPage params={Promise.resolve({ id: cityOrSlug })} />;
+  }
+
+  const normalizedKey = (cityOrSlug || "").toLowerCase().replace(/_/g, "-").trim();
+  const rawKey = (cityOrSlug || "").toLowerCase().trim();
+  const matchedCategory = KNOWN_CATEGORIES[normalizedKey] || KNOWN_CATEGORIES[rawKey];
+
+  if (matchedCategory) {
+    return (
+      <EscortsClient
+        defaultCity="All Cities"
+        defaultTag={matchedCategory}
+        baseRoute="/escorts-service"
+      />
+    );
   }
 
   const loc = await fetchLocationSeoData(cityOrSlug);

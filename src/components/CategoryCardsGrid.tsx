@@ -119,7 +119,7 @@ export function CategoryCardsGrid({
               >
                 {/* Main Image Box */}
                 <Link
-                  href={`/escorts/${slugifyPath(cat.label)}`}
+                  href={`/escorts-service/${slugifyPath(cat.label)}`}
                   onClick={(e) => {
                     if (onSelectCategory) {
                       e.preventDefault();
@@ -170,7 +170,7 @@ export function CategoryCardsGrid({
                       {cat.cities.slice(0, 5).map((city) => (
                         <Link
                           key={city}
-                          href={`/escorts/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
+                          href={`/escorts-service/${slugifyPath(city)}/${slugifyPath(cat.label)}`}
                           onClick={(e) => {
                             if (onSelectCityCategory) {
                               e.preventDefault();
