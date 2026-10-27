@@ -70,6 +70,21 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
     setSelectedCity(city);
     setCurrentPage(1);
     updateUrlParams(city, selectedTag);
+
+    if (city && city !== "All Cities") {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+      fetch(`${BACKEND_URL}/locations/cities/${encodeURIComponent(slugifyPath(city))}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && data.city) {
+            setCurrentCitySeo(data.city);
+          }
+        })
+        .catch(() => {});
+    } else {
+      setCurrentCitySeo(undefined);
+      setCurrentStateSeo(undefined);
+    }
   };
 
   const updateUrlParams = (city: string, tag: string) => {
@@ -133,7 +148,11 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
   // Dynamically resolve SEO when selectedCity changes or locationTree arrives
   useEffect(() => {
-    if (!selectedCity || selectedCity === "All Cities") return;
+    if (!selectedCity || selectedCity === "All Cities") {
+      setCurrentCitySeo(undefined);
+      setCurrentStateSeo(undefined);
+      return;
+    }
 
     if (locationTree.length > 0) {
       let foundCity: ICity | undefined;
@@ -164,6 +183,17 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
       } else if (foundState) {
         setCurrentStateSeo(foundState);
       }
+    } else {
+      // Direct API fetch if locationTree hasn't populated yet
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+      fetch(`${BACKEND_URL}/locations/cities/${encodeURIComponent(slugifyPath(selectedCity))}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && data.city) {
+            setCurrentCitySeo(data.city);
+          }
+        })
+        .catch(() => {});
     }
   }, [selectedCity, locationTree]);
 
@@ -791,10 +821,11 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
           {/* ALWAYS RENDER ACCORDION, LOCALITIES & FAQS (EVEN WHEN ZERO PROFILES FOUND) */}
           <div className="space-y-8 max-w-6xl mx-auto mt-8">
-            {/* DYNAMIC CITY AREA CATEGORIES ACCORDION */}
-            <CityCategoryAccordion
-              currentCity={selectedCity}
-              selectedArea={searchLocation}
+            {/* DYNAMIC CITY AREA CATEGORIES ACCORDION (ONLY SHOWN WHEN A SPECIFIC CITY IS SELECTED) */}
+            {selectedCity && selectedCity !== "All Cities" ? (
+              <CityCategoryAccordion
+                currentCity={selectedCity}
+                selectedArea={searchLocation}
                 onSelectArea={(area, tag) => {
                   setSearchLocation(area);
                   if (tag && tag !== "All Escorts") {
@@ -804,6 +835,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   window.scrollTo({ top: 350, behavior: "smooth" });
                 }}
               />
+            ) : null}
 
             {/* RICH SEO EDITORIAL CONTENT SECTION */}
             <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">
@@ -1058,7 +1090,9 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
               const locationLabel = areaSeo
                 ? `${areaSeo.name}, ${currentCityLabel}`
-                : currentCityLabel;
+                : selectedCity && selectedCity !== "All Cities"
+                ? currentCityLabel
+                : "Pan-India";
               return (
                 <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">

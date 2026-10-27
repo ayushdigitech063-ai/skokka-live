@@ -442,9 +442,13 @@ export function CityCategoryAccordion({
   const [dynamicAreas, setDynamicAreas] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  // If no specific city is selected (e.g. All Cities / Pan-India), do NOT render local city accordion
+  if (!currentCity || currentCity === "All Cities") {
+    return null;
+  }
+
   // Normalize city name for display and data lookup
-  const displayCity =
-    currentCity && currentCity !== "All Cities" ? currentCity : "Bangalore";
+  const displayCity = currentCity;
 
   const fetchCityAreas = async () => {
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
