@@ -26,6 +26,7 @@ import {
 import Swal from "sweetalert2";
 import { IArea, IAreaFAQ } from "@/types/location";
 import { getAuthHeaders } from "@/lib/auth";
+import { RichContentEditor } from "./RichContentEditor";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -759,12 +760,13 @@ export function AdminAreaSeoModal({
                   </div>
                 </div>
 
-                <textarea
-                  rows={10}
+                <RichContentEditor
                   value={pageContent}
-                  onChange={(e) => setPageContent(e.target.value)}
-                  placeholder="<h2>Verified Companions in this locality</h2><p>Our escorts in <a href='/escorts-service/bangalore'>Bangalore</a> offer top-tier hospitality...</p>"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-purple-500 font-mono leading-relaxed"
+                  onChange={setPageContent}
+                  locationName={`${areaName}, ${cityName}`}
+                  placeholder={`Write custom SEO guide, headings, categories, or links for ${areaName}, ${cityName}...`}
+                  showAreaToken={true}
+                  minHeight="280px"
                 />
                 <p className="text-[11px] text-slate-500">
                   Full HTML is supported: <code className="text-purple-300">&lt;a href=&quot;...&quot;&gt;anchor&lt;/a&gt;</code>, <code className="text-purple-300">&lt;h2&gt;</code>, <code className="text-purple-300">&lt;p&gt;</code>, <code className="text-purple-300">&lt;ul&gt;</code> for complete SEO internal link architecture.

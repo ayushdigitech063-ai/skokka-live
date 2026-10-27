@@ -43,6 +43,8 @@ export default async function CallGirlsCityPage({ params }: Params) {
       ? cityname.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
       : "All Cities");
 
+  const catOverride = cityData?.categorySeo?.find((c) => c.categorySlug === "call-girls");
+
   return (
     <>
       <CityJsonLd
@@ -55,6 +57,8 @@ export default async function CallGirlsCityPage({ params }: Params) {
         defaultTag="Call Girls"
         baseRoute="/call-girls"
         citySeo={cityData || undefined}
+        customPageContent={catOverride?.pageContent || cityData?.pageContent}
+        customFaqs={catOverride?.faqs?.length ? catOverride.faqs : cityData?.faqs}
       />
     </>
   );

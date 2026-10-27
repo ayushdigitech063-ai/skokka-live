@@ -27,6 +27,7 @@ import {
 import Swal from "sweetalert2";
 import { ICity, ICityFAQ, ICategorySeo } from "@/types/location";
 import { getAuthHeaders } from "@/lib/auth";
+import { RichContentEditor } from "./RichContentEditor";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
@@ -1506,12 +1507,12 @@ export function AdminCitySeoModal({
                   </div>
                 </div>
 
-                <textarea
-                  rows={8}
+                <RichContentEditor
                   value={pageContent}
-                  onChange={(e) => setPageContent(e.target.value)}
-                  placeholder={`Leave blank to auto-generate default dynamic companion guide for ${cityName}...`}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-500 font-sans leading-relaxed"
+                  onChange={setPageContent}
+                  locationName={cityName}
+                  placeholder={`Write custom SEO guide, headings, categories, or links for ${cityName}...`}
+                  minHeight="280px"
                 />
 
                 <div className="flex items-center justify-between text-[11px] text-slate-400">

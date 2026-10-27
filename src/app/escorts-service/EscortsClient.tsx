@@ -57,6 +57,8 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
   const [cms, setCms] = useState<HomePageCmsConfig | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentCitySeo, setCurrentCitySeo] = useState<ICity | undefined>(citySeo);
+  const [currentStateSeo, setCurrentStateSeo] = useState<IState | undefined>(stateSeo);
 
   const handleSelectTag = (tag: string) => {
     setSelectedTag(tag);
@@ -119,6 +121,51 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
       window.removeEventListener(ESCORTS_UPDATE_EVENT, handleEscortsUpdate);
     };
   }, [defaultCity, defaultTag]);
+
+  // Sync props changes to state
+  useEffect(() => {
+    if (citySeo) setCurrentCitySeo(citySeo);
+  }, [citySeo]);
+
+  useEffect(() => {
+    if (stateSeo) setCurrentStateSeo(stateSeo);
+  }, [stateSeo]);
+
+  // Dynamically resolve SEO when selectedCity changes or locationTree arrives
+  useEffect(() => {
+    if (!selectedCity || selectedCity === "All Cities") return;
+
+    if (locationTree.length > 0) {
+      let foundCity: ICity | undefined;
+      let foundState: IState | undefined;
+
+      for (const st of locationTree) {
+        if (
+          st.name?.toLowerCase() === selectedCity.toLowerCase() ||
+          st.slug?.toLowerCase() === selectedCity.toLowerCase()
+        ) {
+          foundState = st;
+          break;
+        }
+        const matchC = st.cities?.find(
+          (c: any) =>
+            c.name?.toLowerCase() === selectedCity.toLowerCase() ||
+            c.slug?.toLowerCase() === selectedCity.toLowerCase() ||
+            c.customSlug?.toLowerCase() === selectedCity.toLowerCase()
+        );
+        if (matchC) {
+          foundCity = matchC;
+          break;
+        }
+      }
+
+      if (foundCity) {
+        setCurrentCitySeo(foundCity);
+      } else if (foundState) {
+        setCurrentStateSeo(foundState);
+      }
+    }
+  }, [selectedCity, locationTree]);
 
   const toggleFavorite = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -774,20 +821,33 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
                 </h2>
                 {(() => {
+                  const normalizedTagSlug = selectedTag && selectedTag !== "All Escorts" ? slugifyPath(selectedTag) : "";
+                  const catOverride = currentCitySeo?.categorySeo?.find(
+                    (c) =>
+                      c.categorySlug === normalizedTagSlug ||
+                      c.categorySlug === selectedTag.toLowerCase().replace(/\s+/g, "-")
+                  );
+
                   const rawContent =
+                    catOverride?.pageContent ||
                     customPageContent ||
-                    citySeo?.pageContent ||
-                    stateSeo?.pageContent ||
-                    citySeo?.metaDescription ||
-                    stateSeo?.metaDescription ||
+                    currentCitySeo?.pageContent ||
+                    areaSeo?.pageContent ||
+                    currentStateSeo?.pageContent ||
+                    currentCitySeo?.metaDescription ||
+                    currentStateSeo?.metaDescription ||
                     `Welcome to the premier verified adult classifieds directory for {city}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with verified companions for hotel incall meetings and private doorstep outcalls across top colonies in {city}.`;
 
-                  const currentCityLabel = selectedCity !== "All Cities" ? selectedCity : (citySeo?.name || stateSeo?.name || "India");
+                  const currentCityLabel =
+                    selectedCity !== "All Cities"
+                      ? selectedCity
+                      : currentCitySeo?.name || currentStateSeo?.name || "India";
                   const renderedText = rawContent
                     .replace(/\{city\}/gi, currentCityLabel)
                     .replace(/\{location\}/gi, currentCityLabel)
                     .replace(/\[city\]/gi, currentCityLabel)
-                    .replace(/\[location\]/gi, currentCityLabel);
+                    .replace(/\[location\]/gi, currentCityLabel)
+                    .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel);
 
                   const hasHtml = /<[a-z][\s\S]*>/i.test(renderedText);
 
@@ -937,33 +997,68 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
             {/* DYNAMIC GOOGLE FAQS SECTION (RICH SNIPPETS ON-PAGE) FOR CITY OR STATE */}
             {(() => {
-              const activeFaqs =
-                customFaqs && customFaqs.length > 0
+              const normalizedTagSlug = selectedTag && selectedTag !== "All Escorts" ? slugifyPath(selectedTag) : "";
+              const catOverride = currentCitySeo?.categorySeo?.find(
+                (c) =>
+                  c.categorySlug === normalizedTagSlug ||
+                  c.categorySlug === selectedTag.toLowerCase().replace(/\s+/g, "-")
+              );
+
+              const currentCityLabel =
+                selectedCity !== "All Cities"
+                  ? selectedCity
+                  : currentCitySeo?.name || currentStateSeo?.name || "India";
+
+              const rawCandidateFaqs =
+                catOverride?.faqs && catOverride.faqs.length > 0
+                  ? catOverride.faqs
+                  : customFaqs && customFaqs.length > 0
                   ? customFaqs
-                  : citySeo?.faqs && citySeo.faqs.length > 0
-                  ? citySeo.faqs
-                  : stateSeo?.faqs && stateSeo.faqs.length > 0
-                  ? stateSeo.faqs
+                  : currentCitySeo?.faqs && currentCitySeo.faqs.length > 0
+                  ? currentCitySeo.faqs
+                  : areaSeo?.faqs && areaSeo.faqs.length > 0
+                  ? areaSeo.faqs
+                  : currentStateSeo?.faqs && currentStateSeo.faqs.length > 0
+                  ? currentStateSeo.faqs
                   : [
                       {
-                        question: `How to book verified escorts in ${selectedCity}?`,
-                        answer: `You can browse 100% verified escort profiles on our directory in ${selectedCity} and connect directly via WhatsApp or phone call without any advance booking charges.`,
+                        question: `How to book verified escorts in ${currentCityLabel}?`,
+                        answer: `You can browse 100% verified escort profiles on our directory in ${currentCityLabel} and connect directly via WhatsApp or phone call without any advance booking charges.`,
                       },
                       {
-                        question: `Are incall and outcall services available in ${selectedCity}?`,
-                        answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${selectedCity}.`,
+                        question: `Are incall and outcall services available in ${currentCityLabel}?`,
+                        answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${currentCityLabel}.`,
                       },
                       {
-                        question: `What are the payment options for escort service in ${selectedCity}?`,
+                        question: `What are the payment options for escort service in ${currentCityLabel}?`,
                         answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
                       },
                       {
-                        question: `Is customer privacy protected in ${selectedCity}?`,
+                        question: `Is customer privacy protected in ${currentCityLabel}?`,
                         answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
                       },
                     ];
 
-              const locationLabel = areaSeo ? `${areaSeo.name}, ${selectedCity}` : citySeo ? selectedCity : (stateSeo?.name || selectedCity);
+              const activeFaqs = rawCandidateFaqs
+                .filter((f) => f && (f.question?.trim() || f.answer?.trim()))
+                .map((f) => ({
+                  question: (f.question || "")
+                    .replace(/\{city\}/gi, currentCityLabel)
+                    .replace(/\{location\}/gi, currentCityLabel)
+                    .replace(/\[city\]/gi, currentCityLabel)
+                    .replace(/\[location\]/gi, currentCityLabel)
+                    .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel),
+                  answer: (f.answer || "")
+                    .replace(/\{city\}/gi, currentCityLabel)
+                    .replace(/\{location\}/gi, currentCityLabel)
+                    .replace(/\[city\]/gi, currentCityLabel)
+                    .replace(/\[location\]/gi, currentCityLabel)
+                    .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel),
+                }));
+
+              const locationLabel = areaSeo
+                ? `${areaSeo.name}, ${currentCityLabel}`
+                : currentCityLabel;
               return (
                 <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -988,6 +1083,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   <div className="space-y-2.5">
                     {activeFaqs.map((faq, idx) => {
                       const isOpen = openFaqIndex === idx;
+                      const hasHtml = /<[a-z][\s\S]*>/i.test(faq.answer);
                       return (
                         <div
                           key={idx}
@@ -1009,8 +1105,15 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                             )}
                           </button>
                           {isOpen && (
-                            <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30">
-                              {faq.answer}
+                            <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60 bg-slate-900/30 whitespace-pre-line">
+                              {hasHtml ? (
+                                <div
+                                  className="space-y-1 [&_a]:text-rose-400 [&_a]:underline [&_strong]:text-white [&_p]:mb-1"
+                                  dangerouslySetInnerHTML={{ __html: faq.answer }}
+                                />
+                              ) : (
+                                faq.answer
+                              )}
                             </div>
                           )}
                         </div>

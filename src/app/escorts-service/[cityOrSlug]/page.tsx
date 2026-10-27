@@ -119,7 +119,12 @@ export default async function CityOrProfilePage({ params }: Params) {
     return (
       <>
         <StateJsonLd state={stateData} stateName={stateName} />
-        <EscortsClient defaultCity={stateName} stateSeo={stateData} />
+        <EscortsClient
+          defaultCity={stateName}
+          stateSeo={stateData}
+          customPageContent={stateData?.pageContent}
+          customFaqs={stateData?.faqs}
+        />
       </>
     );
   }
@@ -142,7 +147,12 @@ export default async function CityOrProfilePage({ params }: Params) {
   return (
     <>
       <CityJsonLd city={cityData} cityName={cityName} />
-      <EscortsClient defaultCity={cityName} citySeo={cityData || undefined} />
+      <EscortsClient
+        defaultCity={cityName}
+        citySeo={cityData || undefined}
+        customPageContent={cityData?.pageContent}
+        customFaqs={cityData?.faqs}
+      />
     </>
   );
 }
