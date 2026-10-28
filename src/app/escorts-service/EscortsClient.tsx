@@ -37,6 +37,8 @@ import { ICity, IState, IArea } from "@/types/location";
 
 interface EscortsPageProps {
   defaultCity?: string;
+  defaultState?: string;
+  defaultArea?: string;
   defaultTag?: string;
   baseRoute?: string;
   citySeo?: ICity;
@@ -48,30 +50,97 @@ interface EscortsPageProps {
 
 const ITEMS_PER_PAGE = 8;
 
-export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo, areaSeo, customPageContent, customFaqs }: EscortsPageProps = {}) {
+export default function EscortsClient({ defaultCity, defaultState, defaultArea, defaultTag, baseRoute = "/escorts-service", citySeo, stateSeo, areaSeo, customPageContent, customFaqs }: EscortsPageProps = {}) {
   const [profiles, setProfiles] = useState<EscortProfileItem[]>([]);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-  const [searchLocation, setSearchLocation] = useState("");
+  const [searchLocation, setSearchLocation] = useState(defaultArea || areaSeo?.name || "");
   const [selectedTag, setSelectedTag] = useState(defaultTag || "All Escorts");
-  const [selectedCity, setSelectedCity] = useState(defaultCity || "All Cities");
+  const [selectedState, setSelectedState] = useState(defaultState || stateSeo?.name || "All States");
+  const [selectedCity, setSelectedCity] = useState(
+    stateSeo && defaultCity === stateSeo.name ? "All Cities" : defaultCity || "All Cities"
+  );
   const [cms, setCms] = useState<HomePageCmsConfig | null>(null);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [currentCitySeo, setCurrentCitySeo] = useState<ICity | undefined>(citySeo);
   const [currentStateSeo, setCurrentStateSeo] = useState<IState | undefined>(stateSeo);
 
+  const updateUrl = (city: string, state: string, area: string, tag: string) => {
+    if (typeof window === "undefined") return;
+    const cleanCity = city && city !== "All Cities" ? slugifyPath(city) : "";
+    const cleanState = state && state !== "All States" ? slugifyPath(state) : "";
+    const cleanArea = area && area !== "Select Area" ? slugifyPath(area) : "";
+    const cleanTag = tag && tag !== "All Escorts" ? slugifyPath(tag) : "";
+
+    let newUrl = baseRoute;
+
+    if (cleanCity) {
+      if (cleanArea && cleanTag) {
+        newUrl = `${baseRoute}/${cleanCity}/${cleanArea}/${cleanTag}`;
+      } else if (cleanArea) {
+        newUrl = `${baseRoute}/${cleanCity}/${cleanArea}`;
+      } else if (cleanTag) {
+        newUrl = `${baseRoute}/${cleanCity}/${cleanTag}`;
+      } else {
+        newUrl = `${baseRoute}/${cleanCity}`;
+      }
+    } else if (cleanState) {
+      if (cleanTag) {
+        newUrl = `${baseRoute}/${cleanState}/${cleanTag}`;
+      } else {
+        newUrl = `${baseRoute}/${cleanState}`;
+      }
+    } else if (cleanTag) {
+      newUrl = `${baseRoute}/${cleanTag}`;
+    }
+
+    window.history.pushState({}, "", newUrl);
+  };
+
   const handleSelectTag = (tag: string) => {
     setSelectedTag(tag);
     setCurrentPage(1);
-    updateUrlParams(selectedCity, tag);
+    updateUrl(selectedCity, selectedState, searchLocation, tag);
+  };
+
+  const handleSelectState = (stateName: string) => {
+    setSelectedState(stateName);
+    setSelectedCity("All Cities");
+    setSearchLocation("");
+    setCurrentPage(1);
+    updateUrl("All Cities", stateName, "", selectedTag);
+
+    if (stateName && stateName !== "All States") {
+      const stObj = locationTree.find(
+        (st) => st.name?.toLowerCase() === stateName.toLowerCase()
+      );
+      if (stObj) {
+        setCurrentStateSeo(stObj);
+        setCurrentCitySeo(undefined);
+      }
+    } else {
+      setCurrentStateSeo(undefined);
+    }
   };
 
   const handleSelectCity = (city: string) => {
     setSelectedCity(city);
+    setSearchLocation("");
     setCurrentPage(1);
-    updateUrlParams(city, selectedTag);
 
+    let parentStateName = selectedState;
     if (city && city !== "All Cities") {
+      const parentState = locationTree.find((st) =>
+        (st.cities || []).some(
+          (c: any) => c.name?.toLowerCase() === city.toLowerCase()
+        )
+      );
+      if (parentState && selectedState === "All States") {
+        parentStateName = parentState.name;
+        setSelectedState(parentState.name);
+        setCurrentStateSeo(parentState);
+      }
+
       const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
       fetch(`${BACKEND_URL}/locations/cities/${encodeURIComponent(slugifyPath(city))}`)
         .then((res) => res.json())
@@ -83,24 +152,27 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
         .catch(() => {});
     } else {
       setCurrentCitySeo(undefined);
-      setCurrentStateSeo(undefined);
     }
+
+    updateUrl(city, parentStateName, "", selectedTag);
   };
 
-  const updateUrlParams = (city: string, tag: string) => {
-    if (typeof window === "undefined") return;
-    const cleanCity = city && city !== "All Cities" ? slugifyPath(city) : "";
-    const cleanTag = tag && tag !== "All Escorts" ? slugifyPath(tag) : "";
+  const handleSelectArea = (area: string) => {
+    setSearchLocation(area);
+    setCurrentPage(1);
+    updateUrl(selectedCity, selectedState, area, selectedTag);
 
-    let newUrl = baseRoute;
-    if (cleanCity && cleanTag) {
-      newUrl = `${baseRoute}/${cleanCity}/${cleanTag}`;
-    } else if (cleanCity) {
-      newUrl = `${baseRoute}/${cleanCity}`;
-    } else if (cleanTag) {
-      newUrl = `${baseRoute}/${cleanTag}`;
+    if (area && selectedCity && selectedCity !== "All Cities") {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+      fetch(`${BACKEND_URL}/locations/areas/${encodeURIComponent(slugifyPath(area))}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && data.area) {
+            // loaded area SEO if needed
+          }
+        })
+        .catch(() => {});
     }
-    window.history.pushState({}, "", newUrl);
   };
 
   const [locationTree, setLocationTree] = useState<any[]>([]);
@@ -111,9 +183,21 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
     const urlParams = new URLSearchParams(window.location.search);
     const queryCity = urlParams.get("city");
+    const queryState = urlParams.get("state");
+    const queryArea = urlParams.get("area");
     const queryTag = urlParams.get("tag");
+
+    if (queryState) setSelectedState(queryState);
+    else if (defaultState) setSelectedState(defaultState);
+    else if (stateSeo?.name) setSelectedState(stateSeo.name);
+
     if (queryCity) setSelectedCity(queryCity);
-    else if (defaultCity) setSelectedCity(defaultCity);
+    else if (defaultCity && defaultCity !== stateSeo?.name) setSelectedCity(defaultCity);
+
+    if (queryArea) setSearchLocation(queryArea);
+    else if (defaultArea) setSearchLocation(defaultArea);
+    else if (areaSeo?.name) setSearchLocation(areaSeo.name);
+
     if (queryTag) setSelectedTag(queryTag);
     else if (defaultTag) setSelectedTag(defaultTag);
 
@@ -121,7 +205,20 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
     fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.tree) setLocationTree(data.tree);
+        if (data.success && data.tree) {
+          setLocationTree(data.tree);
+          if (defaultCity && defaultCity !== "All Cities") {
+            const isStateMatch = data.tree.find((st: any) =>
+              st.name?.toLowerCase() === defaultCity.toLowerCase() ||
+              st.slug?.toLowerCase() === defaultCity.toLowerCase()
+            );
+            if (isStateMatch && (!defaultState || defaultState === "All States")) {
+              setSelectedState(isStateMatch.name);
+              setSelectedCity("All Cities");
+              setCurrentStateSeo(isStateMatch);
+            }
+          }
+        }
       })
       .catch(err => console.error(err));
 
@@ -135,7 +232,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
       window.removeEventListener(CMS_UPDATE_EVENT, handleCmsUpdate);
       window.removeEventListener(ESCORTS_UPDATE_EVENT, handleEscortsUpdate);
     };
-  }, [defaultCity, defaultTag]);
+  }, [defaultCity, defaultState, defaultArea, defaultTag, stateSeo, areaSeo]);
 
   // Sync props changes to state
   useEffect(() => {
@@ -265,6 +362,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
     const locStr = p.location ? String(p.location).toLowerCase() : "";
     const locSearch = searchLocation ? String(searchLocation).toLowerCase() : "";
     const citySearch = selectedCity ? String(selectedCity).toLowerCase() : "";
+    const stateSearch = selectedState ? String(selectedState).toLowerCase() : "";
 
     if (p.status && p.status !== "APPROVED") return false;
 
@@ -289,10 +387,23 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
               const selTagStr = String(selectedTag).toLowerCase();
               return selTagStr.includes(tStr) || tStr.includes(selTagStr);
             }));
+
     const matchesCity =
       selectedCity === "All Cities" ? true : cityStr.includes(citySearch) || locStr.includes(citySearch);
 
-    return matchesLoc && matchesTag && matchesCity;
+    let matchesState = true;
+    if (selectedState !== "All States") {
+      const stateObj = locationTree.find(
+        (st) => (st.name || "").trim().toLowerCase() === stateSearch
+      );
+      const stateCities = (stateObj?.cities || []).map((c: any) => (c.name || "").toLowerCase());
+      matchesState =
+        cityStr.includes(stateSearch) ||
+        locStr.includes(stateSearch) ||
+        stateCities.some((sc: string) => sc && (cityStr.includes(sc) || locStr.includes(sc)));
+    }
+
+    return matchesLoc && matchesTag && matchesCity && matchesState;
   });
 
   const getPackagePriority = (p: EscortProfileItem) => {
@@ -315,12 +426,79 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
   const resetAllFilters = () => {
     setSelectedTag("All Escorts");
+    setSelectedState("All States");
     setSelectedCity("All Cities");
     setSearchLocation("");
     setCurrentPage(1);
+    updateUrl("All Cities", "All States", "", "All Escorts");
   };
 
-  const isFiltered = selectedTag !== "All Escorts" || selectedCity !== "All Cities" || searchLocation.trim() !== "";
+  const isFiltered =
+    selectedTag !== "All Escorts" ||
+    selectedState !== "All States" ||
+    selectedCity !== "All Cities" ||
+    searchLocation.trim() !== "";
+
+  // Available States
+  const fallbackStates = [
+    "Andhra Pradesh", "Assam", "Bihar", "Chandigarh", "Delhi", "Goa", "Gujarat", 
+    "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", 
+    "Kerala", "Madhya Pradesh", "Maharashtra", "Odisha", "Punjab", "Rajasthan", 
+    "Tamil Nadu", "Telangana", "Uttar Pradesh", "Uttarakhand", "West Bengal"
+  ];
+
+  const availableStates = Array.from(
+    new Set([
+      ...locationTree.map((st) => st.name).filter(Boolean),
+      ...fallbackStates
+    ])
+  )
+    .map((s: string) => s.trim())
+    .sort((a, b) => a.localeCompare(b));
+
+  const selectedStateObj = locationTree.find(
+    (st) => (st.name || "").trim().toLowerCase() === selectedState.trim().toLowerCase()
+  );
+
+  let availableCities: string[] = [];
+  if (selectedState && selectedState !== "All States") {
+    if (selectedStateObj && Array.isArray(selectedStateObj.cities) && selectedStateObj.cities.length > 0) {
+      availableCities = selectedStateObj.cities.map((c: any) => c.name);
+    } else {
+      // Fallback if tree has no cities for this state yet
+      availableCities = citiesList.filter(c => c !== "All Cities");
+    }
+  } else {
+    const treeCities = locationTree.flatMap((st) => (st.cities || []).map((c: any) => c.name));
+    availableCities = Array.from(new Set([...treeCities, ...citiesList]))
+      .filter((c: string) => c && c !== "All Cities")
+      .map((c: string) => c.trim())
+      .sort((a, b) => a.localeCompare(b));
+  }
+
+  // Derive available areas for selected city
+  let availableAreas: string[] = [];
+  if (selectedCity && selectedCity !== "All Cities") {
+    const normSelected = selectedCity.trim().toLowerCase();
+    const selectedCityObj = locationTree
+      .flatMap((st) => st.cities || [])
+      .find((c: any) => {
+        const cName = (c.name || "").toString().trim().toLowerCase();
+        return (
+          cName === normSelected ||
+          (normSelected === "bangalore" && cName === "bengaluru") ||
+          (normSelected === "bengaluru" && cName === "bangalore") ||
+          (normSelected === "gurgaon" && cName === "gurugram") ||
+          (normSelected === "gurugram" && cName === "gurgaon")
+        );
+      });
+    const treeAreas = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
+    const fallbackAreas = getCityBaseAreas(selectedCity);
+    availableAreas = Array.from(new Set([...treeAreas, ...fallbackAreas]))
+      .filter(Boolean)
+      .map((a: string) => a.trim())
+      .sort((a, b) => a.localeCompare(b));
+  }
 
   return (
     <div className="min-h-screen bg-[#030614] text-white font-sans selection:bg-rose-500/30 flex flex-col justify-between w-full">
@@ -360,6 +538,13 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                       {selectedCity}
                     </span>
                   </>
+                ) : selectedState !== "All States" ? (
+                  <>
+                    in{" "}
+                    <span className="bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
+                      {selectedState}
+                    </span>
+                  </>
                 ) : (
                   <span className="bg-gradient-to-r from-rose-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
                     in India
@@ -367,7 +552,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                 )}
               </h1>
               <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                Browse authentic verified female companions &amp; independent models for incall &amp; outcall meetings{selectedCity !== "All Cities" ? ` in ${selectedCity}` : " across top Indian cities"}.
+                Browse authentic verified female companions &amp; independent models for incall &amp; outcall meetings{selectedCity !== "All Cities" ? ` in ${selectedCity}` : selectedState !== "All States" ? ` in ${selectedState}` : " across top Indian cities"}.
               </p>
             </div>
 
@@ -379,13 +564,13 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   type="text"
                   placeholder="Search by area, model name, or location (e.g. Bani Park, Malviya Nagar)..."
                   value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
+                  onChange={(e) => handleSelectArea(e.target.value)}
                   className="w-full bg-transparent px-3 py-2.5 text-sm text-white placeholder-slate-500 outline-none"
                 />
                 {searchLocation && (
                   <button
                     type="button"
-                    onClick={() => setSearchLocation("")}
+                    onClick={() => handleSelectArea("")}
                     className="p-1.5 text-slate-400 hover:text-white transition mr-1"
                   >
                     <X className="h-4 w-4" />
@@ -394,11 +579,11 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
               </div>
             </div>
 
-            {/* DROPDOWNS: CATEGORY, CITY, AREA */}
-            <div className="max-w-4xl mx-auto pt-2 pb-2">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* DROPDOWNS: CATEGORY, STATE, CITY, AREA */}
+            <div className="max-w-5xl mx-auto pt-2 pb-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 
-                {/* Category Dropdown */}
+                {/* 1. Category Dropdown */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <Sparkles className="h-4 w-4 text-rose-400" />
@@ -417,7 +602,27 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                 </div>
 
-                {/* City Dropdown */}
+                {/* 2. State Dropdown */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <MapPin className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <select
+                    value={selectedState}
+                    onChange={(e) => handleSelectState(e.target.value)}
+                    className="w-full pl-9 pr-10 py-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white font-semibold focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-md transition"
+                  >
+                    <option value="All States">All States</option>
+                    {availableStates.map((stName: string) => (
+                      <option key={stName} value={stName}>
+                        {stName}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                </div>
+
+                {/* 3. City Dropdown */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <MapPin className="h-4 w-4 text-rose-400" />
@@ -426,28 +631,20 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                     value={selectedCity}
                     onChange={(e) => {
                       handleSelectCity(e.target.value);
-                      setSearchLocation("");
                     }}
                     className="w-full pl-9 pr-10 py-3 rounded-2xl bg-slate-900/80 border border-slate-700/80 text-white font-semibold focus:border-rose-500 focus:outline-none appearance-none cursor-pointer text-sm shadow-md transition"
                   >
                     <option value="All Cities">All Cities</option>
-                    {(() => {
-                      const treeCities = locationTree.flatMap(st => (st.cities || []).map((c: any) => c.name));
-                      const combined = Array.from(new Set([...treeCities, ...citiesList]))
-                        .filter((c: string) => c && c !== "All Cities")
-                        .map((c: string) => c.trim())
-                        .sort((a, b) => a.localeCompare(b));
-                      return combined.map((cityName: string) => (
-                        <option key={cityName} value={cityName}>
-                          {cityName}
-                        </option>
-                      ));
-                    })()}
+                    {availableCities.map((cityName: string) => (
+                      <option key={cityName} value={cityName}>
+                        {cityName}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                 </div>
 
-                {/* Area Dropdown */}
+                {/* 4. Area Dropdown */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <MapPin className="h-4 w-4 text-rose-400" />
@@ -455,7 +652,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                   <select
                     value={searchLocation}
                     disabled={selectedCity === "All Cities"}
-                    onChange={(e) => setSearchLocation(e.target.value)}
+                    onChange={(e) => handleSelectArea(e.target.value)}
                     className={`w-full pl-9 pr-10 py-3 rounded-2xl border text-sm shadow-md appearance-none transition truncate ${
                       selectedCity !== "All Cities"
                         ? "bg-slate-900/80 border-slate-700/80 text-white font-semibold cursor-pointer focus:border-rose-500 focus:outline-none"
@@ -463,32 +660,11 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
                     }`}
                   >
                     <option value="">Select Area</option>
-                    {(() => {
-                      const normSelected = selectedCity.trim().toLowerCase();
-                      const selectedCityObj = locationTree
-                        .flatMap(st => st.cities || [])
-                        .find((c: any) => {
-                          const cName = (c.name || "").toString().trim().toLowerCase();
-                          return (
-                            cName === normSelected ||
-                            (normSelected === "bangalore" && cName === "bengaluru") ||
-                            (normSelected === "bengaluru" && cName === "bangalore") ||
-                            (normSelected === "gurgaon" && cName === "gurugram") ||
-                            (normSelected === "gurugram" && cName === "gurgaon")
-                          );
-                        });
-                      const treeAreas = selectedCityObj ? (selectedCityObj.areas || []).map((a: any) => a.name) : [];
-                      const fallbackAreas = getCityBaseAreas(selectedCity);
-                      const combinedAreas = Array.from(new Set([...treeAreas, ...fallbackAreas]))
-                        .filter(Boolean)
-                        .map((a: string) => a.trim())
-                        .sort((a, b) => a.localeCompare(b));
-                      return combinedAreas.map((areaName: string) => (
-                        <option key={areaName} value={areaName}>
-                          {areaName}
-                        </option>
-                      ));
-                    })()}
+                    {availableAreas.map((areaName: string) => (
+                      <option key={areaName} value={areaName}>
+                        {areaName}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                 </div>
@@ -511,7 +687,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
               <div>
                 <strong className="text-base font-black text-white block">
                   {selectedTag !== "All Escorts" ? selectedTag : "All Verified Profiles"}{" "}
-                  {selectedCity !== "All Cities" ? `• ${selectedCity}` : ""}
+                  {selectedCity !== "All Cities" ? `• ${selectedCity}` : selectedState !== "All States" ? `• ${selectedState}` : ""}
                 </strong>
                 <span className="text-xs text-slate-400 font-medium">
                   Showing <strong className="text-rose-400 font-bold">{filteredProfiles.length}</strong> available companion listings
@@ -546,7 +722,7 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
               <div className="space-y-1">
                 <h3 className="text-lg font-extrabold text-white">No Profiles Found</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  No verified companion profiles match your current search criteria ({selectedTag !== "All Escorts" ? selectedTag : ""} {selectedCity !== "All Cities" ? selectedCity : ""}).
+                  No verified companion profiles match your current search criteria ({selectedTag !== "All Escorts" ? selectedTag : ""}{selectedState !== "All States" ? ` • ${selectedState}` : ""}{selectedCity !== "All Cities" ? ` • ${selectedCity}` : ""}).
                 </p>
               </div>
               <button
@@ -821,21 +997,26 @@ export default function EscortsClient({ defaultCity, defaultTag, baseRoute = "/e
 
           {/* ALWAYS RENDER ACCORDION, LOCALITIES & FAQS (EVEN WHEN ZERO PROFILES FOUND) */}
           <div className="space-y-8 max-w-6xl mx-auto mt-8">
-            {/* DYNAMIC CITY AREA CATEGORIES ACCORDION (ONLY SHOWN WHEN A SPECIFIC CITY IS SELECTED) */}
-            {selectedCity && selectedCity !== "All Cities" ? (
-              <CityCategoryAccordion
-                currentCity={selectedCity}
-                selectedArea={searchLocation}
-                onSelectArea={(area, tag) => {
-                  setSearchLocation(area);
-                  if (tag && tag !== "All Escorts") {
-                    setSelectedTag(tag);
-                  }
-                  setCurrentPage(1);
-                  window.scrollTo({ top: 350, behavior: "smooth" });
-                }}
-              />
-            ) : null}
+            {/* DYNAMIC CITY AREA / PAN-INDIA STATES ACCORDION */}
+            <CityCategoryAccordion
+              currentCity={selectedCity}
+              selectedArea={searchLocation}
+              selectedTag={selectedTag}
+              locationTree={locationTree}
+              onSelectCity={(city) => {
+                handleSelectCity(city);
+                window.scrollTo({ top: 350, behavior: "smooth" });
+              }}
+              onSelectArea={(area, tag) => {
+                handleSelectArea(area);
+                if (tag && tag !== "All Escorts") {
+                  setSelectedTag(tag);
+                  updateUrl(selectedCity, selectedState, area, tag);
+                }
+                setCurrentPage(1);
+                window.scrollTo({ top: 350, behavior: "smooth" });
+              }}
+            />
 
             {/* RICH SEO EDITORIAL CONTENT SECTION */}
             <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">

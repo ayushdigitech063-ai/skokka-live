@@ -76,7 +76,16 @@ export function AdminLocationTab() {
 
   const [showAreaModal, setShowAreaModal] = useState(false);
   const [editingArea, setEditingArea] = useState<IArea | null>(null);
-  const [areaForm, setAreaForm] = useState({ name: "", cityId: "", pincode: "", isPopular: false, sortOrder: 0 });
+  const [areaForm, setAreaForm] = useState({
+    name: "",
+    cityId: "",
+    pincode: "",
+    isPopular: false,
+    sortOrder: 0,
+    customSlug: "",
+    metaTitle: "",
+    metaDescription: "",
+  });
 
   // Unified Single Location Form State
   const [showUnifiedModal, setShowUnifiedModal] = useState(false);
@@ -359,7 +368,7 @@ export function AdminLocationTab() {
   // ==========================================
   // AREA CRUD HANDLERS
   // ==========================================
-  const handleSaveArea = async (e: React.FormEvent) => {
+  const handleSaveArea = async (e: React.FormEvent, openSeoAfterSave = false) => {
     e.preventDefault();
     if (!areaForm.name.trim() || !areaForm.cityId) {
       Swal.fire("Warning", "Area name and City selection are required", "warning");
@@ -394,9 +403,23 @@ export function AdminLocationTab() {
       });
 
       setShowAreaModal(false);
+      const savedArea = data.area || editingArea;
       setEditingArea(null);
-      setAreaForm({ name: "", cityId: cities[0]?._id || "", pincode: "", isPopular: false, sortOrder: 0 });
+      setAreaForm({
+        name: "",
+        cityId: cities[0]?._id || "",
+        pincode: "",
+        isPopular: false,
+        sortOrder: 0,
+        customSlug: "",
+        metaTitle: "",
+        metaDescription: "",
+      });
       fetchLocations();
+
+      if (openSeoAfterSave && savedArea) {
+        handleOpenAreaSeo(savedArea);
+      }
     } catch (err: any) {
       Swal.fire("Error", err.message, "error");
     }
@@ -507,12 +530,30 @@ export function AdminLocationTab() {
           <button
             onClick={() => {
               setEditingArea(null);
-              setAreaForm({ name: "", cityId: cities[0]?._id || "", pincode: "", isPopular: false, sortOrder: 0 });
+              setAreaForm({
+                name: "",
+                cityId: cities[0]?._id || "",
+                pincode: "",
+                isPopular: false,
+                sortOrder: 0,
+                customSlug: "",
+                metaTitle: "",
+                metaDescription: "",
+              });
               setShowAreaModal(true);
             }}
             className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
           >
             <Plus className="h-4 w-4 text-purple-400" /> Add Area
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveSubTab("areas");
+            }}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-900/60 to-indigo-900/60 hover:from-purple-800 hover:to-indigo-800 text-purple-200 font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 border border-purple-500/40 transition cursor-pointer"
+          >
+            <Globe className="h-4 w-4 text-purple-300" /> Area SEO Manager
           </button>
         </div>
       </div>
@@ -721,7 +762,16 @@ export function AdminLocationTab() {
                             <button
                               onClick={() => {
                                 setEditingArea(null);
-                                setAreaForm({ name: "", cityId: ct._id, pincode: "", isPopular: false, sortOrder: 0 });
+                                setAreaForm({
+                                  name: "",
+                                  cityId: ct._id,
+                                  pincode: "",
+                                  isPopular: false,
+                                  sortOrder: 0,
+                                  customSlug: "",
+                                  metaTitle: "",
+                                  metaDescription: "",
+                                });
                                 setShowAreaModal(true);
                               }}
                               title={`Add Area in ${ct.name}`}
@@ -755,21 +805,25 @@ export function AdminLocationTab() {
                             <span className="text-[10px] text-slate-600 italic">No areas yet</span>
                           ) : (
                             (ct.areas || []).map((ar: any) => (
-                              <span
+                              <div
                                 key={ar._id}
-                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                                className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-purple-950/40 text-purple-200 border border-purple-500/30 hover:border-purple-500/60 transition shadow-sm"
                               >
-                                <MapPin className="h-2.5 w-2.5" />
+                                <MapPin className="h-2.5 w-2.5 text-purple-400" />
                                 <span>{ar.name}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleOpenAreaSeo(ar)}
                                   title={`Configure SEO for ${ar.name}`}
-                                  className="ml-0.5 text-purple-400 hover:text-white transition cursor-pointer"
+                                  className="ml-1 px-1.5 py-0.5 rounded bg-purple-600/40 hover:bg-purple-600 text-purple-200 hover:text-white transition flex items-center gap-1 font-extrabold text-[9px] cursor-pointer border border-purple-400/40"
                                 >
-                                  <Globe className="h-2.5 w-2.5" />
+                                  <Globe className="h-2 w-2 text-purple-300" />
+                                  <span>SEO</span>
+                                  {(ar.metaTitle || ar.customSlug || ar.canonicalUrl || (ar.faqs && ar.faqs.length > 0)) && (
+                                    <span className="h-1 w-1 rounded-full bg-emerald-400" />
+                                  )}
                                 </button>
-                              </span>
+                              </div>
                             ))
                           )}
                         </div>
@@ -1078,6 +1132,9 @@ export function AdminLocationTab() {
                               pincode: ar.pincode || "",
                               isPopular: ar.isPopular || false,
                               sortOrder: ar.sortOrder || 0,
+                              customSlug: ar.customSlug || "",
+                              metaTitle: ar.metaTitle || "",
+                              metaDescription: ar.metaDescription || "",
                             });
                             setShowAreaModal(true);
                           }}
@@ -1233,9 +1290,28 @@ export function AdminLocationTab() {
       {/* CREATE / EDIT AREA MODAL */}
       {showAreaModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
-            <h3 className="text-lg font-bold text-white">{editingArea ? "Edit Area" : "Add New Area"}</h3>
-            <form onSubmit={handleSaveArea} className="space-y-3">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white">{editingArea ? "Edit Area" : "Add New Area"}</h3>
+                <p className="text-xs text-slate-400">Configure area name, parent city and custom SEO settings</p>
+              </div>
+              {editingArea && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentArea = editingArea;
+                    setShowAreaModal(false);
+                    handleOpenAreaSeo(currentArea);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md"
+                >
+                  <Globe className="h-3.5 w-3.5 text-purple-400" />
+                  <span>Open Full SEO Studio</span>
+                </button>
+              )}
+            </div>
+            <form onSubmit={handleSaveArea} className="space-y-3.5">
               <div>
                 <label className="text-xs font-bold text-slate-300 block mb-1">Select Parent City *</label>
                 <select
@@ -1276,19 +1352,68 @@ export function AdminLocationTab() {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              {/* AREA SEO CONFIGURATION SECTION */}
+              <div className="p-3.5 rounded-xl bg-purple-950/20 border border-purple-500/25 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-purple-400" />
+                  <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">Area SEO Settings</span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Custom URL Slug (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. bani-park (auto-generated if empty)"
+                    value={areaForm.customSlug}
+                    onChange={(e) => setAreaForm({ ...areaForm, customSlug: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-purple-300 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Meta Title (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Verified Escorts in Bani Park | Call Girls Directory"
+                    value={areaForm.metaTitle}
+                    onChange={(e) => setAreaForm({ ...areaForm, metaTitle: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Meta Description (Optional)</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Browse verified escort companions in Bani Park..."
+                    value={areaForm.metaDescription}
+                    onChange={(e) => setAreaForm({ ...areaForm, metaDescription: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAreaModal(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition cursor-pointer"
                 >
                   Save Area
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveArea(e, true)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-md shadow-purple-600/30"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>Save &amp; Open SEO Studio</span>
                 </button>
               </div>
             </form>

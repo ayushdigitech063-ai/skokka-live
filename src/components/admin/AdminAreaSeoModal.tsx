@@ -555,6 +555,34 @@ export function AdminAreaSeoModal({
                     </span>
                   ))}
                 </div>
+
+                {/* Preset Suggestions */}
+                <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                  <span className="text-[11px] text-slate-400 font-bold">Quick Keyword Presets:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      `${areaName} escorts`,
+                      `call girls in ${areaName}`,
+                      `${areaName} call girls`,
+                      `independent girls in ${areaName}`,
+                      `vip escorts in ${areaName}`,
+                      `${areaName} ${cityName} escorts`,
+                    ].map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onClick={() => {
+                          if (!focusKeywords.includes(kw)) {
+                            setFocusKeywords([...focusKeywords, kw]);
+                          }
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-600/30 text-purple-300 hover:text-white border border-slate-700 hover:border-purple-500/50 text-[11px] font-bold transition cursor-pointer"
+                      >
+                        + {kw}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -746,7 +774,19 @@ export function AdminAreaSeoModal({
                   <label className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
                     Editorial Content &amp; Internal Linking (HTML)
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPageContent(
+                          `<h3>Verified Escort Companions & Call Girls in ${areaName}, ${cityName}</h3>\n<p>Looking for top-rated, discreet and verified female companions in <strong>${areaName}</strong>? MyCityQueen connects you with 100% verified independent escort models, VIP companions, and call girls available 24/7 for hotel incall and doorstep outcall meetings in ${areaName}, ${cityName}.</p>\n<h4>Available Services in ${areaName}:</h4>\n<ul>\n  <li><a href="/escorts-service/${citySlug}/${effectiveSlug}" class="text-rose-600 font-bold hover:underline">Call Girls in ${areaName}</a> — 100% authentic independent female companions.</li>\n  <li><a href="/escorts-service/${citySlug}" class="text-rose-600 font-bold hover:underline">${cityName} Escorts</a> — Explore top escorts across the entire city.</li>\n</ul>\n<p>Connect directly via WhatsApp or phone call. Always pay directly upon meeting — zero advance booking charges in ${areaName}.</p>`
+                        );
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Insert Area Template ({'{area}'} &amp; Links)
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
@@ -755,8 +795,17 @@ export function AdminAreaSeoModal({
                       }}
                       className="px-2.5 py-1 rounded-lg bg-slate-800 text-purple-300 hover:text-white text-[11px] font-bold transition cursor-pointer"
                     >
-                      + Insert Sample Internal Link
+                      + Insert Sample Link
                     </button>
+                    {pageContent && (
+                      <button
+                        type="button"
+                        onClick={() => setPageContent("")}
+                        className="px-2.5 py-1 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500 hover:text-white text-xs font-bold transition cursor-pointer"
+                      >
+                        Reset to Auto Dynamic
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -852,17 +901,46 @@ export function AdminAreaSeoModal({
           {/* TAB 6: FAQS */}
           {activeTab === "faqs" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <p className="text-xs text-slate-400">
                   Add high-converting frequently asked questions to boost Google SERP rich results.
                 </p>
-                <button
-                  type="button"
-                  onClick={handleAddFaq}
-                  className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Plus className="h-3.5 w-3.5" /> Add Question
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const recommendedFaqs = [
+                        {
+                          question: `How can I book verified escorts in ${areaName}?`,
+                          answer: `You can browse independent verified call girls and escort agencies in ${areaName}, ${cityName} directly through MyCityQueen. Browse profiles, check real photos, verify contact numbers, and connect via direct WhatsApp or call.`,
+                        },
+                        {
+                          question: `Are independent call girls available in ${areaName}, ${cityName}?`,
+                          answer: `Yes, verified independent models, college call girls, and premium high-class VIP escorts provide genuine in-call and out-call hotel services in and around ${areaName}.`,
+                        },
+                        {
+                          question: `What are the average rates for escorts service in ${areaName}?`,
+                          answer: `Escort rates in ${areaName} vary based on duration, profile, and service preferences. Check individual profile listings for transparent pricing and direct terms.`,
+                        },
+                        {
+                          question: `Is privacy and discretion guaranteed when booking escorts in ${areaName}?`,
+                          answer: `Yes, 100% discretion and confidentiality are prioritized for all clients and verified companion models in ${areaName}, ${cityName}.`,
+                        },
+                      ];
+                      setFaqs(recommendedFaqs);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-purple-500/30"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" /> Load Recommended Area FAQs
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddFaq}
+                    className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Add Question
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-3">

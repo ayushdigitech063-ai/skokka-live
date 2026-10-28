@@ -7,7 +7,45 @@ interface CityCategoryAccordionProps {
   currentCity: string;
   onSelectArea: (area: string, tag?: string) => void;
   selectedArea?: string;
+  selectedTag?: string;
+  onSelectCity?: (city: string) => void;
+  locationTree?: any[];
 }
+
+export const ALL_INDIAN_STATES = [
+  "Delhi",
+  "Maharashtra",
+  "Karnataka",
+  "Tamil Nadu",
+  "Goa",
+  "Telangana",
+  "West Bengal",
+  "Rajasthan",
+  "Gujarat",
+  "Uttar Pradesh",
+  "Punjab",
+  "Haryana",
+  "Kerala",
+  "Andhra Pradesh",
+  "Madhya Pradesh",
+  "Bihar",
+  "Odisha",
+  "Assam",
+  "Himachal Pradesh",
+  "Uttarakhand",
+  "Jammu & Kashmir",
+  "Jharkhand",
+  "Chhattisgarh",
+  "Chandigarh",
+  "Puducherry",
+  "Tripura",
+  "Meghalaya",
+  "Manipur",
+  "Nagaland",
+  "Arunachal Pradesh",
+  "Mizoram",
+  "Sikkim",
+];
 
 export const CITY_AREAS_MAP: Record<string, string[]> = {
   Bangalore: [
@@ -437,20 +475,47 @@ export function CityCategoryAccordion({
   currentCity,
   onSelectArea,
   selectedArea = "",
+  selectedTag = "Call Girls",
+  onSelectCity,
+  locationTree = [],
 }: CityCategoryAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [dynamicAreas, setDynamicAreas] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [internalTree, setInternalTree] = useState<any[]>(locationTree);
 
-  // If no specific city is selected (e.g. All Cities / Pan-India), do NOT render local city accordion
-  if (!currentCity || currentCity === "All Cities") {
-    return null;
-  }
+  const isPanIndia =
+    !currentCity ||
+    currentCity === "All Cities" ||
+    currentCity.toLowerCase() === "india" ||
+    currentCity.toLowerCase() === "pan-india";
 
-  // Normalize city name for display and data lookup
-  const displayCity = currentCity;
+  const displayCity = isPanIndia ? "India" : currentCity;
+
+  // Fetch locationTree if not passed down
+  useEffect(() => {
+    if (locationTree && locationTree.length > 0) {
+      setInternalTree(locationTree);
+      return;
+    }
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+    fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && Array.isArray(data.tree)) {
+          setInternalTree(data.tree);
+        }
+      })
+      .catch(() => {});
+  }, [locationTree]);
+
+  // Extract all states from tree + fallback
+  const treeStates = (internalTree || []).map((s: any) => s.name).filter(Boolean);
+  const availableStates = Array.from(new Set([...treeStates, ...ALL_INDIAN_STATES]));
 
   const fetchCityAreas = async () => {
+    if (isPanIndia) return;
+
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
     try {
@@ -487,23 +552,19 @@ export function CityCategoryAccordion({
       }
 
       // 2. If nothing found in /locations/areas, also check /locations/tree
-      if (dbAreaNames.length === 0) {
-        const treeRes = await fetch(`${BACKEND_URL}/locations/tree?includeDeleted=false`);
-        const treeData = await treeRes.json();
-        if (treeData && treeData.success && Array.isArray(treeData.tree)) {
-          const cityObj = treeData.tree
-            .flatMap((st: any) => st.cities || [])
-            .find((c: any) => {
-              const cName = (c.name || "").toString().trim().toLowerCase();
-              return (
-                cName === normCity ||
-                (normCity === "bangalore" && cName === "bengaluru") ||
-                (normCity === "bengaluru" && cName === "bangalore")
-              );
-            });
-          if (cityObj && Array.isArray(cityObj.areas)) {
-            dbAreaNames = cityObj.areas.map((a: any) => a.name).filter(Boolean);
-          }
+      if (dbAreaNames.length === 0 && internalTree.length > 0) {
+        const cityObj = internalTree
+          .flatMap((st: any) => st.cities || [])
+          .find((c: any) => {
+            const cName = (c.name || "").toString().trim().toLowerCase();
+            return (
+              cName === normCity ||
+              (normCity === "bangalore" && cName === "bengaluru") ||
+              (normCity === "bengaluru" && cName === "bangalore")
+            );
+          });
+        if (cityObj && Array.isArray(cityObj.areas)) {
+          dbAreaNames = cityObj.areas.map((a: any) => a.name).filter(Boolean);
         }
       }
 
@@ -514,7 +575,6 @@ export function CityCategoryAccordion({
   };
 
   useEffect(() => {
-    // Reset dynamic areas when city changes to prevent showing old city's areas
     setDynamicAreas([]);
     fetchCityAreas();
 
@@ -525,12 +585,12 @@ export function CityCategoryAccordion({
         window.removeEventListener("skokka_locations_updated", handler);
       };
     }
-  }, [displayCity]);
+  }, [displayCity, isPanIndia]);
 
-  // Base list specifically for this city (NO fallback to Bangalore when currentCity is different!)
-  const baseList = getCityBaseAreas(displayCity);
+  // Base list specifically for this city
+  const baseList = isPanIndia ? [] : getCityBaseAreas(displayCity);
 
-  // Combine static and dynamic areas, deduplicating case-insensitively
+  // Combine static and dynamic areas
   const combinedRaw = [...baseList, ...dynamicAreas];
   const seenLower = new Set<string>();
   const allAreas: string[] = [];
@@ -546,13 +606,44 @@ export function CityCategoryAccordion({
     }
   }
 
-  const categories = [
-    { title: `Call Girls ${displayCity}`, emoji: "👄", tag: "Call Girls" },
-    { title: `Massages ${displayCity}`, emoji: "💆‍♀️", tag: "Massages" },
-    { title: `Male Escorts ${displayCity}`, emoji: "🧔", tag: "Male Escorts" },
-    { title: `Transsexual ${displayCity}`, emoji: "👠", tag: "Transsexual" },
-    { title: `Adult Meetings ${displayCity}`, emoji: "🍸", tag: "Adult Meetings" },
-  ];
+  // Check if currentCity is a State
+  const matchedStateObj = !isPanIndia
+    ? (internalTree || []).find(
+        (s: any) =>
+          s.name?.toLowerCase() === displayCity.toLowerCase() ||
+          s.slug?.toLowerCase() === displayCity.toLowerCase()
+      )
+    : null;
+  const stateCities = matchedStateObj?.cities?.map((c: any) => c.name).filter(Boolean) || [];
+
+  // Check sister cities if city has no areas
+  const parentState = !isPanIndia && allAreas.length === 0 && stateCities.length === 0
+    ? (internalTree || []).find((s: any) =>
+        s.cities?.some((c: any) => c.name?.toLowerCase() === displayCity.toLowerCase())
+      )
+    : null;
+  const sisterCities = parentState?.cities
+    ?.map((c: any) => c.name)
+    .filter((n: string) => n.toLowerCase() !== displayCity.toLowerCase())
+    .slice(0, 24) || [];
+
+  const categories = isPanIndia
+    ? [
+        { title: "Call Girls in India", emoji: "👄", tag: "Call Girls" },
+        { title: "Massages in India", emoji: "💆‍♀️", tag: "Massages" },
+        { title: "VIP Escorts in India", emoji: "⭐", tag: "VIP Escorts" },
+        { title: "Male Escorts in India", emoji: "🧔", tag: "Male Escorts" },
+        { title: "Transsexual in India", emoji: "👠", tag: "Transsexual" },
+        { title: "Adult Meetings in India", emoji: "🍸", tag: "Adult Meetings" },
+      ]
+    : [
+        { title: `Call Girls ${displayCity}`, emoji: "👄", tag: "Call Girls" },
+        { title: `Massages ${displayCity}`, emoji: "💆‍♀️", tag: "Massages" },
+        { title: `VIP Escorts ${displayCity}`, emoji: "⭐", tag: "VIP Escorts" },
+        { title: `Male Escorts ${displayCity}`, emoji: "🧔", tag: "Male Escorts" },
+        { title: `Transsexual ${displayCity}`, emoji: "👠", tag: "Transsexual" },
+        { title: `Adult Meetings ${displayCity}`, emoji: "🍸", tag: "Adult Meetings" },
+      ];
 
   const toggleAccordion = (idx: number) => {
     setOpenIndex(openIndex === idx ? null : idx);
@@ -595,7 +686,61 @@ export function CityCategoryAccordion({
 
               {isOpen && (
                 <div className="px-6 pb-6 pt-2 border-t border-slate-800/60 bg-[#090E24]/60">
-                  {allAreas.length > 0 ? (
+                  {/* CASE 1: PAN-INDIA (SHOW ALL INDIAN STATES) */}
+                  {isPanIndia ? (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between text-xs text-slate-300 font-bold border-b border-slate-800/80 pb-2">
+                        <span className="flex items-center gap-1.5 text-pink-400">
+                          <MapPin className="h-3.5 w-3.5 text-rose-500" />
+                          Browse {cat.tag} across Indian States &amp; Territories ({availableStates.length}):
+                        </span>
+                        <span className="text-[11px] text-slate-500 hidden sm:inline">
+                          Select a state to browse local companions
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2.5 pt-1">
+                        {availableStates.map((stateName) => (
+                          <button
+                            key={stateName}
+                            type="button"
+                            onClick={() => {
+                              if (onSelectCity) onSelectCity(stateName);
+                              if (onSelectArea) onSelectArea("", cat.tag);
+                            }}
+                            className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 bg-slate-900/90 text-pink-300 hover:text-white hover:bg-rose-600/30 border-pink-500/30 hover:border-rose-400"
+                          >
+                            <MapPin className="h-3 w-3 shrink-0 text-rose-400" />
+                            <span>{stateName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : stateCities.length > 0 ? (
+                    /* CASE 2: STATE SELECTED (SHOW ALL CITIES UNDER THIS STATE) */
+                    <div className="space-y-3 pt-2">
+                      <div className="text-xs text-slate-300 font-bold border-b border-slate-800/80 pb-2 flex items-center gap-1.5 text-pink-400">
+                        <MapPin className="h-3.5 w-3.5 text-rose-500" />
+                        Cities in {displayCity} ({stateCities.length}):
+                      </div>
+                      <div className="flex flex-wrap gap-2.5 pt-1">
+                        {stateCities.map((cityName: string) => (
+                          <button
+                            key={cityName}
+                            type="button"
+                            onClick={() => {
+                              if (onSelectCity) onSelectCity(cityName);
+                              if (onSelectArea) onSelectArea("", cat.tag);
+                            }}
+                            className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 bg-slate-900/90 text-pink-300 hover:text-white hover:bg-rose-600/30 border-pink-500/30 hover:border-rose-400"
+                          >
+                            <MapPin className="h-3 w-3 shrink-0 text-rose-400" />
+                            <span>{cityName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : allAreas.length > 0 ? (
+                    /* CASE 3: CITY WITH REGISTERED AREAS */
                     <div className="flex flex-wrap gap-2.5 pt-2">
                       {allAreas.map((area) => {
                         const isSelected =
@@ -618,9 +763,32 @@ export function CityCategoryAccordion({
                         );
                       })}
                     </div>
+                  ) : sisterCities.length > 0 ? (
+                    /* CASE 4: CITY WITHOUT DIRECT AREAS YET (SHOW SISTER CITIES IN SAME STATE) */
+                    <div className="space-y-3 pt-2">
+                      <p className="text-xs text-slate-300 font-medium">
+                        Showing verified {cat.tag} companions in <strong className="text-white">{displayCity}</strong> and nearby {parentState?.name || "regional"} hubs:
+                      </p>
+                      <div className="flex flex-wrap gap-2.5 pt-1">
+                        {sisterCities.map((cityName: string) => (
+                          <button
+                            key={cityName}
+                            type="button"
+                            onClick={() => {
+                              if (onSelectCity) onSelectCity(cityName);
+                              if (onSelectArea) onSelectArea("", cat.tag);
+                            }}
+                            className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 bg-slate-900/90 text-pink-300 hover:text-white hover:bg-rose-600/20 border-pink-500/30 hover:border-rose-400"
+                          >
+                            <MapPin className="h-3 w-3 shrink-0 text-rose-400" />
+                            <span>{cityName}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ) : (
                     <div className="py-4 text-center text-xs text-slate-400">
-                      No specific areas found for {displayCity}. Select another city or browse all {displayCity} escorts.
+                      Verified {cat.tag} companionship services active in {displayCity}. Contact directly via phone or WhatsApp.
                     </div>
                   )}
                 </div>

@@ -151,6 +151,7 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ")
       : "All Cities");
+  const isCategory = Boolean(KNOWN_CATEGORIES[normalizedKey]);
   const areaName =
     areaData?.name ||
     KNOWN_CATEGORIES[normalizedKey] ||
@@ -159,7 +160,7 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
           .split("-")
           .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
           .join(" ")
-      : "All Escorts");
+      : "");
 
   const canonicalUrl =
     catOverride?.canonicalUrl ||
@@ -188,7 +189,8 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
       )}
       <EscortsClient
         defaultCity={cityName}
-        defaultTag={areaName}
+        defaultArea={!isCategory ? (areaData?.name || areaName) : undefined}
+        defaultTag={isCategory ? (KNOWN_CATEGORIES[normalizedKey] || areaName) : "All Escorts"}
         citySeo={loc?.type === "city" ? (locData as any) : undefined}
         stateSeo={loc?.type === "state" ? (locData as any) : undefined}
         areaSeo={areaData || undefined}

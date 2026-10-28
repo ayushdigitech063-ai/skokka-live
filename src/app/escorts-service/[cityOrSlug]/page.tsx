@@ -120,7 +120,8 @@ export default async function CityOrProfilePage({ params }: Params) {
       <>
         <StateJsonLd state={stateData} stateName={stateName} />
         <EscortsClient
-          defaultCity={stateName}
+          defaultState={stateName}
+          defaultCity="All Cities"
           stateSeo={stateData}
           customPageContent={stateData?.pageContent}
           customFaqs={stateData?.faqs}
