@@ -796,6 +796,13 @@ export function AdminLocationTab() {
                             >
                               <Edit2 className="h-3 w-3" />
                             </button>
+                            <button
+                              onClick={() => handleDeleteCity(ct._id, ct.name)}
+                              title="Delete City"
+                              className="p-1 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition cursor-pointer"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
                           </div>
                         </div>
 
@@ -822,6 +829,14 @@ export function AdminLocationTab() {
                                   {(ar.metaTitle || ar.customSlug || ar.canonicalUrl || (ar.faqs && ar.faqs.length > 0)) && (
                                     <span className="h-1 w-1 rounded-full bg-emerald-400" />
                                   )}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteArea(ar._id, ar.name)}
+                                  title="Delete Area"
+                                  className="p-0.5 rounded text-slate-400 hover:text-rose-400 transition cursor-pointer hover:bg-rose-500/20"
+                                >
+                                  <Trash2 className="h-2.5 w-2.5" />
                                 </button>
                               </div>
                             ))
