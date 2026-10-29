@@ -4,11 +4,13 @@ import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, MapPin } from "lucide-react";
 
 interface CityCategoryAccordionProps {
-  currentCity: string;
+  currentCity?: string;
+  currentState?: string;
   onSelectArea: (area: string, tag?: string) => void;
   selectedArea?: string;
   selectedTag?: string;
   onSelectCity?: (city: string) => void;
+  onSelectState?: (state: string) => void;
   locationTree?: any[];
 }
 
@@ -46,6 +48,291 @@ export const ALL_INDIAN_STATES = [
   "Mizoram",
   "Sikkim",
 ];
+
+export const STATE_CITIES_MAP: Record<string, string[]> = {
+  Gujarat: [
+    "Ahmedabad",
+    "Surat",
+    "Vadodara",
+    "Rajkot",
+    "Bhavnagar",
+    "Jamnagar",
+    "Junagadh",
+    "Gandhinagar",
+    "Anand",
+    "Navsari",
+    "Morbi",
+    "Nadiad",
+    "Surendranagar",
+    "Bharuch",
+    "Porbandar",
+    "Mehsana",
+    "Bhuj",
+    "Valsad",
+    "Vapi",
+    "Gondal",
+    "Veraval",
+    "Godhra",
+    "Patan",
+    "Palanpur",
+  ],
+  Maharashtra: [
+    "Mumbai",
+    "Pune",
+    "Nagpur",
+    "Thane",
+    "Nashik",
+    "Navi Mumbai",
+    "Aurangabad",
+    "Solapur",
+    "Kolhapur",
+    "Amravati",
+    "Nanded",
+    "Sangli",
+    "Jalgaon",
+    "Akola",
+    "Latur",
+    "Dhule",
+    "Ahmednagar",
+    "Chandrapur",
+  ],
+  Karnataka: [
+    "Bangalore",
+    "Bengaluru",
+    "Mysore",
+    "Mysuru",
+    "Hubli",
+    "Mangalore",
+    "Belgaum",
+    "Gulbarga",
+    "Davanagere",
+    "Bellary",
+    "Shimoga",
+    "Tumkur",
+    "Udupi",
+    "Hassan",
+    "Bidar",
+  ],
+  Delhi: [
+    "Central Delhi",
+    "New Delhi",
+    "North Delhi",
+    "South Delhi",
+    "West Delhi",
+    "East Delhi",
+    "Rohini",
+    "Dwarka",
+    "Saket",
+    "Connaught Place",
+    "Karol Bagh",
+    "Lajpat Nagar",
+    "Pitampura",
+    "Janakpuri",
+  ],
+  Rajasthan: [
+    "Jaipur",
+    "Jodhpur",
+    "Kota",
+    "Bikaner",
+    "Ajmer",
+    "Udaipur",
+    "Bhilwara",
+    "Alwar",
+    "Bharatpur",
+    "Sikar",
+    "Pali",
+    "Sri Ganganagar",
+  ],
+  "Uttar Pradesh": [
+    "Lucknow",
+    "Kanpur",
+    "Ghaziabad",
+    "Agra",
+    "Meerut",
+    "Varanasi",
+    "Prayagraj",
+    "Bareilly",
+    "Aligarh",
+    "Moradabad",
+    "Noida",
+    "Saharanpur",
+    "Gorakhpur",
+    "Firozabad",
+    "Jhansi",
+    "Mathura",
+    "Ayodhya",
+  ],
+  "West Bengal": [
+    "Kolkata",
+    "Howrah",
+    "Durgapur",
+    "Asansol",
+    "Siliguri",
+    "Bardhaman",
+    "Malda",
+    "Kharagpur",
+    "Haldia",
+  ],
+  "Tamil Nadu": [
+    "Chennai",
+    "Coimbatore",
+    "Madurai",
+    "Tiruchirappalli",
+    "Salem",
+    "Tiruppur",
+    "Erode",
+    "Vellore",
+    "Thoothukudi",
+    "Dindigul",
+    "Thanjavur",
+  ],
+  Telangana: [
+    "Hyderabad",
+    "Warangal",
+    "Nizamabad",
+    "Khammam",
+    "Karimnagar",
+    "Ramagundam",
+    "Secunderabad",
+    "Mahbubnagar",
+  ],
+  Punjab: [
+    "Ludhiana",
+    "Amritsar",
+    "Jalandhar",
+    "Patiala",
+    "Bathinda",
+    "Mohali",
+    "Hoshiarpur",
+    "Pathankot",
+    "Moga",
+  ],
+  Haryana: [
+    "Gurgaon",
+    "Gurugram",
+    "Faridabad",
+    "Panipat",
+    "Ambala",
+    "Yamunanagar",
+    "Rohtak",
+    "Hisar",
+    "Karnal",
+    "Sonipat",
+    "Panchkula",
+  ],
+  Bihar: [
+    "Patna",
+    "Gaya",
+    "Bhagalpur",
+    "Muzaffarpur",
+    "Purnia",
+    "Darbhanga",
+    "Bihar Sharif",
+    "Arrah",
+    "Begusarai",
+  ],
+  "Madhya Pradesh": [
+    "Indore",
+    "Bhopal",
+    "Jabalpur",
+    "Gwalior",
+    "Ujjain",
+    "Sagar",
+    "Dewas",
+    "Satna",
+    "Ratlam",
+    "Rewa",
+  ],
+  Kerala: [
+    "Kochi",
+    "Thiruvananthapuram",
+    "Kozhikode",
+    "Kollam",
+    "Thrissur",
+    "Alappuzha",
+    "Palakkad",
+    "Kannur",
+    "Kottayam",
+  ],
+  Goa: [
+    "Panaji",
+    "Margao",
+    "Vasco da Gama",
+    "Mapusa",
+    "Ponda",
+    "Calangute",
+    "Candolim",
+    "Baga",
+    "Anjuna",
+    "Colva",
+  ],
+  Uttarakhand: [
+    "Dehradun",
+    "Haridwar",
+    "Rishikesh",
+    "Haldwani",
+    "Roorkee",
+    "Nainital",
+    "Rudrapur",
+  ],
+  "Himachal Pradesh": [
+    "Shimla",
+    "Dharamshala",
+    "Manali",
+    "Mandi",
+    "Solan",
+    "Kullu",
+    "Kasauli",
+  ],
+  "Jammu & Kashmir": [
+    "Srinagar",
+    "Jammu",
+    "Anantnag",
+    "Baramulla",
+    "Udhampur",
+    "Kathua",
+  ],
+  Jharkhand: [
+    "Ranchi",
+    "Jamshedpur",
+    "Dhanbad",
+    "Bokaro",
+    "Deoghar",
+    "Hazaribagh",
+  ],
+  Chhattisgarh: [
+    "Raipur",
+    "Bhilai",
+    "Bilaspur",
+    "Korba",
+    "Durg",
+    "Rajnandgaon",
+  ],
+  Odisha: [
+    "Bhubaneswar",
+    "Cuttack",
+    "Rourkela",
+    "Berhampur",
+    "Sambalpur",
+    "Puri",
+  ],
+  Assam: [
+    "Guwahati",
+    "Silchar",
+    "Dibrugarh",
+    "Jorhat",
+    "Nagaon",
+    "Tinsukia",
+  ],
+  Chandigarh: [
+    "Sector 17",
+    "Sector 22",
+    "Sector 35",
+    "Sector 43",
+    "Manimajra",
+    "Industrial Area",
+  ],
+};
 
 export const CITY_AREAS_MAP: Record<string, string[]> = {
   Bangalore: [
@@ -473,24 +760,18 @@ export const getCityBaseAreas = (cityName: string): string[] => {
 
 export function CityCategoryAccordion({
   currentCity,
+  currentState,
   onSelectArea,
   selectedArea = "",
   selectedTag = "Call Girls",
   onSelectCity,
+  onSelectState,
   locationTree = [],
 }: CityCategoryAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [dynamicAreas, setDynamicAreas] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [internalTree, setInternalTree] = useState<any[]>(locationTree);
-
-  const isPanIndia =
-    !currentCity ||
-    currentCity === "All Cities" ||
-    currentCity.toLowerCase() === "india" ||
-    currentCity.toLowerCase() === "pan-india";
-
-  const displayCity = isPanIndia ? "India" : currentCity;
 
   // Fetch locationTree if not passed down
   useEffect(() => {
@@ -513,13 +794,59 @@ export function CityCategoryAccordion({
   const treeStates = (internalTree || []).map((s: any) => s.name).filter(Boolean);
   const availableStates = Array.from(new Set([...treeStates, ...ALL_INDIAN_STATES]));
 
+  const isStateName = (name?: string) => {
+    if (!name || name === "All States" || name === "All Cities") return false;
+    const clean = name.trim().toLowerCase();
+    return (
+      availableStates.some((s) => s.toLowerCase() === clean) ||
+      (internalTree || []).some(
+        (st: any) =>
+          st.name?.toLowerCase() === clean || st.slug?.toLowerCase() === clean
+      )
+    );
+  };
+
+  const hasExplicitState = Boolean(
+    currentState &&
+      currentState !== "All States" &&
+      currentState.toLowerCase() !== "india" &&
+      currentState.toLowerCase() !== "pan-india"
+  );
+
+  const hasCity = Boolean(
+    currentCity &&
+      currentCity !== "All Cities" &&
+      currentCity.toLowerCase() !== "india" &&
+      currentCity.toLowerCase() !== "pan-india"
+  );
+
+  // If currentCity is actually a state name (e.g. "Gujarat") and no explicit state was given
+  const isCityActuallyState = hasCity && !hasExplicitState && isStateName(currentCity);
+
+  const activeStateName = hasExplicitState
+    ? currentState!
+    : isCityActuallyState
+    ? currentCity!
+    : "";
+
+  const activeCityName =
+    hasCity && !isCityActuallyState && (!activeStateName || currentCity!.toLowerCase() !== activeStateName.toLowerCase())
+      ? currentCity!
+      : "";
+
+  const isPanIndia = !activeStateName && !activeCityName;
+  const isStateOnly = Boolean(activeStateName && !activeCityName);
+
+  const displayLocation = activeCityName || activeStateName || "India";
+  const displayCity = displayLocation;
+
   const fetchCityAreas = async () => {
-    if (isPanIndia) return;
+    if (isPanIndia || isStateOnly || !activeCityName) return;
 
     const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
 
     try {
-      const normCity = displayCity.trim().toLowerCase();
+      const normCity = activeCityName.trim().toLowerCase();
 
       // 1. Fetch from /locations/areas
       const res = await fetch(`${BACKEND_URL}/locations/areas?includeDeleted=false`);
@@ -576,19 +903,23 @@ export function CityCategoryAccordion({
 
   useEffect(() => {
     setDynamicAreas([]);
-    fetchCityAreas();
+    if (!isPanIndia && !isStateOnly) {
+      fetchCityAreas();
+    }
 
     if (typeof window !== "undefined") {
-      const handler = () => fetchCityAreas();
+      const handler = () => {
+        if (!isPanIndia && !isStateOnly) fetchCityAreas();
+      };
       window.addEventListener("skokka_locations_updated", handler);
       return () => {
         window.removeEventListener("skokka_locations_updated", handler);
       };
     }
-  }, [displayCity, isPanIndia]);
+  }, [displayLocation, isPanIndia, isStateOnly]);
 
   // Base list specifically for this city
-  const baseList = isPanIndia ? [] : getCityBaseAreas(displayCity);
+  const baseList = isPanIndia || isStateOnly ? [] : getCityBaseAreas(activeCityName);
 
   // Combine static and dynamic areas
   const combinedRaw = [...baseList, ...dynamicAreas];
@@ -606,26 +937,46 @@ export function CityCategoryAccordion({
     }
   }
 
-  // Check if currentCity is a State
-  const matchedStateObj = !isPanIndia
-    ? (internalTree || []).find(
-        (s: any) =>
-          s.name?.toLowerCase() === displayCity.toLowerCase() ||
-          s.slug?.toLowerCase() === displayCity.toLowerCase()
-      )
-    : null;
-  const stateCities = matchedStateObj?.cities?.map((c: any) => c.name).filter(Boolean) || [];
+  // Find cities under active state (combining tree + static fallback)
+  let stateCities: string[] = [];
+  if (activeStateName) {
+    const matchedStateObj = (internalTree || []).find(
+      (s: any) =>
+        s.name?.toLowerCase() === activeStateName.toLowerCase() ||
+        s.slug?.toLowerCase() === activeStateName.toLowerCase()
+    );
+    const treeCities: string[] =
+      matchedStateObj?.cities?.map((c: any) => c.name).filter(Boolean) || [];
+
+    const fallbackKey = Object.keys(STATE_CITIES_MAP).find(
+      (k) => k.toLowerCase() === activeStateName.toLowerCase()
+    );
+    const fallbackCities: string[] = fallbackKey ? STATE_CITIES_MAP[fallbackKey] : [];
+
+    const seenCities = new Set<string>();
+    for (const c of [...treeCities, ...fallbackCities]) {
+      if (c && typeof c === "string") {
+        const clean = c.trim();
+        if (clean && !seenCities.has(clean.toLowerCase())) {
+          seenCities.add(clean.toLowerCase());
+          stateCities.push(clean);
+        }
+      }
+    }
+  }
 
   // Check sister cities if city has no areas
-  const parentState = !isPanIndia && allAreas.length === 0 && stateCities.length === 0
-    ? (internalTree || []).find((s: any) =>
-        s.cities?.some((c: any) => c.name?.toLowerCase() === displayCity.toLowerCase())
-      )
-    : null;
-  const sisterCities = parentState?.cities
-    ?.map((c: any) => c.name)
-    .filter((n: string) => n.toLowerCase() !== displayCity.toLowerCase())
-    .slice(0, 24) || [];
+  const parentState =
+    !isPanIndia && !isStateOnly && allAreas.length === 0
+      ? (internalTree || []).find((s: any) =>
+          s.cities?.some((c: any) => c.name?.toLowerCase() === activeCityName.toLowerCase())
+        )
+      : null;
+  const sisterCities =
+    parentState?.cities
+      ?.map((c: any) => c.name)
+      .filter((n: string) => n.toLowerCase() !== activeCityName.toLowerCase())
+      .slice(0, 24) || [];
 
   const categories = isPanIndia
     ? [
@@ -637,12 +988,12 @@ export function CityCategoryAccordion({
         { title: "Adult Meetings in India", emoji: "🍸", tag: "Adult Meetings" },
       ]
     : [
-        { title: `Call Girls ${displayCity}`, emoji: "👄", tag: "Call Girls" },
-        { title: `Massages ${displayCity}`, emoji: "💆‍♀️", tag: "Massages" },
-        { title: `VIP Escorts ${displayCity}`, emoji: "⭐", tag: "VIP Escorts" },
-        { title: `Male Escorts ${displayCity}`, emoji: "🧔", tag: "Male Escorts" },
-        { title: `Transsexual ${displayCity}`, emoji: "👠", tag: "Transsexual" },
-        { title: `Adult Meetings ${displayCity}`, emoji: "🍸", tag: "Adult Meetings" },
+        { title: `Call Girls in ${displayLocation}`, emoji: "👄", tag: "Call Girls" },
+        { title: `Massages in ${displayLocation}`, emoji: "💆‍♀️", tag: "Massages" },
+        { title: `VIP Escorts in ${displayLocation}`, emoji: "⭐", tag: "VIP Escorts" },
+        { title: `Male Escorts in ${displayLocation}`, emoji: "🧔", tag: "Male Escorts" },
+        { title: `Transsexual in ${displayLocation}`, emoji: "👠", tag: "Transsexual" },
+        { title: `Adult Meetings in ${displayLocation}`, emoji: "🍸", tag: "Adult Meetings" },
       ];
 
   const toggleAccordion = (idx: number) => {
@@ -704,7 +1055,8 @@ export function CityCategoryAccordion({
                             key={stateName}
                             type="button"
                             onClick={() => {
-                              if (onSelectCity) onSelectCity(stateName);
+                              if (onSelectState) onSelectState(stateName);
+                              else if (onSelectCity) onSelectCity(stateName);
                               if (onSelectArea) onSelectArea("", cat.tag);
                             }}
                             className="px-4 py-2 rounded-full text-xs font-extrabold transition cursor-pointer border shadow-sm flex items-center gap-1.5 bg-slate-900/90 text-pink-300 hover:text-white hover:bg-rose-600/30 border-pink-500/30 hover:border-rose-400"
@@ -715,12 +1067,17 @@ export function CityCategoryAccordion({
                         ))}
                       </div>
                     </div>
-                  ) : stateCities.length > 0 ? (
+                  ) : isStateOnly || (stateCities.length > 0 && !activeCityName) ? (
                     /* CASE 2: STATE SELECTED (SHOW ALL CITIES UNDER THIS STATE) */
                     <div className="space-y-3 pt-2">
-                      <div className="text-xs text-slate-300 font-bold border-b border-slate-800/80 pb-2 flex items-center gap-1.5 text-pink-400">
-                        <MapPin className="h-3.5 w-3.5 text-rose-500" />
-                        Cities in {displayCity} ({stateCities.length}):
+                      <div className="flex items-center justify-between text-xs text-slate-300 font-bold border-b border-slate-800/80 pb-2">
+                        <span className="flex items-center gap-1.5 text-pink-400">
+                          <MapPin className="h-3.5 w-3.5 text-rose-500" />
+                          Browse {cat.tag} across {displayLocation} Cities ({stateCities.length}):
+                        </span>
+                        <span className="text-[11px] text-slate-500 hidden sm:inline">
+                          Select a city to browse local companions
+                        </span>
                       </div>
                       <div className="flex flex-wrap gap-2.5 pt-1">
                         {stateCities.map((cityName: string) => (

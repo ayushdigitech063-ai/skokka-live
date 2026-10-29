@@ -124,6 +124,18 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
   };
 
   const handleSelectCity = (city: string) => {
+    if (city && city !== "All Cities") {
+      const isStateMatch = locationTree.find(
+        (st) =>
+          st.name?.toLowerCase() === city.toLowerCase() ||
+          st.slug?.toLowerCase() === city.toLowerCase()
+      );
+      if (isStateMatch) {
+        handleSelectState(isStateMatch.name);
+        return;
+      }
+    }
+
     setSelectedCity(city);
     setSearchLocation("");
     setCurrentPage(1);
@@ -247,7 +259,16 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
   useEffect(() => {
     if (!selectedCity || selectedCity === "All Cities") {
       setCurrentCitySeo(undefined);
-      setCurrentStateSeo(undefined);
+      if (selectedState && selectedState !== "All States") {
+        const foundState = locationTree.find(
+          (st) =>
+            st.name?.toLowerCase() === selectedState.toLowerCase() ||
+            st.slug?.toLowerCase() === selectedState.toLowerCase()
+        );
+        if (foundState) setCurrentStateSeo(foundState);
+      } else {
+        setCurrentStateSeo(undefined);
+      }
       return;
     }
 
@@ -292,7 +313,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
         })
         .catch(() => {});
     }
-  }, [selectedCity, locationTree]);
+  }, [selectedCity, selectedState, locationTree]);
 
   const toggleFavorite = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -1000,9 +1021,14 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
             {/* DYNAMIC CITY AREA / PAN-INDIA STATES ACCORDION */}
             <CityCategoryAccordion
               currentCity={selectedCity}
+              currentState={selectedState}
               selectedArea={searchLocation}
               selectedTag={selectedTag}
               locationTree={locationTree}
+              onSelectState={(state) => {
+                handleSelectState(state);
+                window.scrollTo({ top: 350, behavior: "smooth" });
+              }}
               onSelectCity={(city) => {
                 handleSelectCity(city);
                 window.scrollTo({ top: 350, behavior: "smooth" });
@@ -1018,116 +1044,123 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
               }}
             />
 
-            {/* RICH SEO EDITORIAL CONTENT SECTION */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 font-bold text-[11px] uppercase tracking-wider border border-rose-500/25 inline-flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-rose-400" />
-                    Verified Companion Guide
-                  </span>
-                  <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 font-bold text-[11px] uppercase tracking-wider border border-cyan-500/25">
-                    {selectedCity !== "All Cities" ? selectedCity : "Pan-India"}
-                  </span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  Verified Independent Escorts &amp; Call Girls in {selectedCity !== "All Cities" ? selectedCity : "India"}
-                </h2>
-                {(() => {
-                  const normalizedTagSlug = selectedTag && selectedTag !== "All Escorts" ? slugifyPath(selectedTag) : "";
-                  const catOverride = currentCitySeo?.categorySeo?.find(
-                    (c) =>
-                      c.categorySlug === normalizedTagSlug ||
-                      c.categorySlug === selectedTag.toLowerCase().replace(/\s+/g, "-")
-                  );
+            {(() => {
+              const currentLocationName =
+                selectedCity !== "All Cities"
+                  ? selectedCity
+                  : selectedState !== "All States"
+                  ? selectedState
+                  : "India";
 
-                  const rawContent =
-                    catOverride?.pageContent ||
-                    customPageContent ||
-                    currentCitySeo?.pageContent ||
-                    areaSeo?.pageContent ||
-                    currentStateSeo?.pageContent ||
-                    currentCitySeo?.metaDescription ||
-                    currentStateSeo?.metaDescription ||
-                    `Welcome to the premier verified adult classifieds directory for {city}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with verified companions for hotel incall meetings and private doorstep outcalls across top colonies in {city}.`;
+              return (
+                /* RICH SEO EDITORIAL CONTENT SECTION */
+                <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 font-bold text-[11px] uppercase tracking-wider border border-rose-500/25 inline-flex items-center gap-1.5">
+                        <ShieldCheck className="h-3.5 w-3.5 text-rose-400" />
+                        Verified Companion Guide
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 font-bold text-[11px] uppercase tracking-wider border border-cyan-500/25">
+                        {currentLocationName !== "India" ? currentLocationName : "Pan-India"}
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                      Verified Independent Escorts &amp; Call Girls in {currentLocationName}
+                    </h2>
+                    {(() => {
+                      const normalizedTagSlug = selectedTag && selectedTag !== "All Escorts" ? slugifyPath(selectedTag) : "";
+                      const catOverride = currentCitySeo?.categorySeo?.find(
+                        (c) =>
+                          c.categorySlug === normalizedTagSlug ||
+                          c.categorySlug === selectedTag.toLowerCase().replace(/\s+/g, "-")
+                      );
 
-                  const currentCityLabel =
-                    selectedCity !== "All Cities"
-                      ? selectedCity
-                      : currentCitySeo?.name || currentStateSeo?.name || "India";
-                  const renderedText = rawContent
-                    .replace(/\{city\}/gi, currentCityLabel)
-                    .replace(/\{location\}/gi, currentCityLabel)
-                    .replace(/\[city\]/gi, currentCityLabel)
-                    .replace(/\[location\]/gi, currentCityLabel)
-                    .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel);
+                      const rawContent =
+                        catOverride?.pageContent ||
+                        customPageContent ||
+                        currentCitySeo?.pageContent ||
+                        areaSeo?.pageContent ||
+                        currentStateSeo?.pageContent ||
+                        currentCitySeo?.metaDescription ||
+                        currentStateSeo?.metaDescription ||
+                        `Welcome to the premier verified adult classifieds directory for {city}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with verified companions for hotel incall meetings and private doorstep outcalls across top colonies in {city}.`;
 
-                  const hasHtml = /<[a-z][\s\S]*>/i.test(renderedText);
+                      const renderedText = rawContent
+                        .replace(/\{city\}/gi, currentLocationName)
+                        .replace(/\{location\}/gi, currentLocationName)
+                        .replace(/\[city\]/gi, currentLocationName)
+                        .replace(/\[location\]/gi, currentLocationName)
+                        .replace(/\{area\}/gi, areaSeo?.name || currentLocationName);
 
-                  if (hasHtml) {
-                    return (
-                      <div
-                        className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_li]:text-slate-300"
-                        dangerouslySetInnerHTML={{ __html: renderedText }}
-                      />
-                    );
-                  }
+                      const hasHtml = /<[a-z][\s\S]*>/i.test(renderedText);
 
-                  return (
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-                      {renderedText}
-                    </p>
-                  );
-                })()}
-              </div>
+                      if (hasHtml) {
+                        return (
+                          <div
+                            className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_li]:text-slate-300"
+                            dangerouslySetInnerHTML={{ __html: renderedText }}
+                          />
+                        );
+                      }
 
-              {/* TRUST & SAFETY HIGHLIGHTS GRID */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-                  <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                    <UserCheck className="h-4 w-4" />
+                      return (
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
+                          {renderedText}
+                        </p>
+                      );
+                    })()}
                   </div>
-                  <h3 className="text-xs font-bold text-white">100% Selfie-Verified Profiles</h3>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Every companion profile is verified with live selfie identification so you meet real companions without photo fraud.
-                  </p>
-                </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-                  <div className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
-                    <MapPin className="h-4 w-4" />
+                  {/* TRUST & SAFETY HIGHLIGHTS GRID */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                      <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                        <UserCheck className="h-4 w-4" />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">100% Selfie-Verified Profiles</h3>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Every companion profile is verified with live selfie identification so you meet real companions without photo fraud.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                      <div className="h-9 w-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
+                        <MapPin className="h-4 w-4" />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Incall &amp; Outcall Services</h3>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Enjoy safe, private incall rendezvous at luxury hotels or flexible outcall visits directly to your accommodation in {currentLocationName}.
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                      <div className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                        <ShieldCheck className="h-4 w-4" />
+                      </div>
+                      <h3 className="text-xs font-bold text-white">Zero Advance Payment Policy</h3>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Connect directly via WhatsApp or phone call. Always pay directly upon meeting — never transfer advance booking fees to anyone.
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-xs font-bold text-white">Incall &amp; Outcall Services</h3>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Enjoy safe, private incall rendezvous at luxury hotels or flexible outcall visits directly to your accommodation in {selectedCity}.
-                  </p>
-                </div>
 
-                <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-                  <div className="h-9 w-9 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
-                    <ShieldCheck className="h-4 w-4" />
+                  {/* BOOKING GUIDE IN CITY */}
+                  <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800/80 space-y-2">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                      How to Connect with Companions in {currentLocationName}
+                    </h4>
+                    <ol className="text-xs text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed pl-1">
+                      <li>Browse verified listings above and filter by your preferred locality or package tier.</li>
+                      <li>Click on the WhatsApp or Call button to reach out directly to the independent companion.</li>
+                      <li>Confirm meeting location (5-star hotel incall or private apartment outcall) and timing.</li>
+                      <li>Maintain mutual respect and clear communications for a safe, discreet companionship experience.</li>
+                    </ol>
                   </div>
-                  <h3 className="text-xs font-bold text-white">Zero Advance Payment Policy</h3>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    Connect directly via WhatsApp or phone call. Always pay directly upon meeting — never transfer advance booking fees to anyone.
-                  </p>
                 </div>
-              </div>
-
-              {/* BOOKING GUIDE IN CITY */}
-              <div className="p-4 rounded-2xl bg-slate-900/50 border border-slate-800/80 space-y-2">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                  How to Connect with Companions in {selectedCity}
-                </h4>
-                <ol className="text-xs text-slate-300 space-y-1.5 list-decimal list-inside leading-relaxed pl-1">
-                  <li>Browse verified listings above and filter by your preferred locality or package tier.</li>
-                  <li>Click on the WhatsApp or Call button to reach out directly to the independent companion.</li>
-                  <li>Confirm meeting location (5-star hotel incall or private apartment outcall) and timing.</li>
-                  <li>Maintain mutual respect and clear communications for a safe, discreet companionship experience.</li>
-                </ol>
-              </div>
-            </div>
+              );
+            })()}
 
             {/* MICRO SERVICE LOCALITIES & PINCODES (LOCAL SEO) FOR CITY OR REGIONAL HUBS FOR STATE */}
             {citySeo?.microServiceAreas && citySeo.microServiceAreas.length > 0 ? (
@@ -1168,7 +1201,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                   ))}
                 </div>
               </div>
-            ) : stateSeo?.popularDistricts && stateSeo.popularDistricts.length > 0 ? (
+            ) : (currentStateSeo?.popularDistricts && currentStateSeo.popularDistricts.length > 0) || (stateSeo?.popularDistricts && stateSeo.popularDistricts.length > 0) ? (
               <div className="p-6 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-xl space-y-3.5">
                 <div className="flex items-center gap-2.5">
                   <div className="h-8 w-8 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
@@ -1176,22 +1209,21 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                   </div>
                   <div>
                     <h3 className="text-sm font-extrabold text-white tracking-tight">
-                      Major Cities &amp; Regional Hubs across {stateSeo.name}
+                      Major Cities &amp; Regional Hubs across {currentStateSeo?.name || stateSeo?.name}
                     </h3>
                     <p className="text-[11px] text-slate-400">
-                      Direct incall &amp; outcall companion services across top districts in {stateSeo.name}
+                      Direct incall &amp; outcall companion services across top districts in {currentStateSeo?.name || stateSeo?.name}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {stateSeo.popularDistricts.map((district, idx) => (
+                  {(currentStateSeo?.popularDistricts || stateSeo?.popularDistricts || []).map((district, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => {
-                        setSelectedCity(district);
-                        setCurrentPage(1);
+                        handleSelectCity(district);
                         window.scrollTo({ top: 350, behavior: "smooth" });
                       }}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer border ${
