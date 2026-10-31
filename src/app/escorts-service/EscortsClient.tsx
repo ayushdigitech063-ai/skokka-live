@@ -985,7 +985,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
             />
 
             {/* RICH SEO EDITORIAL CONTENT SECTION */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl bg-[#090d1f] border border-slate-800/80 shadow-2xl space-y-6 overflow-hidden break-words">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 font-bold text-[11px] uppercase tracking-wider border border-rose-500/25 inline-flex items-center gap-1.5">
@@ -1047,27 +1047,17 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
 
                   if (hasHtml) {
                     return (
-                      <>
-                        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                          {dynamicHeading}
-                        </h2>
-                        <div
-                          className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_li]:text-slate-300"
-                          dangerouslySetInnerHTML={{ __html: renderedText }}
-                        />
-                      </>
+                      <div
+                        className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 break-words overflow-hidden [&_h1]:text-2xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-extrabold [&_h2]:text-white [&_h2]:mt-3 [&_h2]:mb-1.5 [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_p]:leading-relaxed [&_p]:mb-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_li]:text-slate-300"
+                        dangerouslySetInnerHTML={{ __html: renderedText }}
+                      />
                     );
                   }
 
                   return (
-                    <>
-                      <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                        {dynamicHeading}
-                      </h2>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
-                        {renderedText}
-                      </p>
-                    </>
+                    <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line space-y-2 break-words overflow-hidden">
+                      {renderedText}
+                    </div>
                   );
                 })()}
               </div>
