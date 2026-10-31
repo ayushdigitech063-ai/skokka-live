@@ -162,8 +162,8 @@ export function AdminLocationTab() {
   };
 
   // Fetch All Location Data
-  const fetchLocations = async () => {
-    setLoading(true);
+  const fetchLocations = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [resTree, resStates, resCities, resAreas] = await Promise.all([
         fetch(`${BACKEND_URL}/locations/tree`).then((r) => r.json()),
@@ -270,8 +270,9 @@ export function AdminLocationTab() {
         });
         const data = await res.json();
         if (data.success) {
-          Swal.fire("Deleted", "State deleted successfully", "success");
-          fetchLocations();
+          const Toast = Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 1800 });
+          Toast.fire({ icon: "success", title: `State "${name}" deleted` });
+          fetchLocations(true);
         }
       } catch (err: any) {
         Swal.fire("Error", err.message, "error");
@@ -356,8 +357,9 @@ export function AdminLocationTab() {
         });
         const data = await res.json();
         if (data.success) {
-          Swal.fire("Deleted", "City deleted successfully", "success");
-          fetchLocations();
+          const Toast = Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 1800 });
+          Toast.fire({ icon: "success", title: `City "${name}" deleted` });
+          fetchLocations(true);
         }
       } catch (err: any) {
         Swal.fire("Error", err.message, "error");
@@ -455,8 +457,9 @@ export function AdminLocationTab() {
         });
         const data = await res.json();
         if (data.success) {
-          Swal.fire("Deleted", "Area deleted successfully", "success");
-          fetchLocations();
+          const Toast = Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 1800 });
+          Toast.fire({ icon: "success", title: `Area "${name}" deleted` });
+          fetchLocations(true);
         }
       } catch (err: any) {
         Swal.fire("Error", err.message, "error");
@@ -833,7 +836,7 @@ export function AdminLocationTab() {
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteArea(ar._id, ar.name)}
-                                  title="Delete Area"
+                                  title={`Delete Area ${ar.name}`}
                                   className="p-0.5 rounded text-slate-400 hover:text-rose-400 transition cursor-pointer hover:bg-rose-500/20"
                                 >
                                   <Trash2 className="h-2.5 w-2.5" />
