@@ -243,56 +243,22 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
     if (stateSeo) setCurrentStateSeo(stateSeo);
   }, [stateSeo]);
 
-  // Dynamically resolve SEO when selectedCity changes or locationTree arrives
+  // Always fetch fresh City SEO data directly from API when selectedCity changes (bypasses stale tree)
   useEffect(() => {
     if (!selectedCity || selectedCity === "All Cities") {
       setCurrentCitySeo(undefined);
-      setCurrentStateSeo(undefined);
       return;
     }
-
-    if (locationTree.length > 0) {
-      let foundCity: ICity | undefined;
-      let foundState: IState | undefined;
-
-      for (const st of locationTree) {
-        if (
-          st.name?.toLowerCase() === selectedCity.toLowerCase() ||
-          st.slug?.toLowerCase() === selectedCity.toLowerCase()
-        ) {
-          foundState = st;
-          break;
+    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
+    fetch(`${BACKEND_URL}/locations/cities/${encodeURIComponent(slugifyPath(selectedCity))}`, { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && data.city) {
+          setCurrentCitySeo(data.city);
         }
-        const matchC = st.cities?.find(
-          (c: any) =>
-            c.name?.toLowerCase() === selectedCity.toLowerCase() ||
-            c.slug?.toLowerCase() === selectedCity.toLowerCase() ||
-            c.customSlug?.toLowerCase() === selectedCity.toLowerCase()
-        );
-        if (matchC) {
-          foundCity = matchC;
-          break;
-        }
-      }
-
-      if (foundCity) {
-        setCurrentCitySeo(foundCity);
-      } else if (foundState) {
-        setCurrentStateSeo(foundState);
-      }
-    } else {
-      // Direct API fetch if locationTree hasn't populated yet
-      const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "https://mycityqueen.com/x";
-      fetch(`${BACKEND_URL}/locations/cities/${encodeURIComponent(slugifyPath(selectedCity))}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.success && data.city) {
-            setCurrentCitySeo(data.city);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [selectedCity, locationTree]);
+      })
+      .catch(() => {});
+  }, [selectedCity]);
 
   const toggleFavorite = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
