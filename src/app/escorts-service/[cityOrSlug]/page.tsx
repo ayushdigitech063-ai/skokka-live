@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { use } from "react";
 import type { Metadata } from "next";
 import { redirect, permanentRedirect } from "next/navigation";

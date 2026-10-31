@@ -22,7 +22,7 @@ export async function fetchCitySeoData(cityOrSlug: string): Promise<ICity | null
   for (const url of candidateUrls) {
     try {
       const res = await fetch(url, {
-        next: { revalidate: 60 },
+        cache: 'no-store',
       });
       if (res.ok) {
         const data = await res.json();
@@ -343,7 +343,7 @@ export async function fetchStateSeoData(stateOrSlug: string): Promise<IState | n
   for (const url of candidateUrls) {
     try {
       const res = await fetch(url, {
-        next: { revalidate: 60 },
+        cache: 'no-store',
       });
       if (res.ok) {
         const data = await res.json();
@@ -641,7 +641,7 @@ export async function fetchAreaSeoData(areaOrSlug: string): Promise<IArea | null
   for (const url of candidateUrls) {
     try {
       const res = await fetch(url, {
-        next: { revalidate: 60 },
+        cache: 'no-store',
       });
       if (res.ok) {
         const data = await res.json();
