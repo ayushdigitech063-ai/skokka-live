@@ -842,7 +842,8 @@ export function AdminStateSeoModal({
                   type="text"
                   required
                   value={metaTitle}
-                  onChange={(e) => setMetaTitle(e.target.value)}
+                  maxLength={60}
+                  onChange={(e) => setMetaTitle(e.target.value.slice(0, 60))}
                   placeholder={`e.g. ${stateName} Escorts - 100% Verified Female Companions | MyCityQueen`}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500"
                 />
@@ -862,14 +863,15 @@ export function AdminStateSeoModal({
                         : "text-slate-400"
                     }`}
                   >
-                    {metaDescription.length}/160 characters {metaDescription.length <= 160 ? "(Optimal)" : "(May truncate)"}
+                    {metaDescription.length}/120 characters {metaDescription.length <= 120 ? "(Optimal)" : "(Max limit)"}
                   </span>
                 </div>
                 <textarea
                   rows={3}
                   required
                   value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
+                  maxLength={120}
+                  onChange={(e) => setMetaDescription(e.target.value.slice(0, 120))}
                   placeholder={`e.g. Browse verified female escorts & independent companions across ${stateName}. Genuine photos, direct contact, 24/7 incall & outcall meetings.`}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-rose-500 leading-relaxed"
                 />

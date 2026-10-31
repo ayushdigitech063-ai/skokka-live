@@ -27,6 +27,53 @@ import {
 /**
  * Resolves SEO for Home Page
  */
+
+/**
+ * Automatically replaces dynamic tokens like {city}, {area}, {location}
+ */
+export function replaceLocationTokens(text: string, cityName: string, areaName?: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\{city\}/gi, cityName)
+    .replace(/\[city\]/gi, cityName)
+    .replace(/\{location\}/gi, areaName ? `${areaName}, ${cityName}` : cityName)
+    .replace(/\[location\]/gi, areaName ? `${areaName}, ${cityName}` : cityName)
+    .replace(/\{area\}/gi, areaName || cityName)
+    .replace(/\[area\]/gi, areaName || cityName);
+}
+
+/**
+ * Auto-generates high-intent SEO keywords dynamically based on city and optional area
+ */
+export function generateAutoKeywords(cityName: string, areaName?: string): string[] {
+  const c = (cityName || "India").trim();
+  const a = areaName ? areaName.trim() : "";
+  if (a) {
+    return [
+      `${a} escorts`,
+      `call girls in ${a}`,
+      `${a} call girls`,
+      `escort service in ${a} ${c}`,
+      `${a} independent escorts`,
+      `vip escorts in ${a}`,
+      `${c} escorts`,
+      `call girls in ${c}`,
+      `verified companions in ${a}`
+    ];
+  }
+  return [
+    `${c} escorts`,
+    `call girls in ${c}`,
+    `${c} call girls`,
+    `escort service in ${c}`,
+    `independent escorts in ${c}`,
+    `vip escorts in ${c}`,
+    `russian escorts in ${c}`,
+    `${c} companion services`,
+    `verified call girls ${c}`
+  ];
+}
+
 export const resolveHomeSEO = (override?: IDBSEOOverride): ISEOData => {
   const fallback = getHomeTemplates();
   const title = appendSiteBranding(override?.metaTitle || fallback.title);
@@ -104,21 +151,30 @@ export const resolveStateSEO = (stateName: string, override?: IDBSEOOverride): I
 export const resolveCitySEO = (params: ICitySEOParams): ISEOData => {
   const { cityName, stateName, dbOverride } = params;
   const fallback = getCityTemplates(cityName, stateName);
-  const title = appendSiteBranding(dbOverride?.metaTitle || fallback.title);
-  const description = dbOverride?.metaDescription || fallback.description;
-  const shortDescription = dbOverride?.shortDescription || fallback.shortDescription;
+  const rawTitle = dbOverride?.metaTitle ? replaceLocationTokens(dbOverride.metaTitle, cityName) : fallback.title;
+  const title = appendSiteBranding(rawTitle);
+  const rawDesc = dbOverride?.metaDescription ? replaceLocationTokens(dbOverride.metaDescription, cityName) : fallback.description;
+  const description = rawDesc;
+  const shortDescription = dbOverride?.shortDescription ? replaceLocationTokens(dbOverride.shortDescription, cityName) : fallback.shortDescription;
   const slugPath = dbOverride?.customSlug || slugifyPath(cityName);
   const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts-service/${slugPath}`);
   const ogImage = dbOverride?.ogImage || DEFAULT_OG_IMAGE;
-  const ogTitle = dbOverride?.ogTitle || title;
-  const ogDescription = dbOverride?.ogDescription || description;
+  const ogTitle = dbOverride?.ogTitle ? replaceLocationTokens(dbOverride.ogTitle, cityName) : title;
+  const ogDescription = dbOverride?.ogDescription ? replaceLocationTokens(dbOverride.ogDescription, cityName) : description;
+
+  // Dynamic Keywords: if admin specified keywords, replace tokens in them; otherwise auto-fetch standard high-intent keywords for this city
+  const keywords = dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0
+    ? dbOverride.focusKeywords.map((k) => replaceLocationTokens(k, cityName))
+    : generateAutoKeywords(cityName);
+
+  const rawPageContent = dbOverride?.pageContent ? replaceLocationTokens(dbOverride.pageContent, cityName) : undefined;
 
   return {
     title,
     description,
     shortDescription,
     canonical,
-    keywords: dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0 ? dbOverride.focusKeywords : undefined,
+    keywords,
     ogTitle,
     ogDescription,
     ogUrl: canonical,
@@ -128,13 +184,16 @@ export const resolveCitySEO = (params: ICitySEOParams): ISEOData => {
     twitterTitle: ogTitle,
     twitterDescription: ogDescription,
     twitterImage: ogImage,
-    faqs: dbOverride?.faqs,
+    faqs: dbOverride?.faqs?.map(f => ({
+      question: replaceLocationTokens(f.question, cityName),
+      answer: replaceLocationTokens(f.answer, cityName),
+    })),
     microServiceAreas: dbOverride?.microServiceAreas,
     robots: dbOverride?.robots,
     redirectUrl: dbOverride?.redirectUrl,
     redirectType: dbOverride?.redirectType,
-    customSchema: dbOverride?.customSchema,
-    pageContent: dbOverride?.pageContent,
+    customSchema: dbOverride?.customSchema ? replaceLocationTokens(dbOverride.customSchema, cityName) : undefined,
+    pageContent: rawPageContent,
   };
 };
 
@@ -144,34 +203,47 @@ export const resolveCitySEO = (params: ICitySEOParams): ISEOData => {
 export const resolveAreaSEO = (params: IAreaSEOParams): ISEOData => {
   const { areaName, cityName, dbOverride } = params;
   const fallback = getAreaTemplates(areaName, cityName);
-  const title = appendSiteBranding(dbOverride?.metaTitle || fallback.title);
-  const description = dbOverride?.metaDescription || fallback.description;
-  const shortDescription = dbOverride?.shortDescription || fallback.shortDescription;
+  const rawTitle = dbOverride?.metaTitle ? replaceLocationTokens(dbOverride.metaTitle, cityName, areaName) : fallback.title;
+  const title = appendSiteBranding(rawTitle);
+  const rawDesc = dbOverride?.metaDescription ? replaceLocationTokens(dbOverride.metaDescription, cityName, areaName) : fallback.description;
+  const description = rawDesc;
+  const shortDescription = dbOverride?.shortDescription ? replaceLocationTokens(dbOverride.shortDescription, cityName, areaName) : fallback.shortDescription;
   const slugPath = dbOverride?.customSlug || slugifyPath(areaName);
   const canonical = buildCanonicalPath(dbOverride?.canonicalUrl || `/escorts-service/${slugifyPath(cityName)}/${slugPath}`);
   const ogImage = dbOverride?.ogImage || DEFAULT_OG_IMAGE;
+  const ogTitle = dbOverride?.ogTitle ? replaceLocationTokens(dbOverride.ogTitle, cityName, areaName) : title;
+  const ogDescription = dbOverride?.ogDescription ? replaceLocationTokens(dbOverride.ogDescription, cityName, areaName) : description;
+
+  const keywords = dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0
+    ? dbOverride.focusKeywords.map((k) => replaceLocationTokens(k, cityName, areaName))
+    : generateAutoKeywords(cityName, areaName);
+
+  const rawPageContent = dbOverride?.pageContent ? replaceLocationTokens(dbOverride.pageContent, cityName, areaName) : undefined;
 
   return {
     title,
     description,
     shortDescription,
     canonical,
-    ogTitle: title,
-    ogDescription: description,
+    ogTitle,
+    ogDescription,
     ogUrl: canonical,
     ogType: "website",
     ogImage,
     twitterCard: "summary_large_image",
-    twitterTitle: title,
-    twitterDescription: description,
+    twitterTitle: ogTitle,
+    twitterDescription: ogDescription,
     twitterImage: ogImage,
-    keywords: dbOverride?.focusKeywords && dbOverride.focusKeywords.length > 0 ? dbOverride.focusKeywords : undefined,
-    faqs: dbOverride?.faqs,
+    keywords,
+    faqs: dbOverride?.faqs?.map(f => ({
+      question: replaceLocationTokens(f.question, cityName, areaName),
+      answer: replaceLocationTokens(f.answer, cityName, areaName),
+    })),
     robots: dbOverride?.robots,
     redirectUrl: dbOverride?.redirectUrl,
     redirectType: dbOverride?.redirectType,
-    customSchema: dbOverride?.customSchema,
-    pageContent: dbOverride?.pageContent,
+    customSchema: dbOverride?.customSchema ? replaceLocationTokens(dbOverride.customSchema, cityName, areaName) : undefined,
+    pageContent: rawPageContent,
   };
 };
 

@@ -730,20 +730,161 @@ export function AreaJsonLd({
   }
 
   const domain = SITE_CONFIG.domain;
+  const brandName = SITE_CONFIG.name;
   const targetCanonical =
     canonicalUrl ||
     `https://${domain}/escorts-service/${cityName.toLowerCase().replace(/\s+/g, "-")}/${
       area?.customSlug || area?.slug || areaName.toLowerCase().replace(/\s+/g, "-")
     }`;
 
+  const pageTitle = area?.ogTitle || area?.metaTitle || `Verified ${areaName} Escorts & Call Girls in ${cityName} | ${brandName}`;
+  const pageDesc = area?.metaDescription || `Discover verified independent escort companions and call girls in ${areaName}, ${cityName}. High class models available 24/7 for hotel incall and doorstep outcall.`;
+
+  // 1. WebPage Schema
+  const webPageSchema = {
+    "@type": "WebPage",
+    "@id": `${targetCanonical}#webpage`,
+    "url": targetCanonical,
+    "name": pageTitle,
+    "description": pageDesc,
+    "isPartOf": {
+      "@type": "WebSite",
+      "@id": `https://${domain}/#website`,
+      "name": brandName,
+      "url": `https://${domain}`
+    },
+    "breadcrumb": {
+      "@id": `${targetCanonical}#breadcrumb`
+    },
+    "inLanguage": "en-IN"
+  };
+
+  // 2. BreadcrumbList Schema
+  const breadcrumbListSchema = {
+    "@type": "BreadcrumbList",
+    "@id": `${targetCanonical}#breadcrumb`,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `https://${domain}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Escorts Service",
+        "item": `https://${domain}/escorts-service`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": cityName,
+        "item": `https://${domain}/escorts-service/${cityName.toLowerCase().replace(/\s+/g, "-")}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": areaName,
+        "item": targetCanonical
+      }
+    ]
+  };
+
+  // 3. ItemList Schema
+  const itemListSchema = {
+    "@type": "ItemList",
+    "@id": `${targetCanonical}#itemlist`,
+    "name": `Verified Escort Listings in ${areaName}, ${cityName}`,
+    "description": `Directory listing of verified independent companions and models in ${areaName}, ${cityName}.`,
+    "itemListOrder": "https://schema.org/ItemListOrderDescending",
+    "numberOfItems": 10
+  };
+
+  // 4. Service Schema
+  const serviceSchema = {
+    "@type": "Service",
+    "@id": `${targetCanonical}#service`,
+    "name": `Escort & Companionship Services in ${areaName}`,
+    "serviceType": "Adult Companionship & Escort Services",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": `${brandName} ${areaName}`
+    },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": `${areaName}, ${cityName}`
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Companionship Service Options",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "name": "Hotel Incall Meetings",
+          "description": "Private incall appointment at 5-star luxury hotels"
+        },
+        {
+          "@type": "Offer",
+          "name": "Doorstep Outcall Visits",
+          "description": "Verified companion visits to private residence or hotel"
+        }
+      ]
+    }
+  };
+
+  // 5. LocalBusiness Schema
+  const localBusinessSchema = {
+    "@type": "LocalBusiness",
+    "@id": `${targetCanonical}#localbusiness`,
+    "name": pageTitle,
+    "description": pageDesc,
+    "url": targetCanonical,
+    "image": area?.ogImage || `https://${domain}/logo.png`,
+    "telephone": "+91-9999999999",
+    "priceRange": "₹₹₹",
+    "currenciesAccepted": "INR",
+    "paymentAccepted": "Cash, UPI, Card",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": areaName,
+      "addressRegion": cityName,
+      "addressCountry": "IN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "26.9124",
+      "longitude": "75.7873"
+    },
+    "areaServed": [
+      {
+        "@type": "AdministrativeArea",
+        "name": areaName
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": cityName
+      }
+    ]
+  };
+
+  // 6. FAQPage Schema
   const fallbackFaqs = [
     {
       question: `How to book verified escorts in ${areaName}, ${cityName}?`,
-      answer: `Browse verified profiles on MyCityQueen in ${areaName} and contact directly via WhatsApp or phone call without advance fee.`,
+      answer: `Browse 100% verified profiles on MyCityQueen in ${areaName} and contact directly via WhatsApp or phone call without any advance booking charges.`,
     },
     {
       question: `Are incall and outcall services available in ${areaName}?`,
-      answer: `Yes, verified companions provide incall at premium hotels/residences and outcall doorstep service across ${areaName}.`,
+      answer: `Yes, verified independent companions provide both incall at premium hotels/apartments and outcall doorstep service across ${areaName}.`,
+    },
+    {
+      question: `What payment methods are accepted in ${areaName}?`,
+      answer: `Payment can be made directly in cash or secure UPI upon meeting in person. Never pay advance fees.`,
+    },
+    {
+      question: `Is client confidentiality guaranteed in ${areaName}?`,
+      answer: `Yes, 100% discreet and private companionship is assured. No client information is ever stored or shared.`,
     },
   ];
 
@@ -752,36 +893,29 @@ export function AreaJsonLd({
       ? area.faqs.filter((f) => f.question && f.answer)
       : fallbackFaqs;
 
+  const faqPageSchema = {
+    "@type": "FAQPage",
+    "@id": `${targetCanonical}#faqs`,
+    "name": `${areaName} Escorts FAQs`,
+    "mainEntity": candidateFaqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+      },
+    })),
+  };
+
   const graphSchema = {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "Service",
-        name: area?.ogTitle || area?.metaTitle || `${areaName} Escorts & Call Girls in ${cityName}`,
-        description: area?.metaDescription || `Verified escorts & independent companions in ${areaName}, ${cityName}.`,
-        url: targetCanonical,
-        areaServed: {
-          "@type": "AdministrativeArea",
-          name: areaName,
-        },
-        provider: {
-          "@type": "Organization",
-          name: SITE_CONFIG.name,
-          url: `https://${domain}`,
-        },
-      },
-      {
-        "@type": "FAQPage",
-        name: `${areaName} Escorts FAQs`,
-        mainEntity: candidateFaqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.answer,
-          },
-        })),
-      },
+      webPageSchema,
+      breadcrumbListSchema,
+      itemListSchema,
+      serviceSchema,
+      localBusinessSchema,
+      faqPageSchema,
     ],
   };
 

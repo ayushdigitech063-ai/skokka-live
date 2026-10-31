@@ -478,14 +478,15 @@ export function AdminAreaSeoModal({
                     Page Meta Title (Google SERP) *
                   </label>
                   <span className={`text-[11px] font-bold ${metaTitle.length > 65 ? "text-rose-400" : "text-emerald-400"}`}>
-                    {metaTitle.length} / 60-65 chars
+                    {metaTitle.length} / 60 chars
                   </span>
                 </div>
                 <input
                   type="text"
                   required
                   value={metaTitle}
-                  onChange={(e) => setMetaTitle(e.target.value)}
+                  maxLength={60}
+                  onChange={(e) => setMetaTitle(e.target.value.slice(0, 60))}
                   placeholder={`e.g. ${areaName} Escorts - Top Call Girls in ${cityName}`}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-purple-500 font-medium"
                 />
@@ -498,14 +499,15 @@ export function AdminAreaSeoModal({
                     Page Meta Description *
                   </label>
                   <span className={`text-[11px] font-bold ${metaDescription.length > 160 ? "text-rose-400" : "text-emerald-400"}`}>
-                    {metaDescription.length} / 155-160 chars
+                    {metaDescription.length} / 120 chars
                   </span>
                 </div>
                 <textarea
                   rows={3}
                   required
                   value={metaDescription}
-                  onChange={(e) => setMetaDescription(e.target.value)}
+                  maxLength={120}
+                  onChange={(e) => setMetaDescription(e.target.value.slice(0, 120))}
                   placeholder="Compelling SERP description with target keywords and call to action..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-purple-500 leading-relaxed"
                 />
