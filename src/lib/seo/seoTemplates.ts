@@ -53,7 +53,7 @@ export const getProfileTemplates = (
   const cleanCity = cityName ? capitalizeWords(cityName) : "India";
   const cleanCat = category ? capitalizeWords(category) : "Verified Escort";
   const title = `${cleanName} | ${cleanCat} in ${cleanCity} | ${SITE_NAME}`;
-  const description = `View ${cleanName}'s verified profile, gallery, rates, and services in ${cleanCity}. Independent ${cleanCat} companion available for Incall & Outcall.`;
-  const shortDescription = `View ${cleanName}'s verified profile, photo gallery, rates and adult meeting services in ${cleanCity}.`;
+  const description = `${cleanName}'s verified profile, gallery, rates, and services in ${cleanCity}. Independent ${cleanCat} companion available for Incall & Outcall.`;
+  const shortDescription = `${cleanName}'s verified profile, photo gallery, rates and adult meeting services in ${cleanCity}.`;
   return { title, description, shortDescription };
 };

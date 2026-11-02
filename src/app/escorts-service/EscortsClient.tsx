@@ -972,6 +972,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
             {/* DYNAMIC CITY AREA / PAN-INDIA STATES ACCORDION */}
             <CityCategoryAccordion
               currentCity={selectedCity}
+              currentState={selectedState}
               selectedArea={searchLocation}
               selectedTag={selectedTag}
               locationTree={locationTree}

@@ -205,7 +205,8 @@ export default async function AreaEscortsPage({ params }: AreaPageProps) {
         />
       )}
       <EscortsClient
-        defaultCity={cityName}
+        defaultCity={loc?.type === "city" ? cityName : "All Cities"}
+        defaultState={loc?.type === "state" ? cityName : undefined}
         defaultArea={!isCategory ? (areaData?.name || areaName) : undefined}
         defaultTag={isCategory ? (KNOWN_CATEGORIES[normalizedKey] || areaName) : "All Escorts"}
         citySeo={loc?.type === "city" ? (locData as any) : undefined}
