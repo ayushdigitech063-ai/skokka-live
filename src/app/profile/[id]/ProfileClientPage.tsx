@@ -743,7 +743,9 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                     >
                       <span className="flex items-center gap-2">
                         <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
-                        <span>{item.q}</span>
+                        <h3 className="inline text-xs font-bold text-white hover:text-amber-300">
+                          {item.q}
+                        </h3>
                       </span>
                       {isOpen ? (
                         <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
@@ -753,7 +755,7 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                     </button>
                     {isOpen && (
                       <div className="px-4 pb-4 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-800/60">
-                        {item.a}
+                        <p className="leading-relaxed">{item.a}</p>
                       </div>
                     )}
                   </div>
