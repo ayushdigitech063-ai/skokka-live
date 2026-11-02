@@ -20,10 +20,9 @@ export const getStateTemplates = (stateName: string) => {
 
 export const getCityTemplates = (cityName: string, stateName?: string) => {
   const cleanCity = capitalizeWords(cityName);
-  const cleanState = stateName ? `, ${capitalizeWords(stateName)}` : "";
-  const title = `Verified Escorts in ${cleanCity} | ${SITE_NAME}`;
-  const description = `Browse verified escort profiles in ${cleanCity}${cleanState} with photos and contact details. High class VIP companions available 24/7.`;
-  const shortDescription = `Browse verified escort profiles in ${cleanCity} with photos and direct contact details.`;
+  const title = `Escort service in ${cleanCity} | Doorstep Booking from ₹2000 Only`;
+  const description = `Book escort service in ${cleanCity} with doorstep booking options starting at ₹2000. Check Girls details, pricing & contact providers to discuss availability`;
+  const shortDescription = `Book escort service in ${cleanCity} with doorstep booking options starting at ₹2000.`;
   return { title, description, shortDescription };
 };
 

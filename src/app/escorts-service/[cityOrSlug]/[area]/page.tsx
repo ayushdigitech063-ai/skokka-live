@@ -57,8 +57,17 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
       ? (catOverride.canonicalUrl.startsWith("http") ? catOverride.canonicalUrl : `https://mycityqueen.com${catOverride.canonicalUrl}`)
       : `https://mycityqueen.com/escorts-service/${cityOrSlug}/${area}`;
 
-    const title = catOverride.metaTitle || (normalizedKey === "call-girls" ? `Call Girls in ${cityName} | MyCityQueen India` : `${KNOWN_CATEGORIES[normalizedKey] || normalizedKey} in ${cityName} | MyCityQueen`);
-    const description = catOverride.metaDescription || `Browse verified companion profiles in ${cityName} with authentic photos and contact details.`;
+    const defaultTitle =
+      normalizedKey === "call-girls"
+        ? `${cityName} Call Girls | [100%] Verified Escort Service 24X7`
+        : `${KNOWN_CATEGORIES[normalizedKey] || normalizedKey} in ${cityName} | MyCityQueen`;
+    const defaultDesc =
+      normalizedKey === "call-girls"
+        ? `Hire ${cityName} call girls with 24X7 escort services, attractive profiles & easy booking options. Connect with providers to discuss services & availability.`
+        : `Browse verified companion profiles in ${cityName} with authentic photos and contact details.`;
+
+    const title = catOverride.metaTitle || defaultTitle;
+    const description = catOverride.metaDescription || defaultDesc;
 
     return {
       title,

@@ -178,12 +178,12 @@ export const buildCallGirlsSEO = (override?: IDBSEOOverride): Metadata => {
 
 export const buildCallGirlsCitySEO = (cityName: string, override?: IDBSEOOverride): Metadata => {
   const data = resolveCitySEO({ cityName, dbOverride: override });
-  const title = `Call Girls in ${cityName} | ${SITE_CONFIG.name}`;
-  const description = `Browse verified call girls profiles in ${cityName} with authentic photos and contact details. Premium high-class VIP independent companions available 24/7.`;
+  const title = `${cityName} Call Girls | [100%] Verified Escort Service 24X7`;
+  const description = `Hire ${cityName} call girls with 24X7 escort services, attractive profiles & easy booking options. Connect with providers to discuss services & availability.`;
   
   data.title = override?.metaTitle || title;
   data.description = override?.metaDescription || description;
-  data.canonical = override?.canonicalUrl || `https://${SITE_CONFIG.domain}/call-girls/${cityName.toLowerCase()}`;
+  data.canonical = override?.canonicalUrl || `https://${SITE_CONFIG.domain}/escorts-service/${cityName.toLowerCase()}/call-girls`;
   data.ogTitle = data.title;
   data.ogDescription = data.description;
   data.ogUrl = data.canonical;
