@@ -34,11 +34,11 @@ export function RichContentEditor({
 }: RichContentEditorProps) {
   const [mode, setMode] = useState<"visual" | "html" | "preview">("visual");
 
-  // Quill full-featured SEO toolbar modules
+  // Quill full-featured SEO toolbar modules: Headers restricted to H2, H3, H4 (H1 disabled for SEO guidelines)
   const modules = useMemo(
     () => ({
       toolbar: [
-        [{ header: [1, 2, 3, 4, false] }],
+        [{ header: [2, 3, 4, false] }],
         ["bold", "italic", "underline", "strike"],
         [{ color: [] }, { background: [] }], // Text Color and Highlight Color
         [{ list: "ordered" }, { list: "bullet" }],

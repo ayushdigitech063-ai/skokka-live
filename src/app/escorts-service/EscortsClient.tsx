@@ -34,6 +34,12 @@ import { fetchEscortProfiles, ESCORTS_UPDATE_EVENT, EscortProfileItem } from "@/
 import { HomePageCmsConfig } from "@/types/homepageCms";
 import { getProfileUrl, slugifyPath } from "@/lib/seo/seoEngine";
 import { ICity, IState, IArea } from "@/types/location";
+import {
+  getDefaultEscortsCityContent,
+  getDefaultEscortsCityFaqs,
+  getDefaultCallGirlsCityContent,
+  getDefaultCallGirlsCityFaqs,
+} from "@/lib/seo/defaultCityContents";
 
 interface EscortsPageProps {
   defaultCity?: string;
@@ -1024,16 +1030,35 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                     .replace(/\[location\]/gi, currentCityLabel)
                     .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel);
 
-                  // Priority: Super Admin Page Content first, then Area, then State, then Meta Description
-                  const rawContent =
-                    catOverride?.pageContent ||
-                    currentCitySeo?.pageContent ||
-                    customPageContent ||
-                    areaSeo?.pageContent ||
-                    currentStateSeo?.pageContent ||
-                    currentCitySeo?.metaDescription ||
-                    currentStateSeo?.metaDescription ||
-                    `Welcome to the premier verified adult classifieds directory for {city}. Discover 100% genuine independent female companions, VIP models, and high-class call girls offering discretion, privacy, and exceptional hospitality. Connect directly with verified companions for hotel incall meetings and private doorstep outcalls across top colonies in {city}.`;
+                  // Determine if this is a Call Girls view or general Escorts view
+                  const isCallGirlsPage =
+                    normalizedTagSlug === "call-girls" ||
+                    selectedTag.toLowerCase().includes("call girl");
+
+                  const citySlug =
+                    currentCitySeo?.slug ||
+                    currentCitySeo?.customSlug ||
+                    (selectedCity !== "All Cities" ? slugifyPath(selectedCity) : "india");
+
+                  // Priority: Super Admin Page Content first, then Area, then State, then Dynamic Template (Call Girls vs Escorts), then Meta Description
+                  const defaultDynamicContent = isCallGirlsPage
+                    ? getDefaultCallGirlsCityContent(currentCityLabel, citySlug)
+                    : getDefaultEscortsCityContent(currentCityLabel, citySlug);
+
+                  // Priority logic:
+                  // 1. If custom rich HTML pageContent is written for category/area/city, use it
+                  // 2. Otherwise use the rich dynamic default template (Call Girls vs Escorts with dynamic city replacement)
+                  // 3. Fallback to short metadata text if neither exists
+                  const activeCustomContent =
+                    (catOverride?.pageContent && catOverride.pageContent.trim()) ||
+                    (isCallGirlsPage
+                      ? null // On call-girls pages, don't inherit general city page content unless it's specifically set for category
+                      : currentCitySeo?.pageContent && currentCitySeo.pageContent.trim()) ||
+                    (customPageContent && customPageContent.trim()) ||
+                    (areaSeo?.pageContent && areaSeo.pageContent.trim()) ||
+                    (currentStateSeo?.pageContent && currentStateSeo.pageContent.trim());
+
+                  const rawContent = activeCustomContent || defaultDynamicContent;
 
                   const renderedText = rawContent
                     .replace(/\{city\}/gi, currentCityLabel)
@@ -1042,21 +1067,35 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                     .replace(/\[location\]/gi, currentCityLabel)
                     .replace(/\{area\}/gi, areaSeo?.name || currentCityLabel);
 
+                  // Normalize HTML: Clean spurious headings created by Google Docs / Quill paste
+                  // 1. Unwrap headings that wrap <p> tags so body text becomes clean paragraphs
+                  // 2. Convert all remaining <h1> to <h2> so there's only 1 main H1 on the page
+                  const sanitizedHtml = renderedText.replace(
+                    /<h([1-6])[^>]*>([^<]*(?:<(?!h[1-6]|\/h[1-6])[^>]*>[^<]*)*)<\/h\1>/gi,
+                    (match, level, inner) => {
+                      if (/<p[\s\S]*?>/i.test(inner)) {
+                        return inner;
+                      }
+                      const textOnly = inner.replace(/<[^>]+>/g, "").trim();
+                      if (!textOnly) return "";
+                      return `<h2>${inner}</h2>`;
+                    }
+                  );
 
-                  const hasHtml = /<[a-z][\s\S]*>/i.test(renderedText);
+                  const hasHtml = /<[a-z][\s\S]*>/i.test(sanitizedHtml);
 
                   if (hasHtml) {
                     return (
                       <div
-                        className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 break-words overflow-hidden [&_h1]:text-2xl [&_h1]:font-black [&_h1]:text-white [&_h1]:mt-4 [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-extrabold [&_h2]:text-white [&_h2]:mt-3 [&_h2]:mb-1.5 [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_p]:leading-relaxed [&_p]:mb-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_li]:text-slate-300"
-                        dangerouslySetInnerHTML={{ __html: renderedText }}
+                        className="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 break-words overflow-hidden [&_h2]:text-xl [&_h2]:font-extrabold [&_h2]:text-white [&_h2]:mt-3 [&_h2]:mb-1.5 [&_h3]:text-base [&_h3]:font-bold [&_h3]:text-white [&_h3]:mt-3 [&_h3]:mb-1 [&_h4]:text-sm [&_h4]:font-bold [&_h4]:text-white [&_p]:leading-relaxed [&_p]:mb-2 [&_a]:text-rose-400 [&_a]:underline [&_a:hover]:text-rose-300 [&_strong]:text-white [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-1 [&_li]:text-slate-300"
+                        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                       />
                     );
                   }
 
                   return (
                     <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line space-y-2 break-words overflow-hidden">
-                      {renderedText}
+                      {sanitizedHtml}
                     </div>
                   );
                 })()}
@@ -1198,10 +1237,18 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                   c.categorySlug === selectedTag.toLowerCase().replace(/\s+/g, "-")
               );
 
+              const isCallGirlsFaq =
+                normalizedTagSlug === "call-girls" ||
+                selectedTag.toLowerCase().includes("call girl");
+
               const currentCityLabel =
                 selectedCity !== "All Cities"
                   ? selectedCity
                   : currentCitySeo?.name || currentStateSeo?.name || "India";
+
+              const defaultCandidateFaqs = isCallGirlsFaq
+                ? getDefaultCallGirlsCityFaqs(currentCityLabel)
+                : getDefaultEscortsCityFaqs(currentCityLabel);
 
               const rawCandidateFaqs =
                 catOverride?.faqs && catOverride.faqs.length > 0
@@ -1214,24 +1261,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                   ? areaSeo.faqs
                   : currentStateSeo?.faqs && currentStateSeo.faqs.length > 0
                   ? currentStateSeo.faqs
-                  : [
-                      {
-                        question: `How to book verified escorts in ${currentCityLabel}?`,
-                        answer: `You can browse 100% verified escort profiles on our directory in ${currentCityLabel} and connect directly via WhatsApp or phone call without any advance booking charges.`,
-                      },
-                      {
-                        question: `Are incall and outcall services available in ${currentCityLabel}?`,
-                        answer: `Yes, independent companions and verified call girls provide both incall at luxury 5-star hotels/apartments and outcall doorstep visits across ${currentCityLabel}.`,
-                      },
-                      {
-                        question: `What are the payment options for escort service in ${currentCityLabel}?`,
-                        answer: `Payment can be made directly in cash or via secure UPI upon meeting in person. Always verify the profile selfie-verification badge before scheduling.`,
-                      },
-                      {
-                        question: `Is customer privacy protected in ${currentCityLabel}?`,
-                        answer: `Yes, 100% discreet and private companionship is assured. No client data is logged or shared with third parties.`,
-                      },
-                    ];
+                  : defaultCandidateFaqs;
 
               const activeFaqs = rawCandidateFaqs
                 .filter((f) => f && (f.question?.trim() || f.answer?.trim()))
@@ -1263,9 +1293,9 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                         <HelpCircle className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-extrabold text-white tracking-tight">
-                          Frequently Asked Questions - {locationLabel} Escorts
-                        </h3>
+                        <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+                          Frequently Asked Questions - {locationLabel} {isCallGirlsFaq ? "Call Girls" : "Escorts"}
+                        </h2>
                         <p className="text-[11px] text-slate-400">
                           Everything you need to know about booking verified companions in {locationLabel}
                         </p>
@@ -1292,7 +1322,9 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                           >
                             <span className="flex items-center gap-2">
                               <span className="text-amber-400 font-mono">Q{idx + 1}.</span>
-                              <span>{faq.question}</span>
+                              <h3 className="inline text-xs font-bold text-white hover:text-amber-300">
+                                {faq.question}
+                              </h3>
                             </span>
                             {isOpen ? (
                               <ChevronDown className="h-4 w-4 text-amber-400 shrink-0 rotate-180 transition-transform" />
@@ -1308,7 +1340,7 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                                   dangerouslySetInnerHTML={{ __html: faq.answer }}
                                 />
                               ) : (
-                                faq.answer
+                                <p className="leading-relaxed">{faq.answer}</p>
                               )}
                             </div>
                           )}
