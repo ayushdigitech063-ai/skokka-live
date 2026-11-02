@@ -66,8 +66,14 @@ export async function generateMetadata({ params }: AreaPageProps): Promise<Metad
         ? `Hire ${cityName} call girls with 24X7 escort services, attractive profiles & easy booking options. Connect with providers to discuss services & availability.`
         : `Browse verified companion profiles in ${cityName} with authentic photos and contact details.`;
 
-    const title = catOverride.metaTitle || defaultTitle;
-    const description = catOverride.metaDescription || defaultDesc;
+    const rawTitle = catOverride.metaTitle || defaultTitle;
+    let rawDesc = catOverride.metaDescription || defaultDesc;
+    if (normalizedKey === "call-girls" && rawDesc.startsWith("Explore ")) {
+      rawDesc = rawDesc.replace(/^Explore\s+/i, "Hire ");
+    }
+
+    const title = rawTitle;
+    const description = rawDesc;
 
     return {
       title,

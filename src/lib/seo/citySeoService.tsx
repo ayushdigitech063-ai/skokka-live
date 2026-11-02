@@ -59,13 +59,18 @@ export async function getCityPageMetadata(
 
   const stateName = typeof city?.stateId === "object" ? city?.stateId?.name : undefined;
 
+  let metaDesc = city?.metaDescription || undefined;
+  if (metaDesc && metaDesc.startsWith("Explore ")) {
+    metaDesc = metaDesc.replace(/^Explore\s+/i, "Book ");
+  }
+
   return buildCitySEO({
     cityName,
     stateName,
     dbOverride: city
       ? {
           metaTitle: city.metaTitle || undefined,
-          metaDescription: city.metaDescription || undefined,
+          metaDescription: metaDesc,
           customSlug: city.customSlug || city.slug || undefined,
           ogImage: city.ogImage || undefined,
           ogTitle: city.ogTitle || undefined,

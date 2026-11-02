@@ -320,9 +320,9 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
 
               {/* About & Description Box */}
               <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800/90 space-y-4 shadow-xl">
-                <h2 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3">
+                <div className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3">
                   <Sparkles className="h-5 w-5 text-rose-400" /> About {profileData.name}
-                </h2>
+                </div>
                 <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line font-medium">
                   {profileData.description || profileData.title}
                 </p>
