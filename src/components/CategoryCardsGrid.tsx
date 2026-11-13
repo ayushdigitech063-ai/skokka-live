@@ -149,9 +149,15 @@ export function CategoryCardsGrid({
                       <h3 className="text-xl font-black text-white leading-tight drop-shadow-md group-hover:text-rose-400 transition">
                         {cat.label}
                       </h3>
-                      <span className="text-xs font-black text-amber-400 block mt-0.5 drop-shadow">
-                        {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
-                      </span>
+                      {liveCount > 0 ? (
+                        <span className="text-xs font-black text-amber-400 block mt-0.5 drop-shadow">
+                          {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
+                        </span>
+                      ) : (
+                        <span className="text-xs font-black text-rose-300/90 block mt-0.5 drop-shadow">
+                          Verified Companions
+                        </span>
+                      )}
                     </div>
 
                     <span className="h-8 w-8 rounded-full bg-rose-600 group-hover:bg-rose-500 text-white flex items-center justify-center text-xs font-black shadow-lg group-hover:scale-110 transition shrink-0">

@@ -846,15 +846,35 @@ export default function EscortsClient({ defaultCity, defaultState, defaultArea, 
                               <Phone className="h-5 w-5 fill-rose-600" />
                             </a>
                           )}
-                          <a
-                            href={`https://wa.me/${(profile.whatsapp || profile.phone || "919876500000").replace(/[^0-9]/g, "")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-lg transition hover:scale-110"
-                            title="Chat on WhatsApp"
-                          >
-                            <MessageCircle className="h-5 w-5 fill-white" />
-                          </a>
+                          {(() => {
+                            const rawWp = (profile.whatsapp || profile.phone || "919876500000").replace(/[^0-9]/g, "");
+                            const cleanWp = rawWp.startsWith("91") ? rawWp : "91" + rawWp;
+                            const profileLink = typeof window !== "undefined" 
+                              ? `${window.location.origin}${getProfileUrl(profile)}`
+                              : `https://mycityqueen.com${getProfileUrl(profile)}`;
+                            const rateStr = profile.rate || (profile.price ? `₹${profile.price} / hr` : "");
+                            const prefillText = encodeURIComponent(
+                              `Hi ${profile.name},\n` +
+                              `I want to book your escort service on MyCityQueen.\n\n` +
+                              `📋 Escort Details:\n` +
+                              `• Name: ${profile.name}\n` +
+                              `• City: ${profile.city || profile.location || "India"}\n` +
+                              (rateStr ? `• Rate: ${rateStr}\n` : "") +
+                              `• Profile: ${profileLink}\n\n` +
+                              `Please let me know your availability.`
+                            );
+                            return (
+                              <a
+                                href={`https://wa.me/${cleanWp}?text=${prefillText}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="h-10 w-10 sm:h-11 sm:w-11 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-lg transition hover:scale-110"
+                                title="Chat on WhatsApp"
+                              >
+                                <MessageCircle className="h-5 w-5 fill-white" />
+                              </a>
+                            );
+                          })()}
                           <a
                             href={
                               profile.telegram

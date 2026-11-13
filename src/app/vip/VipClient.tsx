@@ -272,9 +272,23 @@ export default function VipClientPage() {
                     📞 View Details
                   </Link>
                   <a
-                    href={`https://wa.me/${
-                      vipProfile.whatsapp || "919876500000"
-                    }?text=${encodeURIComponent(`Hi ${vipProfile.name}, I found your VIP High-Class listing on MyCityQueen!`)}`}
+                    href={(() => {
+                      const cleanWp = (vipProfile.whatsapp || vipProfile.phone || "919876500000").replace(/[^0-9]/g, "");
+                      const wpNum = cleanWp.startsWith("91") ? cleanWp : "91" + cleanWp;
+                      const vipRateStr = vipProfile.rate || (vipProfile.price ? `₹${vipProfile.price} / hr` : "");
+                      const vipUrl = typeof window !== "undefined" ? `${window.location.origin}${getProfileUrl(vipProfile)}` : `https://mycityqueen.com${getProfileUrl(vipProfile)}`;
+                      const vipMsg = encodeURIComponent(
+                        `Hi ${vipProfile.name},\n` +
+                        `I want to book your VIP escort service on MyCityQueen.\n\n` +
+                        `📋 VIP Companion Details:\n` +
+                        `• Name: ${vipProfile.name}\n` +
+                        `• City: ${vipProfile.city || vipProfile.location || "India"}\n` +
+                        (vipRateStr ? `• Rate: ${vipRateStr}\n` : "") +
+                        `• Profile: ${vipUrl}\n\n` +
+                        `Please let me know your availability.`
+                      );
+                      return `https://wa.me/${wpNum}?text=${vipMsg}`;
+                    })()}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-pink-500 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1 text-center cursor-pointer"

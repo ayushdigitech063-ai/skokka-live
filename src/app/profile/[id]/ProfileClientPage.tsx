@@ -208,7 +208,19 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
       return;
     }
     const cleanWhatsApp = (profileData.whatsapp || profileData.phone || "919876543210").replace(/[^0-9]/g, "");
-    const encodedText = encodeURIComponent(`Hi ${profileData.name}, I am ${contactName || "a client"} (${contactPhone}). ${contactMessage}`);
+    const rateStr = profileData.rate || (profileData.price ? `₹${profileData.price} / hr` : "");
+    const encodedText = encodeURIComponent(
+      `Hi ${profileData.name},\n` +
+      `I want to book your escort service on MyCityQueen.\n\n` +
+      `📋 Escort Details:\n` +
+      `• Name: ${profileData.name}\n` +
+      `• City: ${profileData.city || profileData.location || "India"}\n` +
+      (rateStr ? `• Rate: ${rateStr}\n` : "") +
+      `• Client: ${contactName || "Client"} (${contactPhone})\n` +
+      (contactMessage ? `• Note: ${contactMessage}\n` : "") +
+      `• Profile: ${typeof window !== "undefined" ? window.location.href : "https://mycityqueen.com"}\n\n` +
+      `Please let me know your availability.`
+    );
     window.open(`https://wa.me/${cleanWhatsApp.startsWith("91") ? cleanWhatsApp : "91" + cleanWhatsApp}?text=${encodedText}`, "_blank");
   };
 
@@ -423,7 +435,16 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                     <Phone className="h-4 w-4 text-emerald-400" /> Call Direct
                   </a>
                   <a
-                    href={`https://wa.me/${cleanWhatsApp.startsWith("91") ? cleanWhatsApp : "91" + cleanWhatsApp}`}
+                    href={`https://wa.me/${cleanWhatsApp.startsWith("91") ? cleanWhatsApp : "91" + cleanWhatsApp}?text=${encodeURIComponent(
+                      `Hi ${profileData.name},\n` +
+                      `I want to book your escort service on MyCityQueen.\n\n` +
+                      `📋 Escort Details:\n` +
+                      `• Name: ${profileData.name}\n` +
+                      `• City: ${profileData.city || profileData.location || "India"}\n` +
+                      ((profileData.rate || profileData.price) ? `• Rate: ${profileData.rate || ('₹' + profileData.price + ' / hr')}\n` : "") +
+                      `• Profile: ${typeof window !== "undefined" ? window.location.href : "https://mycityqueen.com"}\n\n` +
+                      `Please let me know your availability.`
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="py-3 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition text-center"
@@ -521,7 +542,19 @@ export default function ProfileClientPage({ params }: { params: Promise<{ id: st
                 .slice(0, 4)
                 .map((simProfile) => {
                   const simPhoneClean = (simProfile.whatsapp || simProfile.phone || "").replace(/[^0-9]/g, "");
-                  const simWhatsappUrl = simPhoneClean ? `https://wa.me/${simPhoneClean.startsWith("91") ? simPhoneClean : "91" + simPhoneClean}` : "#";
+                  const simRateStr = simProfile.rate || (simProfile.price ? `₹${simProfile.price} / hr` : "");
+                  const simProfileUrl = typeof window !== "undefined" ? `${window.location.origin}${getProfileUrl(simProfile)}` : `https://mycityqueen.com${getProfileUrl(simProfile)}`;
+                  const simText = encodeURIComponent(
+                    `Hi ${simProfile.name},\n` +
+                    `I want to book your escort service on MyCityQueen.\n\n` +
+                    `📋 Escort Details:\n` +
+                    `• Name: ${simProfile.name}\n` +
+                    `• City: ${simProfile.city || simProfile.location || "India"}\n` +
+                    (simRateStr ? `• Rate: ${simRateStr}\n` : "") +
+                    `• Profile: ${simProfileUrl}\n\n` +
+                    `Please let me know your availability.`
+                  );
+                  const simWhatsappUrl = simPhoneClean ? `https://wa.me/${simPhoneClean.startsWith("91") ? simPhoneClean : "91" + simPhoneClean}?text=${simText}` : "#";
 
                   return (
                     <div

@@ -226,8 +226,23 @@ export default function HomeClient() {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            const phoneNum = (p as any).whatsapp || (p as any).phone || "919876500000"; 
-                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your profile on MyCityQueen India.`, '_blank');
+                            const phoneNum = ((p as any).whatsapp || (p as any).phone || "919876500000").replace(/[^0-9]/g, ""); 
+                            const cleanWp = phoneNum.startsWith("91") ? phoneNum : "91" + phoneNum;
+                            const profileUrl = typeof window !== "undefined" 
+                              ? `${window.location.origin}${getProfileUrl(p)}`
+                              : `https://mycityqueen.com${getProfileUrl(p)}`;
+                            const rateStr = (p as any).rate || ((p as any).price ? `₹${(p as any).price} / hr` : "");
+                            const text = encodeURIComponent(
+                              `Hi ${p.name},\n` +
+                              `I want to book your escort service on MyCityQueen.\n\n` +
+                              `📋 Escort Details:\n` +
+                              `• Name: ${p.name}\n` +
+                              `• City: ${p.city || (p as any).location || "India"}\n` +
+                              (rateStr ? `• Rate: ${rateStr}\n` : "") +
+                              `• Profile: ${profileUrl}\n\n` +
+                              `Please let me know your availability.`
+                            );
+                            window.open(`https://wa.me/${cleanWp}?text=${text}`, '_blank');
                           }}
                           className="w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-[12px] uppercase tracking-wider transition-all shadow-md shadow-emerald-900/30 flex items-center justify-center gap-1.5 text-center cursor-pointer"
                         >
@@ -332,8 +347,23 @@ export default function HomeClient() {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            const phoneNum = (p as any).whatsapp || (p as any).phone || "919876500000"; 
-                            window.open(`https://wa.me/${phoneNum}?text=Hi, I saw your VIP profile on MyCityQueen India.`, '_blank');
+                            const phoneNum = ((p as any).whatsapp || (p as any).phone || "919876500000").replace(/[^0-9]/g, ""); 
+                            const cleanWp = phoneNum.startsWith("91") ? phoneNum : "91" + phoneNum;
+                            const profileUrl = typeof window !== "undefined" 
+                              ? `${window.location.origin}${getProfileUrl(p)}`
+                              : `https://mycityqueen.com${getProfileUrl(p)}`;
+                            const rateStr = (p as any).rate || ((p as any).price ? `₹${(p as any).price} / hr` : "");
+                            const text = encodeURIComponent(
+                              `Hi ${p.name},\n` +
+                              `I want to book your escort service on MyCityQueen.\n\n` +
+                              `📋 Escort Details:\n` +
+                              `• Name: ${p.name}\n` +
+                              `• City: ${p.city || (p as any).location || "India"}\n` +
+                              (rateStr ? `• Rate: ${rateStr}\n` : "") +
+                              `• Profile: ${profileUrl}\n\n` +
+                              `Please let me know your availability.`
+                            );
+                            window.open(`https://wa.me/${cleanWp}?text=${text}`, '_blank');
                           }}
                           className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black text-[12px] uppercase tracking-wider transition-all shadow-md shadow-amber-900/30 flex items-center justify-center gap-1.5 text-center cursor-pointer"
                         >
@@ -399,9 +429,15 @@ export default function HomeClient() {
                               <h3 className="text-[22px] font-black text-white leading-tight drop-shadow-lg">
                                 {cat.label}
                               </h3>
-                              <span className="text-[13px] font-bold text-amber-400 mt-0.5 block drop-shadow">
-                                {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
-                              </span>
+                              {liveCount > 0 ? (
+                                <span className="text-[13px] font-bold text-amber-400 mt-0.5 block drop-shadow">
+                                  {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
+                                </span>
+                              ) : (
+                                <span className="text-[13px] font-bold text-rose-300/90 mt-0.5 block drop-shadow">
+                                  Verified Companions
+                                </span>
+                              )}
                             </div>
 
                             {/* Arrow button */}
@@ -500,9 +536,15 @@ export default function HomeClient() {
                           
                           {/* Hidden content that slides up on hover */}
                           <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-3 transition-all duration-500 ease-in-out">
-                            <span className="text-[13px] font-bold text-amber-400 block drop-shadow-md mb-2">
-                              {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
-                            </span>
+                            {liveCount > 0 ? (
+                              <span className="text-[13px] font-bold text-amber-400 block drop-shadow-md mb-2">
+                                {liveCount} Live Listing{liveCount !== 1 ? "s" : ""}
+                              </span>
+                            ) : (
+                              <span className="text-[13px] font-bold text-rose-300/90 block drop-shadow-md mb-2">
+                                Verified Directory
+                              </span>
+                            )}
                             
                             <p className="text-[12px] text-slate-300 leading-relaxed drop-shadow-md mb-4">
                               Verified independent escorts &amp; high class companions in {pureCityName}.
